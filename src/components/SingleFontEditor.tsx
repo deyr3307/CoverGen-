@@ -43,6 +43,20 @@ function getSubheadingColors(id: string | undefined, isDark: boolean): Subheadin
   if (!id) return defaultColors;
   
   switch (id) {
+    case 'university':
+      return {
+        text: isDark ? 'text-green-400 font-extrabold' : 'text-green-600 font-extrabold',
+        bg: isDark ? 'bg-green-400' : 'bg-green-500',
+        shadow: 'shadow-[0_0_8px_rgba(34,197,94,0.6)]',
+        rawColor: '#22c55e'
+      };
+    case 'discipline':
+      return {
+        text: isDark ? 'text-[#fa8072] font-extrabold' : 'text-[#d95d39] font-extrabold',
+        bg: isDark ? 'bg-[#fa8072]' : 'bg-[#d95d39]',
+        shadow: 'shadow-[0_0_8px_rgba(250,128,114,0.6)]',
+        rawColor: '#d95d39'
+      };
     case 'assignmentTopic':
       return {
         text: isDark ? 'text-blue-400 font-extrabold' : 'text-blue-600 font-extrabold',

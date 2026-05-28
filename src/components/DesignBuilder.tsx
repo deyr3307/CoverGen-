@@ -1050,44 +1050,69 @@ export function DesignBuilder({
       }
 
       try {
-        const apiKey = (import.meta as any).env?.VITE_REMOVE_BG_API_KEY;
-        if (!apiKey) {
-          throw new Error("Remove.bg API key is missing. Please define VITE_REMOVE_BG_API_KEY in your environment.");
-        }
+        // --- 1. PRIMARY Custom API Attempt ---
+        console.log("Attempting background removal via custom Hugging Face space API...");
+        try {
+          const primaryFormData = new FormData();
+          primaryFormData.append('image_file', file);
 
-        const formData = new FormData();
-        formData.append('image_file', file, 'watermark.png');
-        formData.append('size', 'auto');
+          const primaryResponse = await fetch('https://rahul2408-covergen-api.hf.space/', {
+            method: 'POST',
+            body: primaryFormData,
+          });
 
-        const response = await fetch('https://api.remove.bg/v1.0/removebg', {
-          method: 'POST',
-          headers: {
-            'X-Api-Key': apiKey,
-          },
-          body: formData,
-        });
-
-        if (!response.ok) {
-          let errorDetails = '';
-          try {
-            const errJson = await response.json();
-            if (errJson && errJson.errors && errJson.errors[0]) {
-              errorDetails = `: ${errJson.errors[0].title}`;
-            }
-          } catch {
-            errorDetails = ` (HTTP ${response.status})`;
+          if (!primaryResponse.ok) {
+            throw new Error(`Custom background removal API returned status ${primaryResponse.status}`);
           }
-          throw new Error(`Failed to remove background${errorDetails}`);
-        }
 
-        const blob = await response.blob();
-        const objectUrl = URL.createObjectURL(blob);
-        setCoverDesign(prev => ({ ...prev, watermarkUrl: objectUrl }));
-        setIsRemovingBg(false);
+          const blob = await primaryResponse.blob();
+          const objectUrl = URL.createObjectURL(blob);
+          setCoverDesign(prev => ({ ...prev, watermarkUrl: objectUrl }));
+          setIsRemovingBg(false);
+          return; // Success, we are done!
+        } catch (customApiErr: any) {
+          console.warn("Primary custom API failed, falling back to Remove.bg...", customApiErr);
+          
+          // --- 2. BACKUP Remove.bg API Attempt ---
+          const apiKey = (import.meta as any).env?.VITE_REMOVE_BG_API_KEY;
+          if (!apiKey) {
+            throw new Error(`Primary API failed: ${customApiErr.message || customApiErr}. Also backup Remove.bg API key is missing.`);
+          }
+
+          const backupFormData = new FormData();
+          backupFormData.append('image_file', file, 'watermark.png');
+          backupFormData.append('size', 'auto');
+
+          const response = await fetch('https://api.remove.bg/v1.0/removebg', {
+            method: 'POST',
+            headers: {
+              'X-Api-Key': apiKey,
+            },
+            body: backupFormData,
+          });
+
+          if (!response.ok) {
+            let errorDetails = '';
+            try {
+              const errJson = await response.json();
+              if (errJson && errJson.errors && errJson.errors[0]) {
+                errorDetails = `: ${errJson.errors[0].title}`;
+              }
+            } catch {
+              errorDetails = ` (HTTP ${response.status})`;
+            }
+            throw new Error(`Backup Remove.bg API failed${errorDetails}`);
+          }
+
+          const blob = await response.blob();
+          const objectUrl = URL.createObjectURL(blob);
+          setCoverDesign(prev => ({ ...prev, watermarkUrl: objectUrl }));
+          setIsRemovingBg(false);
+        }
       } catch (err: any) {
-        console.error("Remove.bg API background removal failed:", err);
-        setBgRemovalError(err?.message || "Remove.bg API failed");
-        alert(`Background removal failed: ${err?.message || err}. Saving watermark with its original background instead.`);
+        console.error("All background removal APIs failed:", err);
+        setBgRemovalError(err?.message || "Background removal APIs failed");
+        alert(`Background removal APIs failed: ${err?.message || err}. Saving watermark with its original background instead.`);
         
         // Fallback to original image
         const reader = new FileReader();
@@ -2016,7 +2041,7 @@ export function DesignBuilder({
                             isDark ? 'border-[#1a284c]/50 bg-[#0e1628]/30' : 'border-slate-200 bg-slate-50/50'
                           }`}>
                             <div className="flex items-center space-x-1.5 pl-0.5">
-                              <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-[#6366f1]">
+                              <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-green-600 dark:text-green-400">
                                 Select or Customize Varsity Name
                               </span>
                             </div>
