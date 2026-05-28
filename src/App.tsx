@@ -1,0 +1,1241 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { 
+  CoverPageData, 
+  CoverPageDesign, 
+  DEFAULT_COVER_DATA, 
+  DEFAULT_DESIGN 
+} from './types';
+import { LandingPage } from './components/LandingPage';
+import { AnimatedLogo } from './components/AnimatedLogo';
+import { InformationForm } from './components/InformationForm';
+import { DesignBuilder } from './components/DesignBuilder';
+import { CoverDocument } from './components/CoverDocument';
+import { DataInputPage } from './components/DataInputPage';
+import { 
+  GraduationCap, 
+  RotateCcw, 
+  Download, 
+  ZoomIn, 
+  ZoomOut, 
+  Maximize, 
+  ChevronRight, 
+  Activity, 
+  Undo2,
+  Sliders,
+  Sparkles,
+  Info,
+  Sun,
+  Moon,
+  FileText,
+  Image,
+  FileImage
+} from 'lucide-react';
+import html2canvas from 'html2canvas';
+import jspdf from 'jspdf';
+import { motion } from 'motion/react';
+import { ensureSupportedFormat } from './utils';
+
+export default function App() {
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    const saved = localStorage.getItem('theme');
+    return (saved === 'light' || saved === 'dark') ? saved : 'dark';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+    if (theme === 'dark') {
+      document.body.classList.add('dark');
+      document.documentElement.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+
+  // Wizard view toggle: 'landing' | 'inputs' | 'builder'
+  const [currentStep, setCurrentStep] = useState<'landing' | 'inputs' | 'builder'>('landing');
+  
+  // Custom builder tabs: 'inputs' | 'designer' | 'preview'
+  const [builderTab, setBuilderTab] = useState<'inputs' | 'designer' | 'preview'>('inputs');
+
+  // Shared persistent state (cached in localStorage)
+  const [coverData, setCoverData] = useState<CoverPageData>(() => {
+    const saved = localStorage.getItem('cover_page_data');
+    return saved ? JSON.parse(saved) : { ...DEFAULT_COVER_DATA };
+  });
+
+  const [coverDesign, setCoverDesign] = useState<CoverPageDesign>(() => {
+    const saved = localStorage.getItem('cover_page_design');
+    return saved ? JSON.parse(saved) : { ...DEFAULT_DESIGN };
+  });
+
+  // State Management for background color
+  const [pageBackgroundColor, setPageBackgroundColor] = useState<string>(() => {
+    return coverDesign.paperColor || '#ffffff';
+  });
+
+  // Keep pageBackgroundColor in sync with coverDesign
+  useEffect(() => {
+    if (coverDesign.paperColor && coverDesign.paperColor !== pageBackgroundColor) {
+      setPageBackgroundColor(coverDesign.paperColor);
+    }
+  }, [coverDesign.paperColor]);
+
+  const updatePageBackgroundColor = (color: string) => {
+    setPageBackgroundColor(color);
+    setCoverDesign(prev => ({
+      ...prev,
+      paperColor: color
+    }));
+  };
+
+  // Presentation State
+  const [zoomLevel, setZoomLevel] = useState<number>(60); // standard nice scale on typical desktop screens
+  const [isExporting, setIsExporting] = useState<string | null>(null);
+  const [isDownloadOpen, setIsDownloadOpen] = useState<boolean>(false);
+
+  // Sync to local storage
+  useEffect(() => {
+    localStorage.setItem('cover_page_data', JSON.stringify(coverData));
+  }, [coverData]);
+
+  useEffect(() => {
+    localStorage.setItem('cover_page_design', JSON.stringify(coverDesign));
+  }, [coverDesign]);
+
+  // Automatic Migration: Apply stunning light salmon theme if not yet set
+  useEffect(() => {
+    const key = 'cover_page_salmon_theme_applied_v3';
+    const applied = localStorage.getItem(key);
+    if (!applied) {
+      setCoverDesign(prev => {
+        const updated = {
+          ...prev,
+          paperColor: '#fff0eb',      // Warm Light Salmon paper bg
+          accentColor: '#d95d39',     // Salmon/Cinnabar primary accent
+          borderColor: '#ffa07a',     // Light Salmon border limit
+          borderStyle: prev.borderStyle === 'none' ? 'double' : prev.borderStyle,
+          // Colorize text nodes to harmoniously match the new Light Salmon theme
+          fontTitle: { ...prev.fontTitle, color: '#d95d39' },
+          fontCourse: { ...prev.fontCourse, color: '#2a0c02' },
+          fontSubSection: { ...prev.fontSubSection, color: '#d95d39' },
+          fontUniversity: { ...prev.fontUniversity, color: '#c2410c' },
+          fontDiscipline: { ...prev.fontDiscipline, color: '#ff7f50' }, // Coral color
+          fontAssignmentTopic: { ...prev.fontAssignmentTopic, color: '#d95d39' },
+          fontTopicTitle: { ...prev.fontTopicTitle, color: '#2a0c02' },
+          fontCourseNoHeading: { ...prev.fontCourseNoHeading, color: '#2a0c02' },
+          fontCourseNoContent: { ...prev.fontCourseNoContent, color: '#2a0c02' },
+          fontCourseTitleHeading: { ...prev.fontCourseTitleHeading, color: '#2a0c02' },
+          fontCourseTitleContent: { ...prev.fontCourseTitleContent, color: '#2a0c02' },
+          fontSubmittedToHeading: { ...prev.fontSubmittedToHeading, color: '#c2410c' },
+          fontSubmittedToContent: { ...prev.fontSubmittedToContent, color: '#2a0c02' },
+          fontSubmittedByHeading: { ...prev.fontSubmittedByHeading, color: '#c2410c' },
+          fontSubmittedByContent: { ...prev.fontSubmittedByContent, color: '#2a0c02' },
+          fontSubmissionDateHeading: { ...prev.fontSubmissionDateHeading, color: '#2a0c02' },
+          fontSubmissionDateContent: { ...prev.fontSubmissionDateContent, color: '#2a0c02' },
+        };
+        localStorage.setItem('cover_page_design', JSON.stringify(updated));
+        return updated;
+      });
+      localStorage.setItem(key, 'true');
+    }
+  }, []);
+
+  // Handle resets
+  const handleReset = () => {
+    if (confirm('Are you sure you want to restore academic default text values and styles?')) {
+      setCoverData({ ...DEFAULT_COVER_DATA });
+      setCoverDesign({ ...DEFAULT_DESIGN });
+      localStorage.removeItem('cover_page_data');
+      localStorage.removeItem('cover_page_design');
+    }
+  };
+
+  // Preset quick appliers
+  const applyPresetDataset = (type: 'physics' | 'env' | 'cse') => {
+    switch (type) {
+      case 'physics':
+        setCoverData({
+          documentType: 'LAB REPORT ON',
+          topicTitle: 'DETERMINATION OF REFRACTIVE INDEX OF LIQUID USING SPECTROMETER',
+          courseNo: 'ES-1271',
+          courseName: 'Physics in Environmental Science',
+          teacherName: 'Dr. Md. Abdullah Yusuf Al Harun',
+          teacherDesignation: 'Professor',
+          teacherDiscipline: 'Environmental Science Discipline',
+          teacherUniversity: 'Khulna University',
+          teacherLocation: 'Khulna, Bangladesh',
+          teacher2Name: 'Sadia Islam Mou',
+          teacher2Designation: 'Assistant Professor',
+          teacher2Discipline: 'Environmental Science Discipline',
+          teacher2University: 'Khulna University',
+          teacher2Location: 'Khulna',
+          submittedByLabel: 'Submitted By',
+          studentName: 'Anirudha Dey',
+          studentId: '251009',
+          studentYearTerm: '1st Year, 2nd Term',
+          studentDiscipline: 'Environmental Science Discipline',
+          studentUniversity: 'Khulna University',
+          studentLocation: 'Khulna',
+          submissionDate: '2026-05-10',
+        });
+        setCoverDesign(prev => ({
+          ...prev,
+          logoUrl: prev.logoUrl || '',
+          borderStyle: 'double',
+          accentColor: '#0284c7',
+          borderColor: '#0284c7',
+        }));
+        break;
+      case 'env':
+        setCoverData({
+          documentType: 'AN ASSIGNMENT ON',
+          topicTitle: 'IMPACT OF CLIMATE CHANGE ON SALINITY INTRUSION IN SUNDARBANS MANGROVE FOREST',
+          courseNo: 'ES-3204',
+          courseName: 'Biodiversity Policy and Conservation Science',
+          teacherName: 'Dr. S. M. Tariqul Islam',
+          teacherDesignation: 'Professor',
+          teacherDiscipline: 'Environmental Science Discipline',
+          teacherUniversity: 'Khulna University',
+          teacherLocation: 'Khulna-9208',
+          submittedByLabel: 'Submitted By',
+          studentName: 'Anirudha Dey',
+          studentId: '251009',
+          studentYearTerm: '1st Year, 2nd Term',
+          studentDiscipline: 'Environmental Science Discipline',
+          studentUniversity: 'Khulna University',
+          studentLocation: 'Khulna',
+          submissionDate: '2026-05-25',
+        });
+        setCoverDesign(prev => ({
+          ...prev,
+          logoUrl: prev.logoUrl || '',
+          borderStyle: 'double',
+          accentColor: '#0284c7',
+          borderColor: '#0284c7',
+        }));
+        break;
+      case 'cse':
+        setCoverData({
+          documentType: 'TERM PAPER ON',
+          topicTitle: 'AUTOMATED SOIL MOISTURE PREDICTION USING SUPERVISED NEURAL NETWORKS',
+          courseNo: 'CSE-4209',
+          courseName: 'Artificial Intelligence and Pattern Recognition',
+          teacherName: 'Dr. Shamima Akhter',
+          teacherDesignation: 'Senior Lecturer',
+          teacherDiscipline: 'Computer Science and Engineering',
+          teacherUniversity: 'Khulna Science University',
+          teacherLocation: 'Khulna',
+          submittedByLabel: 'Submitted By',
+          studentName: 'Anirudha Dey',
+          studentId: '251009',
+          studentYearTerm: '2nd Year, 1st Term',
+          studentDiscipline: 'Environmental Science Discipline',
+          studentUniversity: 'Khulna University',
+          studentLocation: 'Khulna',
+          submissionDate: '2026-06-15',
+        });
+        setCoverDesign(prev => ({
+          ...prev,
+          logoUrl: prev.logoUrl || '',
+          borderStyle: 'classic',
+          accentColor: '#b45309',
+          borderColor: '#475569',
+        }));
+        break;
+    }
+  };
+
+  // Upload handles
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: 'logo' | 'watermark') => {
+    const rawFile = e.target.files?.[0];
+    if (!rawFile) return;
+
+    try {
+      const file = await ensureSupportedFormat(rawFile);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        if (target === 'logo') {
+          setCoverDesign(prev => ({ ...prev, logoUrl: result }));
+        } else {
+          setCoverDesign(prev => ({ ...prev, watermarkUrl: result }));
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error("Failed to process uploaded file with format validation:", err);
+      // Fallback
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        if (target === 'logo') {
+          setCoverDesign(prev => ({ ...prev, logoUrl: result }));
+        } else {
+          setCoverDesign(prev => ({ ...prev, watermarkUrl: result }));
+        }
+      };
+      reader.readAsDataURL(rawFile);
+    }
+  };
+
+  // High Fidelity rendering formats routine (PDF, PNG, JPG) with Quality Levels
+  const oklchToRgb = (l: number, c: number, h: number): string => {
+    const lRadian = (h * Math.PI) / 180;
+    const a = c * Math.cos(lRadian);
+    const b = c * Math.sin(lRadian);
+    
+    const l_ = l + 0.3963377774 * a + 0.2158037573 * b;
+    const m_ = l - 0.1055613458 * a - 0.0638541728 * b;
+    const s_ = l - 0.0894841775 * a - 1.2914855480 * b;
+    
+    const l3 = l_ * l_ * l_;
+    const m3 = m_ * m_ * m_;
+    const s3 = s_ * s_ * s_;
+    
+    const r = +4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3;
+    const g = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3;
+    const b_ = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.7076147010 * s3;
+    
+    const f = (x: number) => (x <= 0.0031308 ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055);
+    const clamp = (x: number) => Math.max(0, Math.min(255, Math.round(x * 255)));
+    
+    return `rgb(${clamp(f(r))}, ${clamp(f(g))}, ${clamp(f(b_))})`;
+  };
+
+  const oklabToRgb = (l: number, a: number, b: number): string => {
+    const l_ = l + 0.3963377774 * a + 0.2158037573 * b;
+    const m_ = l - 0.1055613458 * a - 0.0638541728 * b;
+    const s_ = l - 0.0894841775 * a - 1.2914855480 * b;
+    
+    const l3 = l_ * l_ * l_;
+    const m3 = m_ * m_ * m_;
+    const s3 = s_ * s_ * s_;
+    
+    const r = +4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3;
+    const g = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3;
+    const b_ = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.7076147010 * s3;
+    
+    const f = (x: number) => (x <= 0.0031308 ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055);
+    const clamp = (x: number) => Math.max(0, Math.min(255, Math.round(x * 255)));
+    
+    return `rgb(${clamp(f(r))}, ${clamp(f(g))}, ${clamp(f(b_))})`;
+  };
+
+  const convertColorString = (val: any): any => {
+    if (typeof val !== 'string') return val;
+    if (!val.includes('oklch') && !val.includes('oklab')) return val;
+
+    return val.replace(/(oklch|oklab)\(([^)]+)\)/gi, (match, type, content) => {
+      const parts = content.trim().split(/[\s,]+/);
+      const nums = parts.filter((p: string) => p && p !== '/').map((p: string) => parseFloat(p));
+      
+      if (nums.length >= 3 && nums.every((n: number) => !isNaN(n))) {
+        let rgbStr = '';
+        if (type.toLowerCase() === 'oklch') {
+          rgbStr = oklchToRgb(nums[0], nums[1], nums[2]);
+        } else {
+          rgbStr = oklabToRgb(nums[0], nums[1], nums[2]);
+        }
+        
+        const hasAlpha = content.includes('/') || nums.length >= 4;
+        const alphaVal = nums[3] !== undefined ? nums[3] : 1;
+        if (hasAlpha) {
+          return rgbStr.replace('rgb', 'rgba').replace(')', `, ${alphaVal})`);
+        }
+        return rgbStr;
+      }
+      return 'rgb(120, 120, 120)';
+    });
+  };
+
+  const executeExport = async (format: 'pdf' | 'png' | 'jpg', quality: 'low' | 'medium' | 'high' = 'high') => {
+    const element = document.getElementById('academic-cover-page');
+    if (!element) {
+      alert("Error: Canvas structure is missing.");
+      return;
+    }
+
+    setIsExporting(`Generating ${quality.toUpperCase()} Quality ${format.toUpperCase()}...`);
+    
+    // Smooth timing delay for clean renders
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    // Stabilize DOM transforms on parent to prevent html2canvas clipping/misalignment
+    const parent = element.parentElement;
+    const grandParent = parent ? parent.parentElement : null;
+    
+    const originalTransform = parent ? parent.style.transform : '';
+    const originalPosition = parent ? parent.style.position : '';
+    const originalTop = parent ? parent.style.top : '';
+    const originalLeft = parent ? parent.style.left : '';
+    
+    const originalGPWidth = grandParent ? grandParent.style.width : '';
+    const originalGPHeight = grandParent ? grandParent.style.height : '';
+
+    if (parent) {
+      parent.style.transform = 'none';
+      parent.style.position = 'relative';
+      parent.style.top = '0';
+      parent.style.left = '0';
+    }
+    if (grandParent) {
+      grandParent.style.width = '794px';
+      grandParent.style.height = '1123px';
+    }
+
+    // Modern Tailwind v4 oklch & oklab parser bug hotpatch with robust parenthesis matching
+    const stripUnsupportedColors = (cssText: string): string => {
+      if (!cssText) return '';
+      return convertColorString(cssText);
+    };
+
+    const patchStylesheets = async () => {
+      const detachedElements: { element: HTMLElement; parent: Node; nextSibling: Node | null }[] = [];
+      const allStyles = Array.from(document.querySelectorAll('style'));
+      const allLinks = Array.from(document.querySelectorAll('link[rel="stylesheet"]')) as HTMLLinkElement[];
+      
+      let unifiedCssText = '';
+
+      const detach = (el: HTMLElement) => {
+        const parent = el.parentNode;
+        if (parent) {
+          detachedElements.push({
+            element: el,
+            parent: parent,
+            nextSibling: el.nextSibling
+          });
+          parent.removeChild(el);
+        }
+      };
+
+      // Process style elements
+      for (const style of allStyles) {
+        if (style.hasAttribute('data-temp-patched')) continue;
+        let rawCss = style.innerHTML || '';
+        if (!rawCss) {
+          try {
+            rawCss = Array.from(style.sheet?.cssRules || [])
+              .map(rule => rule.cssText)
+              .join('\n');
+          } catch (e) {
+            console.warn("Could not read stylesheet rules:", e);
+          }
+        }
+        unifiedCssText += '\n' + rawCss;
+        detach(style);
+      }
+
+      // Process link elements
+      for (const link of allLinks) {
+        try {
+          if (!link.href) continue;
+          if (link.href.includes('fonts.googleapis.com') || link.href.includes('font-awesome')) {
+            continue;
+          }
+          // Verify if it is a potentially blockable cross-origin stylesheet
+          let isCrossOrigin = false;
+          if (link.href.startsWith('http://') || link.href.startsWith('https://') || link.href.startsWith('//')) {
+            try {
+              const url = new URL(link.href, window.location.origin);
+              if (url.origin !== window.location.origin) {
+                isCrossOrigin = true;
+              }
+            } catch (e) {
+              isCrossOrigin = true;
+            }
+          }
+          if (isCrossOrigin) {
+            console.warn("Skipping cross-origin stylesheet unified patching to avoid CORS block:", link.href);
+            detach(link);
+            continue;
+          }
+
+          const res = await fetch(link.href);
+          if (res.ok) {
+            const cssText = await res.text();
+            unifiedCssText += '\n' + cssText;
+            detach(link);
+          } else {
+            detach(link);
+          }
+        } catch (e) {
+          console.warn("Failed to fetch link stylesheet for unified patch:", link.href, e);
+          detach(link);
+        }
+      }
+
+      // Any remaining active styles or links, detach them to be completely safe during html2canvas
+      const remainingStyles = Array.from(document.querySelectorAll('style'));
+      for (const style of remainingStyles) {
+        if (!style.hasAttribute('data-temp-patched')) {
+          detach(style);
+        }
+      }
+
+      const remainingLinks = Array.from(document.querySelectorAll('link[rel="stylesheet"]')) as HTMLLinkElement[];
+      for (const link of remainingLinks) {
+        if (!link.href.includes('fonts.googleapis.com')) {
+          detach(link);
+        }
+      }
+
+      // Create single unified patched style tag
+      const patchedStyle = document.createElement('style');
+      patchedStyle.setAttribute('data-temp-patched', 'true');
+      patchedStyle.innerHTML = stripUnsupportedColors(unifiedCssText);
+      document.head.appendChild(patchedStyle);
+
+      return {
+        restore: () => {
+          // Remove temporary style
+          patchedStyle.remove();
+          
+          // Restore original elements in reverse order to ensure correct sibling positioning
+          for (let i = detachedElements.length - 1; i >= 0; i--) {
+            const { element, parent, nextSibling } = detachedElements[i];
+            parent.insertBefore(element, nextSibling);
+          }
+        }
+      };
+    };
+
+    let stylePatcher: { restore: () => void } | null = null;
+    const elementsWithStyle = Array.from(document.querySelectorAll('[style]'));
+    if (document.documentElement.getAttribute('style')) elementsWithStyle.push(document.documentElement);
+    if (document.body.getAttribute('style')) elementsWithStyle.push(document.body);
+    const originalInlineStyles = new Map<HTMLElement, string>();
+
+    // Patch global getComputedStyle during html2canvas execution to parse oklch and oklab colors natively
+    const originalGetComputedStyle = window.getComputedStyle;
+    try {
+      window.getComputedStyle = function (el: Element, pseudoElt?: string) {
+        const style = originalGetComputedStyle(el, pseudoElt);
+        return new Proxy(style, {
+          get(target, prop) {
+            if (prop === 'getPropertyValue') {
+              return function (propertyName: string) {
+                const raw = target.getPropertyValue(propertyName);
+                return convertColorString(raw);
+              };
+            }
+            const val = target[prop as any];
+            if (typeof val === 'function') {
+              return (val as any).bind(target);
+            }
+            return convertColorString(val);
+          }
+        }) as any;
+      };
+    } catch (e) {
+      try {
+        Object.defineProperty(window, 'getComputedStyle', {
+          value: function (el: Element, pseudoElt?: string) {
+            const style = originalGetComputedStyle(el, pseudoElt);
+            return new Proxy(style, {
+              get(target, prop) {
+                if (prop === 'getPropertyValue') {
+                  return function (propertyName: string) {
+                    const raw = target.getPropertyValue(propertyName);
+                    return convertColorString(raw);
+                  };
+                }
+                const val = target[prop as any];
+                if (typeof val === 'function') {
+                  return (val as any).bind(target);
+                }
+                return convertColorString(val);
+              }
+            }) as any;
+          },
+          configurable: true,
+          writable: true
+        });
+      } catch (errDeep) {
+        console.warn("Could not patch window.getComputedStyle via property define:", errDeep);
+      }
+    }
+
+    try {
+      // Patch inline style attributes
+      elementsWithStyle.forEach((el) => {
+        const htmlEl = el as HTMLElement;
+        const inlineStyle = htmlEl.getAttribute('style');
+        if (inlineStyle && (
+          inlineStyle.toLowerCase().includes('oklch') || 
+          inlineStyle.toLowerCase().includes('oklab')
+        )) {
+          originalInlineStyles.set(htmlEl, inlineStyle);
+          htmlEl.setAttribute('style', stripUnsupportedColors(inlineStyle));
+        }
+      });
+
+      // Apply stylesheet patch to bypass oklch/oklab parsing failure
+      stylePatcher = await patchStylesheets();
+
+      // Configure scale according to quality tier (Low: 1.2x, Med: 2.2x, High: 3.5x)
+      let scaleValue = 3.5;
+      if (quality === 'low') {
+        scaleValue = 1.2;
+      } else if (quality === 'medium') {
+        scaleValue = 2.2;
+      }
+
+      const canvas = await html2canvas(element, {
+        scale: scaleValue,
+        width: 794,
+        height: 1123,
+        useCORS: true,
+        allowTaint: true,
+        logging: true,
+        backgroundColor: pageBackgroundColor || coverDesign.paperColor || '#ffffff',
+      });
+
+      const cleanFileName = `${coverData?.courseNo || 'cover'}_${(coverData?.documentType || '').toLowerCase().replace(/[^a-z0-9]+/g, '_')}`
+        .substring(0, 45);
+
+      let imgData;
+      try {
+        if (format === 'pdf') {
+          const jpegQual = quality === 'low' ? 0.6 : quality === 'medium' ? 0.85 : 0.98;
+          imgData = canvas.toDataURL('image/jpeg', jpegQual);
+        } else if (format === 'png') {
+          imgData = canvas.toDataURL('image/png');
+        } else {
+          const jpegQual = quality === 'low' ? 0.55 : quality === 'medium' ? 0.82 : 0.98;
+          imgData = canvas.toDataURL('image/jpeg', jpegQual);
+        }
+      } catch (taintErr) {
+        console.warn("Canvas may be tainted by cross-origin images (e.g. custom logo/watermark). Re-rendering html2canvas safely to guarantee download completes...", taintErr);
+        // Fallback: Re-render without tainted useCORS/taint requirements
+        const fallbackCanvas = await html2canvas(element, {
+          scale: scaleValue,
+          width: 794,
+          height: 1123,
+          useCORS: false,
+          allowTaint: false,
+          logging: false,
+          backgroundColor: pageBackgroundColor || coverDesign.paperColor || '#ffffff',
+        });
+        if (format === 'pdf') {
+          imgData = fallbackCanvas.toDataURL('image/jpeg', 0.82);
+        } else if (format === 'png') {
+          imgData = fallbackCanvas.toDataURL('image/png');
+        } else {
+          imgData = fallbackCanvas.toDataURL('image/jpeg', 0.82);
+        }
+      }
+
+      if (format === 'pdf') {
+        const docWidth = 210; // A4 standard width (mm)
+        const docHeight = 297; // A4 standard height (mm)
+        
+        const jsPDFCtor = (jspdf as any).jsPDF || (jspdf as any).default || jspdf;
+        const doc = new jsPDFCtor({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4',
+          compress: true
+        });
+
+        // Set PDF metadata properties
+        doc.setProperties({
+          title: coverData.topicTitle || 'Academic Cover Page',
+          subject: coverData.courseName ? `${coverData.courseName} (${coverData.courseNo || ''})` : coverData.documentType || 'Cover Page',
+          author: coverData.studentName || 'Student',
+          creator: coverData.studentUniversity || 'Academic Cover Page Designer',
+          keywords: `academic, coverpage, ${coverData.documentType.toLowerCase()}, ${coverData.courseNo?.toLowerCase()}`
+        });
+
+        doc.addImage(imgData, 'JPEG', 0, 0, docWidth, docHeight, undefined, 'FAST');
+        doc.save(`${cleanFileName}_cover.pdf`);
+      } else if (format === 'png') {
+        const trigger = document.createElement('a');
+        trigger.href = imgData;
+        trigger.download = `${cleanFileName}_${quality}_cover.png`;
+        trigger.click();
+      } else if (format === 'jpg') {
+        const trigger = document.createElement('a');
+        trigger.href = imgData;
+        trigger.download = `${cleanFileName}_${quality}_cover.jpg`;
+        trigger.click();
+      }
+    } catch (err: any) {
+      console.error("Compilation / rendering layout failed: ", err);
+      alert(`An unexpected layout complication occurred during printing compilation:\n${err?.message || err}`);
+    } finally {
+      // Restore getComputedStyle
+      try {
+        window.getComputedStyle = originalGetComputedStyle;
+      } catch (errRestore) {
+        try {
+          Object.defineProperty(window, 'getComputedStyle', {
+            value: originalGetComputedStyle,
+            configurable: true,
+            writable: true
+          });
+        } catch (eR) {
+          console.warn("Could not restore window.getComputedStyle:", eR);
+        }
+      }
+
+      // Instantly restore style systems and stylesheets
+      if (stylePatcher) {
+        stylePatcher.restore();
+      }
+
+      // Restore inline styles
+      originalInlineStyles.forEach((styleStr, el) => {
+        el.setAttribute('style', styleStr);
+      });
+
+      // Restore positions immediately to preserve live interactive app preview seamlessly
+      if (parent) {
+        parent.style.transform = originalTransform;
+        parent.style.position = originalPosition;
+        parent.style.top = originalTop;
+        parent.style.left = originalLeft;
+      }
+      if (grandParent) {
+        grandParent.style.width = originalGPWidth;
+        grandParent.style.height = originalGPHeight;
+      }
+      setIsExporting(null);
+    }
+  };
+
+  // Explicit, fail-proof Button Handlers as strictly requested by user
+  const handleDownloadPDF = async (quality: 'low' | 'medium' | 'high' = 'high') => {
+    await executeExport('pdf', quality);
+  };
+
+  const handleDownloadJPG = async (quality: 'low' | 'medium' | 'high' = 'high') => {
+    await executeExport('jpg', quality);
+  };
+
+  const handleDownloadPNG = async (quality: 'low' | 'medium' | 'high' = 'high') => {
+    await executeExport('png', quality);
+  };
+
+
+  return (
+    <div className={`min-h-screen flex flex-col font-sans selection:bg-indigo-600 selection:text-white antialiased transition-colors duration-300 ${
+      theme === 'dark' ? 'bg-[#06070a] text-slate-100' : 'bg-[#fafafc] text-slate-800'
+    }`}>
+      
+      {/* LANDING PAGE WRAPPER */}
+      {currentStep === 'landing' ? (
+        <LandingPage 
+          onGetStarted={() => {
+            setCurrentStep('inputs');
+          }}
+          onExploreFeatures={() => {
+            const el = document.getElementById('explore-features'); 
+            el?.scrollIntoView({ behavior: 'smooth' }); 
+          }}
+          theme={theme}
+          setTheme={setTheme}
+        />
+      ) : currentStep === 'inputs' ? (
+        
+        // FULL-SCREEN FORM INPUTS STATE
+        <div className="studio-workspace-container flex flex-col h-screen overflow-hidden">
+          
+          {/* header navigation bar */}
+          <header className={`relative z-20 border-b px-5 py-3.5 flex items-center justify-between shadow-xl shrink-0 transition-colors duration-300 ${
+            theme === 'dark' ? 'bg-[#080a10] border-slate-900/80 text-white' : 'bg-white border-slate-200/80 text-slate-800'
+          }`}>
+            <div className="flex items-center space-x-3 cursor-pointer select-none" onClick={() => setCurrentStep('landing')}>
+              <AnimatedLogo size="studio" theme={theme} />
+              <div className={`hidden sm:block pl-1.5 py-0.5 border-l ${theme === 'dark' ? 'border-[#161e33]' : 'border-slate-200'}`}>
+                <span className="text-[9px] block font-mono text-slate-500 uppercase tracking-widest leading-none">Studio Workshop</span>
+              </div>
+            </div>
+
+            {/* Stepper overview details dashboard */}
+            <div className={`hidden md:flex items-center gap-2 border px-3.5 py-1.5 rounded-xl text-xs transition-colors duration-300 ${
+              theme === 'dark' ? 'bg-[#030408] border-slate-900' : 'bg-slate-50 border-slate-200'
+            }`}>
+              <span className="font-extrabold text-indigo-500 dark:text-indigo-400">Step 1: Credentials</span>
+              <ChevronRight className={`w-3.5 h-3.5 ${theme === 'dark' ? 'text-slate-700' : 'text-slate-400'}`} />
+              <button 
+                onClick={() => setCurrentStep('builder')}
+                className={`font-medium transition-colors ${theme === 'dark' ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-slate-700'}`}
+              >
+                Step 2: Customizer
+              </button>
+            </div>
+
+            <div className="flex items-center space-x-2.5">
+              {/* STATEFUL THEME TOGGLER (SUN / MOON) */}
+              <button
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className={`p-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center ${
+                  theme === 'dark' 
+                    ? 'bg-slate-900 hover:bg-slate-800 border border-slate-800' 
+                    : 'bg-slate-50 hover:bg-slate-100 border border-slate-200 shadow-sm'
+                }`}
+                title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              >
+                {theme === 'dark' ? (
+                  <Sun className="w-3.5 h-3.5 text-amber-500 hover:text-amber-400 transition-colors" />
+                ) : (
+                  <Moon className="w-3.5 h-3.5 text-slate-505" />
+                )}
+              </button>
+
+              <button 
+                onClick={() => setCurrentStep('landing')}
+                className={`px-3.5 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
+                  theme === 'dark' 
+                    ? 'bg-slate-900 hover:bg-slate-800 border-slate-800/80 text-slate-400 hover:text-white' 
+                    : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-800 shadow-sm'
+                }`}
+              >
+                Back
+              </button>
+              <button 
+                onClick={() => {
+                  setBuilderTab('designer');
+                  setCurrentStep('builder');
+                }}
+                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold tracking-wider transition-all shadow-md hover:shadow-blue-500/20 active:scale-95 cursor-pointer flex items-center gap-1"
+              >
+                <span>Next Step</span>
+                <ChevronRight className="w-3.5 h-3.5 text-white" />
+              </button>
+            </div>
+          </header>
+
+          <div className="flex-1 overflow-y-auto">
+            <DataInputPage 
+              coverData={coverData}
+              setCoverData={setCoverData}
+              applyPresetDataset={applyPresetDataset}
+              onNext={() => {
+                // Instantly pre-populate designer tab for optimal wizard experience
+                setBuilderTab('designer');
+                setCurrentStep('builder');
+              }}
+              theme={theme}
+            />
+          </div>
+
+        </div>
+      ) : (
+        
+        // BUILDER APP WORKSPACE
+        <div className="studio-workspace-container flex flex-col h-screen overflow-hidden">
+          
+          {/* header navigation bar */}
+          <header className={`relative z-20 border-b px-5 py-3.5 flex items-center justify-between shadow-xl transition-colors duration-300 ${
+            theme === 'dark' ? 'bg-[#080a10] border-slate-900/80 text-white' : 'bg-white border-slate-200/80 text-slate-800'
+          }`}>
+            <div className="flex items-center space-x-3 cursor-pointer select-none" onClick={() => setCurrentStep('landing')}>
+              <AnimatedLogo size="studio" theme={theme} />
+              <div className={`hidden sm:block pl-1.5 py-0.5 border-l ${theme === 'dark' ? 'border-[#161e33]' : 'border-slate-200'}`}>
+                <span className="text-[9px] block font-mono text-slate-500 uppercase tracking-widest leading-none">Studio Workshop</span>
+              </div>
+            </div>
+
+            {/* Middle builder workspace switches */}
+            <div className={`flex items-center space-x-1.5 px-1 py-1 rounded-xl transition-colors duration-300 ${
+              theme === 'dark' ? 'bg-[#030408] border border-[#161e33]' : 'bg-slate-100 border border-slate-200/80'
+            }`}>
+              <button 
+                onClick={() => setBuilderTab('inputs')}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  builderTab === 'inputs' 
+                    ? theme === 'dark'
+                      ? 'bg-[#121932] text-indigo-400 border border-[#2b3975] font-extrabold shadow' 
+                      : 'bg-white text-indigo-600 border border-slate-200 font-extrabold shadow-sm'
+                    : theme === 'dark'
+                      ? 'text-slate-400 hover:text-white border border-transparent'
+                      : 'text-slate-500 hover:text-slate-800 border border-transparent'
+                }`}
+              >
+                1. Text Inputs
+              </button>
+              <button 
+                onClick={() => setBuilderTab('designer')}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  builderTab === 'designer' 
+                    ? theme === 'dark'
+                      ? 'bg-[#121932] text-indigo-400 border border-[#2b3975] font-semibold shadow' 
+                      : 'bg-white text-indigo-600 border border-slate-200 font-semibold shadow-sm'
+                    : theme === 'dark'
+                      ? 'text-slate-400 hover:text-white border border-transparent'
+                      : 'text-slate-500 hover:text-slate-800 border border-transparent'
+                }`}
+              >
+                2. Theme Designer
+              </button>
+              <button 
+                onClick={() => setBuilderTab('preview')}
+                className={`md:hidden px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  builderTab === 'preview' 
+                    ? theme === 'dark'
+                      ? 'bg-[#121932] text-indigo-400 border border-[#2b3975] font-semibold shadow' 
+                      : 'bg-white text-indigo-600 border border-slate-200 font-semibold shadow-sm'
+                    : theme === 'dark'
+                      ? 'text-slate-400 hover:text-white border border-transparent'
+                      : 'text-slate-500 hover:text-slate-800 border border-transparent'
+                }`}
+              >
+                3. Preview & Export
+              </button>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="flex items-center space-x-2.5">
+              {/* STATEFUL THEME TOGGLER (SUN / MOON) */}
+              <button
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className={`p-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center ${
+                  theme === 'dark' 
+                    ? 'bg-slate-900 hover:bg-slate-800 border border-slate-800' 
+                    : 'bg-slate-50 hover:bg-slate-100 border border-slate-200 shadow-sm'
+                }`}
+                title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              >
+                {theme === 'dark' ? (
+                  <Sun className="w-3.5 h-3.5 text-amber-500 hover:text-amber-400 transition-colors" />
+                ) : (
+                  <Moon className="w-3.5 h-3.5 text-slate-505" />
+                )}
+              </button>
+
+              <button 
+                onClick={handleReset}
+                className={`px-2.5 py-1.5 rounded-lg border text-xs font-bold transition-all flex items-center cursor-pointer ${
+                  theme === 'dark'
+                    ? 'bg-slate-900/60 hover:bg-slate-800 border border-slate-800/80 text-slate-400 hover:text-white'
+                    : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-800 shadow-sm'
+                }`}
+                title="Reset Styles"
+              >
+                <RotateCcw className="w-3.5 h-3.5 mr-1" />
+                <span className="hidden sm:inline">Reset Defaults</span>
+              </button>
+              
+              <button 
+                onClick={() => setCurrentStep('landing')}
+                className="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold font-sans tracking-wide transition-all cursor-pointer"
+              >
+                Exit Studio
+              </button>
+            </div>
+          </header>
+
+          {/* MAIN COLUMN BODY PLATFORM SPLIT */}
+          <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative z-10">
+            
+            {/* LEFT CONTROL SIDEBAR (TABS SPLIT) */}
+            <div className={`w-full md:w-[410px] border-r flex-col h-full overflow-hidden transition-colors duration-300 ${
+              builderTab === 'preview' ? 'hidden md:flex' : 'flex'
+            } ${
+              theme === 'dark' ? 'bg-[#060813] border-[#161e33]' : 'bg-white border-slate-200'
+            }`}>
+              {builderTab === 'inputs' ? (
+                <InformationForm 
+                  coverData={coverData}
+                  setCoverData={setCoverData}
+                  applyPresetDataset={applyPresetDataset}
+                  theme={theme}
+                  onNext={() => setBuilderTab('designer')}
+                />
+              ) : (
+                <DesignBuilder 
+                  coverDesign={coverDesign}
+                  setCoverDesign={setCoverDesign}
+                  handleFileUpload={handleFileUpload}
+                  theme={theme}
+                  coverData={coverData}
+                  setCoverData={setCoverData}
+                  pageBackgroundColor={pageBackgroundColor}
+                  onChangePageBackgroundColor={updatePageBackgroundColor}
+                />
+              )}
+            </div>
+
+            {/* RIGHT A4 REALTIME PREVIEW FRAME */}
+            <div className={`flex-1 flex-col overflow-hidden relative transition-colors duration-300 ${
+              builderTab === 'preview' ? 'flex' : 'hidden md:flex'
+            } ${
+              theme === 'dark' ? 'bg-[#030407]' : 'bg-slate-50'
+            }`}>
+              
+              {/* Floating controls */}
+              <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between pointer-events-none">
+                <div className={`flex items-center space-x-1 px-2.5 py-1.5 backdrop-blur border rounded-lg pointer-events-auto shadow-xl select-none transition-colors duration-300 ${
+                  theme === 'dark' ? 'bg-[#090b12]/90 border-slate-800' : 'bg-white/95 border-slate-200/90'
+                }`}>
+                  <button 
+                    onClick={() => setZoomLevel(prev => Math.max(35, prev - 5))}
+                    className={`p-1 rounded transition-colors cursor-pointer ${
+                      theme === 'dark' ? 'hover:bg-slate-800 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-500 hover:text-slate-850'
+                    }`}
+                  >
+                    <ZoomOut className="w-3.5 h-3.5" />
+                  </button>
+                  <span className={`text-[10px] font-mono px-1 font-bold ${theme === 'dark' ? 'text-slate-300' : 'text-slate-650'}`}>{zoomLevel}% View</span>
+                  <button 
+                    onClick={() => setZoomLevel(prev => Math.min(100, prev + 5))}
+                    className={`p-1 rounded transition-colors cursor-pointer ${
+                      theme === 'dark' ? 'hover:bg-slate-800 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-500 hover:text-slate-850'
+                    }`}
+                  >
+                    <ZoomIn className="w-3.5 h-3.5" />
+                  </button>
+                  <button 
+                    onClick={() => setZoomLevel(60)}
+                    className={`p-1 rounded transition-colors cursor-pointer ml-1 ${
+                      theme === 'dark' ? 'hover:bg-slate-800 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-500 hover:text-slate-850'
+                    }`}
+                    title="Fit scale"
+                  >
+                    <Maximize className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <div className={`flex items-center space-x-1.5 backdrop-blur border p-1 rounded-lg pointer-events-auto shadow-xl transition-colors duration-300 ${
+                  theme === 'dark' ? 'bg-[#090b12]/90 border-slate-800' : 'bg-white/95 border-slate-200/90'
+                }`}>
+                  <div 
+                    className="dropdown relative"
+                    onMouseLeave={() => setIsDownloadOpen(false)}
+                  >
+                    <button 
+                      onClick={() => setIsDownloadOpen(p => !p)}
+                      className="relative p-[1.5px] rounded-lg overflow-hidden flex items-center justify-center bg-transparent cursor-pointer transition-all active:scale-[0.98] group/btn"
+                    >
+                      {/* Animated rotating high fidelity neon border outline */}
+                      <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-emerald-500 via-[#a7f3d0] to-teal-600 opacity-100 animate-[spin_3.5s_linear_infinite]" />
+                      
+                      {/* Button content face mask */}
+                      <div className={`relative px-4 py-2 hover:bg-[#030406] rounded-[7px] text-xs font-bold flex items-center transition-all ${
+                        theme === 'dark' ? 'bg-[#090b12] text-slate-200 hover:text-white' : 'bg-slate-900 text-white hover:text-slate-100'
+                      }`}>
+                        {/* Interactive jumping/rising micro-animation */}
+                        <motion.div
+                          animate={{
+                            y: [0, -4, 1, 0]
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                          className="mr-2 text-emerald-400"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                        </motion.div>
+                        <span className="bg-gradient-to-r from-emerald-400 to-teal-200 bg-clip-text text-transparent font-black tracking-wide">Download Copy</span>
+                      </div>
+                    </button>
+                    <div className={`absolute right-0 top-full mt-2 w-72 rounded-2xl shadow-2xl py-3 animate-fadeIn z-20 ${
+                      isDownloadOpen ? 'opacity-100 pointer-events-auto scale-100 translate-y-0' : 'opacity-0 pointer-events-none scale-95 -translate-y-2 origin-top-right'
+                    } ${
+                      theme === 'dark' ? 'bg-[#090b11] border border-slate-850 shadow-[0_12px_40px_rgba(0,0,0,0.6)]' : 'bg-white border border-slate-200/80 shadow-[0_12px_40px_rgba(0,0,0,0.1)]'
+                    }`}>
+                      <div className="px-3.5 pb-2.5 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between">
+                        <span className="text-[10px] font-mono font-black uppercase text-slate-400">Export Document</span>
+                        <span className="px-1.5 py-0.5 rounded text-[8px] font-mono bg-emerald-500/10 text-emerald-500 font-extrabold uppercase">High DPI</span>
+                      </div>
+
+                      {/* --- VECTOR PDF SECTION --- */}
+                      <div className="p-3.5 border-b border-slate-100 dark:border-slate-800/60">
+                        <div className="flex items-center space-x-2.5 mb-2.5">
+                          <div className="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center shrink-0">
+                            <FileText className="w-3.5 h-3.5" />
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-[11px] font-extrabold tracking-wide uppercase">Vector PDF Document</span>
+                            <span className="text-[9px] text-slate-500 dark:text-slate-400">Best for professional printing</span>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-1.5">
+                          <button
+                            onClick={() => {
+                              setIsDownloadOpen(false);
+                              handleDownloadPDF('low');
+                            }}
+                            className={`py-1 rounded text-[9px] font-mono font-bold uppercase transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer ${
+                              theme === 'dark' ? 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-400' : 'bg-rose-50 hover:bg-rose-100 text-rose-600'
+                            }`}
+                            title="Export standard definition PDF"
+                          >
+                            Low
+                          </button>
+                          <button
+                            onClick={() => {
+                              setIsDownloadOpen(false);
+                              handleDownloadPDF('medium');
+                            }}
+                            className={`py-1 rounded text-[9px] font-mono font-bold uppercase transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer ${
+                              theme === 'dark' ? 'bg-rose-500/20 hover:bg-rose-500/35 text-rose-300' : 'bg-rose-100 hover:bg-rose-200 text-rose-700'
+                            }`}
+                            title="Export medium resolution PDF"
+                          >
+                            Med
+                          </button>
+                          <button
+                            onClick={() => {
+                              setIsDownloadOpen(false);
+                              handleDownloadPDF('high');
+                            }}
+                            className="py-1 rounded text-[9px] font-mono font-extrabold uppercase bg-rose-600 hover:bg-rose-550 text-white transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer"
+                            title="Export premium ultra high definition PDF"
+                          >
+                            High
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* --- HIGH-RES PNG SECTION --- */}
+                      <div className="p-3.5 border-b border-slate-100 dark:border-slate-800/60">
+                        <div className="flex items-center space-x-2.5 mb-2.5">
+                          <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0">
+                            <Image className="w-3.5 h-3.5" />
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-[11px] font-extrabold tracking-wide uppercase">Lossless PNG Image</span>
+                            <span className="text-[9px] text-slate-500 dark:text-slate-400">Rich colors & crisp text</span>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-1.5">
+                          <button
+                            onClick={() => {
+                              setIsDownloadOpen(false);
+                              handleDownloadPNG('low');
+                            }}
+                            className={`py-1 rounded text-[9px] font-mono font-bold uppercase transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer ${
+                              theme === 'dark' ? 'bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400' : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-600'
+                            }`}
+                            title="Export 1x scale flat PNG"
+                          >
+                            Low
+                          </button>
+                          <button
+                            onClick={() => {
+                              setIsDownloadOpen(false);
+                              handleDownloadPNG('medium');
+                            }}
+                            className={`py-1 rounded text-[9px] font-mono font-bold uppercase transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer ${
+                              theme === 'dark' ? 'bg-indigo-500/20 hover:bg-indigo-500/35 text-indigo-300' : 'bg-indigo-100 hover:bg-indigo-200 text-indigo-700'
+                            }`}
+                            title="Export 2x scale sharp PNG"
+                          >
+                            Med
+                          </button>
+                          <button
+                            onClick={() => {
+                              setIsDownloadOpen(false);
+                              handleDownloadPNG('high');
+                            }}
+                            className="py-1 rounded text-[9px] font-mono font-extrabold uppercase bg-indigo-600 hover:bg-indigo-550 text-white transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer"
+                            title="Export 4.0x scale ultra premium PNG"
+                          >
+                            High
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* --- COMPRESSED JPG SECTION --- */}
+                      <div className="p-3.5">
+                        <div className="flex items-center space-x-2.5 mb-2.5">
+                          <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                            <FileImage className="w-3.5 h-3.5" />
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-[11px] font-extrabold tracking-wide uppercase">Compressed JPG Image</span>
+                            <span className="text-[9px] text-slate-500 dark:text-slate-400">Efficient, compact cover graphic</span>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-1.5">
+                          <button
+                            onClick={() => {
+                              setIsDownloadOpen(false);
+                              handleDownloadJPG('low');
+                            }}
+                            className={`py-1 rounded text-[9px] font-mono font-bold uppercase transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer ${
+                              theme === 'dark' ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600'
+                            }`}
+                            title="Low quality JPG file"
+                          >
+                            Low
+                          </button>
+                          <button
+                            onClick={() => {
+                              setIsDownloadOpen(false);
+                              handleDownloadJPG('medium');
+                            }}
+                            className={`py-1 rounded text-[9px] font-mono font-bold uppercase transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer ${
+                              theme === 'dark' ? 'bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-300' : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-700'
+                            }`}
+                            title="Medium quality JPG file"
+                          >
+                            Med
+                          </button>
+                          <button
+                            onClick={() => {
+                              setIsDownloadOpen(false);
+                              handleDownloadJPG('high');
+                            }}
+                            className="py-1 rounded text-[9px] font-mono font-extrabold uppercase bg-emerald-650 hover:bg-emerald-600 text-white transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer"
+                            title="Maximum high quality JPG file"
+                          >
+                            High
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Infinite background preview area */}
+              <div className={`flex-1 overflow-auto flex items-start justify-center p-12 select-none transition-colors duration-300 ${
+                theme === 'dark' ? 'bg-[#040508]' : 'bg-slate-100 shadow-inner'
+              }`}>
+                
+                {/* Scaled viewport container with smooth animated transitions */}
+                <motion.div
+                  key={`${theme}-${coverDesign.templateId}-${coverDesign.paperColor}`}
+                  initial={{ opacity: 0.85, scale: 0.985, y: 12 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0.85, scale: 0.985, y: -12 }}
+                  transition={{ 
+                    duration: 0.55, 
+                    ease: [0.16, 1, 0.3, 1] 
+                  }}
+                  className="flex items-center justify-center p-2"
+                >
+                  <CoverDocument 
+                    data={coverData}
+                    design={coverDesign}
+                    zoom={zoomLevel}
+                    pageBackgroundColor={pageBackgroundColor}
+                  />
+                </motion.div>
+
+              </div>
+              
+              {/* Spinner feedback during canvas render */}
+              {isExporting && (
+                <div className="absolute inset-0 z-50 bg-[#06070b]/90 backdrop-blur-[2px] flex flex-col items-center justify-center space-y-3">
+                  <div className="w-10 h-10 rounded-full border-2 border-indigo-500/20 border-t-indigo-500 animate-spin" />
+                  <span className="text-xs text-slate-300 font-mono tracking-wider font-bold">{isExporting}</span>
+                </div>
+              )}
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
+    </div>
+  );
+}

@@ -1,0 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Playball&family=Dancing+Script:wght@400..700&family=Satisfy&family=EB+Garamond:ital,wght@0,400..700;1,400..700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Kaushan+Script&family=UnifrakturMaguntia&family=Cinzel:wght@400;700&family=Montserrat:wght@400;700&family=Roboto:wght@400;700&family=Lora:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,400;0,700;1,400&family=Oswald:wght@400;700&family=Poppins:wght@400;600;750&family=Great+Vibes&family=Alex+Brush&family=Sacramento&family=Allura&family=Abril+Fatface&family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;700&family=Fira+Sans:wght@400;700&family=Inconsolata:wght@400;700&family=Josefin+Sans:ital,wght@0,400;0,700;1,400&family=Kanit:wght@400;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lobster&family=Cinzel+Decorative:wght@400;700&family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Pacifico&family=Quicksand:wght@400;700&family=Raleway:ital,wght@0,400;0,700;1,400&family=Spectral:ital,wght@0,400;0,700;1,400&family=Fascinate&family=Bebas+Neue&family=Amatic+SC:wght@400;700&family=Shadows+Into+Light&family=Permanent+Marker&family=Comfortaa:wght@400;700&family=Arvo:ital,wght@0,400;0,700;1,400&family=Cardo:ital,wght@0,400;1,400&family=Crimson+Text:ital,wght@0,400;0,700;1,400&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Kaushan Script", "Playball", "Satisfy", "Dancing Script", "Caveat", cursive, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-cursive: "Playball", "Satisfy", "Dancing Script", "Caveat", "Kaushan Script", cursive;
+  --font-serif: "EB Garamond", "Playfair Display", Georgia, serif;
+  --font-display: "Space Grotesk", "Outfit", "Inter", sans-serif;
+  --font-clean: "Inter", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-gothic: "UnifrakturMaguntia", serif;
+  --font-image1: "Playball", "Satisfy", "Dancing Script", "Caveat", cursive;
+  --font-image2: "Kaushan Script", "Caveat", cursive;
+}
+
+/* Light Mode Overrides for Hardcoded Dark Palette Components (e.g., DesignBuilder widgets & nested modules) */
+body:not(.dark) {
+  background-color: #fafafc !important;
+  color: #1e293b;
+}
+
+body:not(.dark) .studio-workspace-container .bg-\[\#060813\] {
+  background-color: #fafafc !important;
+  background-image: linear-gradient(to right, rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.03) 1px, transparent 1px) !important;
+}
+
+body:not(.dark) .studio-workspace-container .bg-\[\#070b13\],
+body:not(.dark) .studio-workspace-container .bg-\[\#111728\] {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+body:not(.dark) .studio-workspace-container .bg-\[\#0a0d1a\]\/80 {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+body:not(.dark) .studio-workspace-container .bg-\[\#0b0f19\]\/90 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+}
+
+body:not(.dark) .studio-workspace-container .bg-\[\#090b11\] {
+  background-color: #f1f5f9 !important;
+}
+
+body:not(.dark) .studio-workspace-container .border-\[\#161e33\] {
+  border-color: rgba(0, 0, 0, 0.07) !important;
+}
+
+body:not(.dark) .studio-workspace-container .border-\[\#1a233d\] {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body:not(.dark) .studio-workspace-container .border-\[\#1f2a4a\] {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+body:not(.dark) .studio-workspace-container .text-slate-200 {
+  color: #334155 !important;
+}
+
+body:not(.dark) .studio-workspace-container .text-slate-300 {
+  color: #1e293b !important;
+}
+
+body:not(.dark) .studio-workspace-container .text-slate-400 {
+  color: #64748b !important;
+}
+
+body:not(.dark) .studio-workspace-container .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+/* Apply dark text in light mode only to sidebars, inputs, wizards and control interfaces, while leaving LandingPage features and printable A4 Cover Document fully untouched */
+body:not(.dark) .studio-workspace-container h1,
+body:not(.dark) .studio-workspace-container h2,
+body:not(.dark) .studio-workspace-container h3,
+body:not(.dark) .studio-workspace-container h4,
+body:not(.dark) .studio-workspace-container .text-white:not(button *, .bg-indigo-600 *, .hover\:text-white) {
+  color: #0f172a !important;
+}
+
+/* Make inputs look super crisp and visible in Light mode */
+body:not(.dark) .studio-workspace-container select,
+body:not(.dark) .studio-workspace-container textarea,
+body:not(.dark) .studio-workspace-container input {
+  color: #0f172a !important;
+}
+
+body:not(.dark) .studio-workspace-container select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* Fix active button background states in subtabs of DesignBuilder in light mode */
+body:not(.dark) .studio-workspace-container .bg-\[\#121932\] {
+  background-color: #e2e8f0 !important;
+  color: #4f46e5 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Highly dynamic, continuously moving gradient animation */
+@keyframes gradient-move {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  background-size: 200% auto !important;
+  animation: gradient-move 4s linear infinite !important;
+}
+
+/* Subtle glowing pulse shadow effect for interactive call-to-actions */
+@keyframes subtle-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.2), 0 0 15px rgba(236, 72, 153, 0.1), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(99, 102, 241, 0.5), 0 0 35px rgba(236, 72, 153, 0.35), 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.animate-pulse-glow {
+  animation: subtle-pulse-glow 3s ease-in-out infinite !important;
+}
+

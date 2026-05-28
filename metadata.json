@@ -1,0 +1,6 @@
+{
+  "name": "Cover Page Generator",
+  "description": "A professional tool to generate, customize, and export university assignment and lab report cover pages to PDF/JPG/PNG.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
