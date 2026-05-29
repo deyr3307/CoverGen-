@@ -76,9 +76,18 @@ interface LandingPageProps {
   onExploreFeatures: () => void;
   theme: 'dark' | 'light';
   setTheme: React.Dispatch<React.SetStateAction<'dark' | 'light'>>;
+  isInstallable?: boolean;
+  onInstallApp?: () => void;
 }
 
-export function LandingPage({ onGetStarted, onExploreFeatures, theme, setTheme }: LandingPageProps) {
+export function LandingPage({ 
+  onGetStarted, 
+  onExploreFeatures, 
+  theme, 
+  setTheme,
+  isInstallable = false,
+  onInstallApp
+}: LandingPageProps) {
 
   return (
     <div id="landing-page-root" className={`relative min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white antialiased overflow-x-hidden transition-colors duration-300 ${
@@ -321,6 +330,25 @@ export function LandingPage({ onGetStarted, onExploreFeatures, theme, setTheme }
         </div>
 
         <div className="flex items-center space-x-3 shrink-0">
+          {isInstallable && onInstallApp && (
+            <motion.button
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onInstallApp}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md ${
+                theme === 'dark'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white'
+                  : 'bg-[#10b981] hover:bg-[#059669] text-white shadow-emerald-500/10'
+              }`}
+              title="Install App as PWA"
+            >
+              <Download className="w-3.5 h-3.5 animate-bounce" />
+              <span>Install App</span>
+            </motion.button>
+          )}
+
           {/* STATEFUL THEME TOGGLER (SUN / MOON) */}
           <motion.button
             key={theme}

@@ -79,6 +79,40 @@ async function startServer() {
     }
   });
 
+  // PWA Manifest and Static Webroot assets endpoint handlers
+  app.get("/manifest.json", (req, res) => {
+    res.json({
+      name: "CoverGen",
+      short_name: "CoverGen",
+      description: "Premium Academic & Professional Document Cover Page Generator",
+      start_url: "/",
+      display: "standalone",
+      background_color: "#ffffff",
+      theme_color: "#4f46e5",
+      icons: [
+        {
+          src: "/app-icon.jpg",
+          sizes: "192x192",
+          type: "image/jpeg"
+        },
+        {
+          src: "/app-icon.jpg",
+          sizes: "512x512",
+          type: "image/jpeg"
+        }
+      ]
+    });
+  });
+
+  app.get("/app-icon.jpg", (req, res) => {
+    res.sendFile(path.join(process.cwd(), "src/app-icon.jpg"));
+  });
+
+  app.get("/sw.js", (req, res) => {
+    res.setHeader("Content-Type", "application/javascript");
+    res.sendFile(path.join(process.cwd(), "src/sw.js"));
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

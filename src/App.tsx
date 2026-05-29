@@ -41,6 +41,36 @@ export default function App() {
     return (saved === 'light' || saved === 'dark') ? saved : 'dark';
   });
 
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstallable, setIsInstallable] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setIsInstallable(false);
+    }
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallApp = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`User responded to installation choice: ${outcome}`);
+    setDeferredPrompt(null);
+    setIsInstallable(false);
+  };
+
   useEffect(() => {
     localStorage.setItem('theme', theme);
     if (theme === 'dark') {
@@ -735,6 +765,8 @@ export default function App() {
           }}
           theme={theme}
           setTheme={setTheme}
+          isInstallable={isInstallable}
+          onInstallApp={handleInstallApp}
         />
       ) : currentStep === 'inputs' ? (
         
@@ -767,6 +799,16 @@ export default function App() {
             </div>
 
             <div className="flex items-center space-x-2.5">
+              {isInstallable && (
+                <button
+                  onClick={handleInstallApp}
+                  className="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1 cursor-pointer transition-all shadow-md animate-pulse"
+                  title="Install CoverGen App"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span className="hidden md:inline">Install App</span>
+                </button>
+              )}
               {/* STATEFUL THEME TOGGLER (SUN / MOON) */}
               <button
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -888,6 +930,16 @@ export default function App() {
 
             {/* Quick Actions */}
             <div className="flex items-center space-x-2.5">
+              {isInstallable && (
+                <button
+                  onClick={handleInstallApp}
+                  className="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1 cursor-pointer transition-all shadow-md animate-pulse"
+                  title="Install CoverGen App"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span className="hidden md:inline">Install App</span>
+                </button>
+              )}
               {/* STATEFUL THEME TOGGLER (SUN / MOON) */}
               <button
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}

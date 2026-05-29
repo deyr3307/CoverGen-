@@ -3,7 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CoverCraft - Academic Cover Page Generator</title>
+    <title>CoverGen - Academic Cover Page Generator</title>
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#4f46e5" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="CoverGen" />
+    <link rel="apple-touch-icon" href="/app-icon.jpg" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((reg) => console.log('PWA Service Worker registered successfully:', reg.scope))
+            .catch((err) => console.warn('PWA Service Worker registration failed:', err));
+        });
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
