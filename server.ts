@@ -81,32 +81,7 @@ async function startServer() {
 
   // PWA Manifest and Static Webroot assets endpoint handlers
   app.get("/manifest.json", (req, res) => {
-    res.json({
-      name: "CoverGen",
-      short_name: "CoverGen",
-      description: "Premium Academic & Professional Document Cover Page Generator",
-      start_url: "/",
-      display: "standalone",
-      background_color: "#ffffff",
-      theme_color: "#4f46e5",
-      icons: [
-        {
-          src: "/app-icon.png",
-          sizes: "192x192",
-          type: "image/png"
-        },
-        {
-          src: "/app-icon.png",
-          sizes: "512x512",
-          type: "image/png"
-        },
-        {
-          src: "/app-icon.jpg",
-          sizes: "512x512",
-          type: "image/jpeg"
-        }
-      ]
-    });
+    res.sendFile(path.join(process.cwd(), "public/manifest.json"));
   });
 
   app.get("/app-icon.jpg", (req, res) => {
