@@ -1,116 +1,130 @@
 import { Jimp } from 'jimp';
 import fs from 'fs';
 
-async function main() {
-  console.log('Generating high-fidelity 512x512 CoverGen app icon...');
-  
-  // Create a base 512x512 image in deep slate
-  const image = new Jimp({ width: 512, height: 512, color: 0x07090eff });
-  
-  // Draw an ultra-aesthetic background gradient, blueprint grids, and professional floating book covers
-  for (let y = 0; y < 512; y++) {
-    for (let x = 0; x < 512; x++) {
-      const rx = x - 256;
-      const ry = y - 256;
-      const dist = Math.sqrt(rx * rx + ry * ry);
-      
-      // Base radial dark slate to deep charcoal gradient
-      let r = 7 + Math.floor(15 * (1 - dist / 360));
-      let g = 9 + Math.floor(20 * (1 - dist / 360));
-      let b = 14 + Math.floor(35 * (1 - dist / 360));
-      r = Math.max(5, Math.min(255, r));
-      g = Math.max(7, Math.min(255, g));
-      b = Math.max(10, Math.min(255, b));
-      
-      let pixelColor = (r << 24) | (g << 16) | (b << 8) | 0xff;
-      
-      // Draw subtle secondary blueprints grids (every 32px)
-      if (x % 32 === 0 || y % 32 === 0) {
-        const gridOpacity = (x % 160 === 0 || y % 160 === 0) ? 0.08 : 0.035;
-        const gr = Math.floor(99 * gridOpacity);
-        const gg = Math.floor(102 * gridOpacity);
-        const gb = Math.floor(241 * gridOpacity);
-        
-        const currentR = (pixelColor >> 24) & 0xff;
-        const currentG = (pixelColor >> 16) & 0xff;
-        const currentB = (pixelColor >> 8) & 0xff;
-        
-        pixelColor = ((currentR + gr) << 24) | ((currentG + gg) << 16) | ((currentB + gb) << 8) | 0xff;
-      }
-      
-      // Draw 2 dynamic stacked premium book/document covers in the center to symbolize "CoverGen"
-      // Cover 1 (Bottom, tilted slightly left / back)
-      // Represented by a rotated rectangular bounding box
-      // Math for a rect tilted at ~15 degrees:
-      // rotated coordinates:
-      const angle1 = -12 * Math.PI / 180;
-      const cos1 = Math.cos(angle1);
-      const sin1 = Math.sin(angle1);
-      const rotX1 = (rx + 25) * cos1 - (ry + 10) * sin1;
-      const rotY1 = (rx + 25) * sin1 + (ry + 10) * cos1;
-      
-      // Check if inside Cover 1 (width = 120, height = 180, centered around translated center)
-      const inCover1 = (rotX1 >= -60 && rotX1 <= 60 && rotY1 >= -90 && rotY1 <= 90);
-      const onBorder1 = inCover1 && (rotX1 <= -57 || rotX1 >= 57 || rotY1 <= -87 || rotY1 >= 87);
-      
-      // Cover 2 (Top, floating, tilted slightly right / front)
-      const angle2 = 8 * Math.PI / 180;
-      const cos2 = Math.cos(angle2);
-      const sin2 = Math.sin(angle2);
-      const rotX2 = (rx - 25) * cos2 - (ry - 20) * sin2;
-      const rotY2 = (rx - 25) * sin2 + (ry - 20) * cos2;
-      
-      const inCover2 = (rotX2 >= -65 && rotX2 <= 65 && rotY2 >= -95 && rotY2 <= 95);
-      const onBorder2 = inCover2 && (rotX2 <= -62 || rotX2 >= 62 || rotY2 <= -92 || rotY2 >= 92);
-      const onSpine2 = inCover2 && (rotX2 >= -58 && rotX2 <= -50); // book spine line
-      
-      if (onBorder2) {
-        // Glowing cyan-blue front border
-        pixelColor = 0x22d3eeff;
-      } else if (onSpine2) {
-        // Spine design line on front cover
-        pixelColor = 0x818cf8ff;
-      } else if (inCover2) {
-        // Sleek primary indigo base front cover
-        const rotDist = Math.sqrt(rotX2 * rotX2 + rotY2 * rotY2);
-        const rVal = Math.max(30, Math.min(80, 49 + Math.floor(rotDist / 4)));
-        const gVal = Math.max(35, Math.min(85, 46 + Math.floor(rotDist / 5)));
-        const bVal = Math.max(100, Math.min(180, 129 + Math.floor(rotDist / 2)));
-        pixelColor = (rVal << 24) | (gVal << 16) | (bVal << 8) | 0xff;
-      } else if (onBorder1) {
-        // Glowing violet back border
-        pixelColor = 0x8b5cf6ff;
-      } else if (inCover1) {
-        // Purple-violet gradient back cover
-        const rotDist = Math.sqrt(rotX1 * rotX1 + rotY1 * rotY1);
-        const rVal = Math.max(40, Math.min(90, 67 + Math.floor(rotDist / 5)));
-        const gVal = Math.max(25, Math.min(65, 30 + Math.floor(rotDist / 6)));
-        const bVal = Math.max(110, Math.min(190, 149 + Math.floor(rotDist / 3)));
-        pixelColor = (rVal << 24) | (gVal << 16) | (bVal << 8) | 0xff;
-      }
-      
-      // Let's draw some fine engineering details (glowing connection vertices or nodes)
-      // Corner crossings of the 160px grid
-      if ((Math.abs(x - 176) < 3.5 && Math.abs(y - 176) < 3.5) || 
-          (Math.abs(x - 336) < 3.5 && Math.abs(y - 336) < 3.5) ||
-          (Math.abs(x - 176) < 3.5 && Math.abs(y - 336) < 3.5) ||
-          (Math.abs(x - 336) < 3.5 && Math.abs(y - 176) < 3.5)) {
-        // Bright glowing node pixels
-        pixelColor = 0x22d3eeff;
-      }
+// Helper function to calculate perpendicular distance to a line segment
+function getDistanceToSegment(x: number, y: number, x1: number, y1: number, x2: number, y2: number): number {
+  const A = x - x1;
+  const B = y - y1;
+  const C = x2 - x1;
+  const D = y2 - y1;
 
-      // Dynamic central crosshairs
-      if ((Math.abs(rx) < 1 && Math.abs(ry) < 10) || (Math.abs(ry) < 1 && Math.abs(rx) < 10)) {
-        if (pixelColor === 0x07090eff || (pixelColor & 0xffffff00) === 0) {
-          pixelColor = 0x6366f1ee;
+  const dot = A * C + B * D;
+  const lenSq = C * C + D * D;
+  let param = -1;
+  if (lenSq !== 0) {
+    param = dot / lenSq;
+  }
+
+  let xx, yy;
+
+  if (param < 0) {
+    xx = x1;
+    yy = y1;
+  } else if (param > 1) {
+    xx = x2;
+    yy = y2;
+  } else {
+    xx = x1 + param * C;
+    yy = y1 + param * D;
+  }
+
+  const dx = x - xx;
+  const dy = y - yy;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+async function main() {
+  console.log('Generating high-fidelity 512x512 CoverGen app icon (custom orange graduation cap)...');
+  
+  // Dimensions 512x512
+  const width = 512;
+  const height = 512;
+  const image = new Jimp({ width, height, color: 0x000000ff }); // Black Background
+  
+  // Rhombus vertices
+  const rx1 = 256, ry1 = 125; // Top
+  const rx2 = 425, ry2 = 195; // Right
+  const rx3 = 256, ry3 = 265; // Bottom
+  const rx4 = 87, ry4 = 195;  // Left
+
+  // Tassel tip segment
+  const tx1 = 410, ty1 = 310;
+  const tx2 = 410, ty2 = 335;
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let samplesInside = 0;
+      
+      // Perform 3x3 multi-sampling anti-aliasing (9 sub-pixel samples per pixel)
+      const subpixelOffsets = [0.2, 0.5, 0.8];
+      for (const ox of subpixelOffsets) {
+        for (const oy of subpixelOffsets) {
+          const sx = x + ox;
+          const sy = y + oy;
+          let isInside = false;
+
+          // 1. Check rhombus border (solid line thickness = 20px, so distance <= 10px)
+          const dRhombus = Math.min(
+            getDistanceToSegment(sx, sy, rx1, ry1, rx2, ry2),
+            getDistanceToSegment(sx, sy, rx2, ry2, rx3, ry3),
+            getDistanceToSegment(sx, sy, rx3, ry3, rx4, ry4),
+            getDistanceToSegment(sx, sy, rx4, ry4, rx1, ry1)
+          );
+          if (dRhombus <= 11) {
+            isInside = true;
+          }
+
+          // 2. Check center cap button
+          const dButton = Math.sqrt((sx - 256) * (sx - 256) + (sy - 195) * (sy - 195));
+          if (dButton <= 16) {
+            isInside = true;
+          }
+
+          // 3. Check cap band (bowl underneath the board)
+          // X spans the width of the band
+          if (sx >= 145 && sx <= 367) {
+            const t = (sx - 145) / 222;
+            const y_inner = (1 - t) * (1 - t) * 230 + 2 * (1 - t) * t * 335 + t * t * 230;
+            const y_outer = (1 - t) * (1 - t) * 230 + 2 * (1 - t) * t * 415 + t * t * 230;
+            
+            if (sy >= y_inner && sy <= y_outer) {
+              isInside = true;
+            }
+          }
+
+          // 4. Check tassel thread segments (thickness = 8px, distance <= 4px)
+          const dTassel1 = getDistanceToSegment(sx, sy, 256, 195, 410, 215);
+          const dTassel2 = getDistanceToSegment(sx, sy, 410, 215, 410, 310);
+          if (dTassel1 <= 4.5 || dTassel2 <= 4.5) {
+            isInside = true;
+          }
+
+          // 5. Check tassel pendant at the end (thickness = 16px, distance <= 8px)
+          const dTasselTip = getDistanceToSegment(sx, sy, tx1, ty1, tx2, ty2);
+          if (dTasselTip <= 8.5) {
+            isInside = true;
+          }
+
+          if (isInside) {
+            samplesInside++;
+          }
         }
       }
 
+      // Compute anti-aliased gradient blending over black
+      const alpha = samplesInside / 9.0;
+      
+      // Gorgeous, high-fidelity orange color hex: RGB(255, 132, 0)
+      const r = Math.round(255 * alpha);
+      const g = Math.round(132 * alpha);
+      const b = 0;
+      
+      const pixelColor = ((r * 0x1000000) + (g << 16) + (b << 8) + 0xff) >>> 0;
       image.setPixelColor(pixelColor, x, y);
     }
   }
 
-  // Save the beautiful generated image as a high-quality JPG at src/app-icon.jpg
+  // Save the image in all target formats
   await image.write('src/app-icon.jpg');
   console.log('App icon at "src/app-icon.jpg" generated successfully!');
 
@@ -118,9 +132,14 @@ async function main() {
   if (!fs.existsSync('public')) {
     fs.mkdirSync('public', { recursive: true });
   }
+  
   await image.write('public/app-icon.jpg');
+  await image.write('public/app-icon.png'); // write png version
+  
+  // Copy to favicon.ico using safe method
   fs.copyFileSync('public/app-icon.jpg', 'public/favicon.ico');
-  console.log('Static fallback public assets successfully copied.');
+  
+  console.log('Static fallback public assets successfully copied with graduation cap visual.');
 }
 
 main().catch((err) => {

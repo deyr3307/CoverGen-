@@ -91,9 +91,14 @@ async function startServer() {
       theme_color: "#4f46e5",
       icons: [
         {
-          src: "/app-icon.jpg",
+          src: "/app-icon.png",
           sizes: "192x192",
-          type: "image/jpeg"
+          type: "image/png"
+        },
+        {
+          src: "/app-icon.png",
+          sizes: "512x512",
+          type: "image/png"
         },
         {
           src: "/app-icon.jpg",
@@ -108,8 +113,12 @@ async function startServer() {
     res.sendFile(path.join(process.cwd(), "src/app-icon.jpg"));
   });
 
+  app.get("/app-icon.png", (req, res) => {
+    res.sendFile(path.join(process.cwd(), "public/app-icon.png"));
+  });
+
   app.get("/favicon.ico", (req, res) => {
-    res.sendFile(path.join(process.cwd(), "src/app-icon.jpg"));
+    res.sendFile(path.join(process.cwd(), "public/favicon.ico"));
   });
 
   app.get("/sw.js", (req, res) => {
