@@ -104,23 +104,44 @@ export function InformationForm({ coverData, setCoverData, applyPresetDataset, t
             </span>
           </div>
 
-          <div>
-            <label className={`block text-[10px] font-mono font-extrabold uppercase tracking-wider mb-2 ${labelClass}`}>
-              Document Prefix Header
+          <div className="space-y-2">
+            <label className={`block text-[10px] font-mono font-extrabold uppercase tracking-wider ${labelClass}`}>
+              Document Prefix Header (e.g. AN ASSIGNMENT ON, LAB JOURNAL)
             </label>
-            <select 
+            <input 
+              type="text"
               value={coverData.documentType}
               onChange={(e) => setCoverData(prev => ({ ...prev, documentType: e.target.value }))}
-              className={`w-full text-xs rounded-xl px-3.5 py-2.5 outline-none transition-all font-medium border ${inputClass}`}
-            >
-              <option value="AN ASSIGNMENT ON">AN ASSIGNMENT ON</option>
-              <option value="LAB REPORT ON">LAB REPORT ON</option>
-              <option value="A PROJECT REPORT ON">A PROJECT REPORT ON</option>
-              <option value="TERM PAPER ON">TERM PAPER ON</option>
-              <option value="THESIS ON">THESIS ON</option>
-              <option value="CASE STUDY REPORT ON">CASE STUDY REPORT ON</option>
-              <option value="INTERNSHIP REPORT ON">INTERNSHIP REPORT ON</option>
-            </select>
+              placeholder="e.g. AN ASSIGNMENT ON"
+              className={`w-full text-xs rounded-xl px-3.5 py-2.5 outline-none transition-all font-mono border ${inputClass}`}
+            />
+            {/* Suggestion Chips */}
+            <div className="flex flex-wrap gap-1.5 pt-0.5">
+              {[
+                "AN ASSIGNMENT ON",
+                "LAB REPORT ON",
+                "A PROJECT REPORT ON",
+                "TERM PAPER ON",
+                "THESIS ON",
+                "CASE STUDY REPORT ON",
+                "INTERNSHIP REPORT ON"
+              ].map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  onClick={() => setCoverData(prev => ({ ...prev, documentType: suggestion }))}
+                  className={`text-[9px] px-2 py-0.5 rounded-lg border transition-all cursor-pointer font-medium ${
+                    coverData.documentType === suggestion
+                      ? 'bg-indigo-600/15 text-indigo-400 border-indigo-500/45 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/30'
+                      : isDark
+                        ? 'bg-[#121932]/40 border-[#1a233d] text-slate-400 hover:text-slate-200 hover:bg-[#121932]'
+                        : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div>
@@ -134,7 +155,7 @@ export function InformationForm({ coverData, setCoverData, applyPresetDataset, t
             </div>
             <textarea 
               value={coverData.topicTitle}
-              onChange={(e) => setCoverData(prev => ({ ...prev, topicTitle: e.target.value.toUpperCase() }))}
+              onChange={(e) => setCoverData(prev => ({ ...prev, topicTitle: e.target.value }))}
               placeholder="ENTER ASSIGNMENT TOPIC OR RESEARCH FILE..."
               rows={4}
               spellCheck={true}
@@ -471,20 +492,43 @@ export function InformationForm({ coverData, setCoverData, applyPresetDataset, t
             * Note: You can also specify individual student fields below for fallback support:
           </div>
 
-          <div className="grid grid-cols-2 gap-3.5">
-            <div>
-              <label className={`block text-[10px] font-mono font-extrabold mb-1.5 ${labelClass}`}>Submission tag</label>
-              <select 
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label className={`block text-[10px] font-mono font-extrabold ${labelClass}`}>Submission tag / Header</label>
+              <input 
+                type="text"
                 value={coverData.submittedByLabel}
                 onChange={(e) => setCoverData(prev => ({ ...prev, submittedByLabel: e.target.value }))}
-                className={`w-full border text-xs rounded-xl px-3.5 py-2.5 outline-none transition-all font-sans ${inputClass}`}
-              >
-                <option value="Submitted By">SUBMITTED BY</option>
-                <option value="Prepared By">PREPARED BY</option>
-                <option value="Presented By">PRESENTED BY</option>
-                <option value="Compiled By">COMPILED BY</option>
-              </select>
+                placeholder="e.g. SUBMITTED BY"
+                className={`w-full border text-xs rounded-xl px-3.5 py-2.5 outline-none transition-all font-mono ${inputClass}`}
+              />
+              {/* Suggestion Chips */}
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  "SUBMITTED BY,",
+                  "PREPARED BY,",
+                  "PRESENTED BY,",
+                  "COMPILED BY,",
+                  "BY THE STUDENT:"
+                ].map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    onClick={() => setCoverData(prev => ({ ...prev, submittedByLabel: suggestion }))}
+                    className={`text-[8px] px-2 py-0.5 rounded border transition-all cursor-pointer font-medium ${
+                      coverData.submittedByLabel === suggestion
+                        ? 'bg-indigo-600/15 text-indigo-400 border-indigo-500/45 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/30'
+                        : isDark
+                          ? 'bg-[#121932]/40 border-[#1a233d] text-slate-400 hover:text-slate-205'
+                          : 'bg-slate-100 border-slate-200 text-slate-650 hover:bg-slate-200'
+                    }`}
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
             </div>
+
             <div>
               <label className={`block text-[10px] font-mono font-extrabold mb-1.5 ${labelClass}`}>Student ID</label>
               <input 

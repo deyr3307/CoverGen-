@@ -220,22 +220,43 @@ export function DataInputPage({ coverData, setCoverData, applyPresetDataset, onN
           <div className="flex items-center space-x-2">
             <span className="inline-block w-2.5 h-2.5 bg-blue-500 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.6)] animate-pulse" />
             <span className="text-[10px] font-mono font-extrabold text-[#3b82f6] dark:text-blue-400 uppercase tracking-widest">
-              Assignment Type
+              Assignment Type (Prefix Header)
             </span>
           </div>
-          <div>
-            <select
+          <div className="space-y-3">
+            <input
+              type="text"
               value={coverData.documentType}
               onChange={(e) => updateField("documentType", e.target.value)}
-              className={`px-4 py-3.5 text-[13px] font-semibold tracking-wide cursor-pointer ${inputClass}`}
-            >
-              <option value="AN ASSIGNMENT ON" className="bg-white text-slate-800 dark:bg-[#070b13] dark:text-slate-200">AN ASSIGNMENT ON</option>
-              <option value="A LAB REPORT ON" className="bg-white text-slate-800 dark:bg-[#070b13] dark:text-slate-200">A LAB REPORT ON</option>
-              <option value="A SESSIONAL ON" className="bg-white text-slate-800 dark:bg-[#070b13] dark:text-slate-200">A SESSIONAL ON</option>
-              <option value="PROJECT REPORT ON" className="bg-white text-slate-800 dark:bg-[#070b13] dark:text-slate-200">PROJECT REPORT ON</option>
-              <option value="FIELDWORK ON" className="bg-white text-slate-800 dark:bg-[#070b13] dark:text-slate-200">FIELDWORK ON</option>
-              <option value="A THESIS ON" className="bg-white text-slate-800 dark:bg-[#070b13] dark:text-slate-200">A THESIS ON</option>
-            </select>
+              placeholder="e.g. AN ASSIGNMENT ON"
+              className={`px-4 py-3 text-[13px] font-bold ${inputClass}`}
+            />
+            {/* Suggestions */}
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                "AN ASSIGNMENT ON",
+                "A LAB REPORT ON",
+                "A SESSIONAL ON",
+                "PROJECT REPORT ON",
+                "FIELDWORK ON",
+                "A THESIS ON"
+              ].map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  onClick={() => updateField("documentType", suggestion)}
+                  className={`text-[9px] px-2.5 py-1 rounded-lg border transition-all cursor-pointer font-medium ${
+                    coverData.documentType === suggestion
+                      ? 'bg-indigo-650 text-white border-indigo-500'
+                      : isDark
+                        ? 'bg-[#070b13] border-[#1a233d] text-slate-400 hover:text-slate-205'
+                        : 'bg-slate-100 border-slate-200 text-slate-650 hover:bg-slate-200 shadow-sm'
+                  }`}
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -253,7 +274,7 @@ export function DataInputPage({ coverData, setCoverData, applyPresetDataset, onN
               value={coverData.topicTitle}
               onChange={(e) => updateField("topicTitle", e.target.value)}
               placeholder="e.g. ANALYSIS OF HEAVY METAL CONCENTRATION"
-              className={`px-4 py-3.5 text-[13px] font-bold uppercase resize-none leading-relaxed tracking-normal font-sans ${inputClass}`}
+              className={`px-4 py-3.5 text-[13px] font-bold resize-none leading-relaxed tracking-normal font-sans ${inputClass}`}
             />
           </div>
         </div>
@@ -389,6 +410,31 @@ export function DataInputPage({ coverData, setCoverData, applyPresetDataset, onN
                 onChange={(e) => updateField("submittedByLabel", e.target.value)}
                 className={`px-3.5 py-3 text-[14px] font-bold font-cursive ${inputClass}`}
               />
+              {/* Suggestion Chips */}
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {[
+                  "SUBMITTED BY,",
+                  "PREPARED BY,",
+                  "PRESENTED BY,",
+                  "COMPILED BY,",
+                  "BY THE STUDENT:"
+                ].map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    onClick={() => updateField("submittedByLabel", suggestion)}
+                    className={`text-[8px] px-2 py-0.5 rounded border transition-all cursor-pointer font-medium ${
+                      coverData.submittedByLabel === suggestion
+                        ? 'bg-indigo-650 text-white border-indigo-500 font-bold'
+                        : isDark
+                          ? 'bg-[#070b13] border-[#1a233d] text-slate-400 hover:text-slate-205'
+                          : 'bg-slate-150 border-slate-200 text-slate-650 hover:bg-slate-200'
+                    }`}
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="space-y-1.5">
