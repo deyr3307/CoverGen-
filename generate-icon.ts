@@ -1,4 +1,5 @@
 import { Jimp } from 'jimp';
+import fs from 'fs';
 
 async function main() {
   console.log('Generating high-fidelity 512x512 CoverGen app icon...');
@@ -112,6 +113,14 @@ async function main() {
   // Save the beautiful generated image as a high-quality JPG at src/app-icon.jpg
   await image.write('src/app-icon.jpg');
   console.log('App icon at "src/app-icon.jpg" generated successfully!');
+
+  // Also write to public/ folder for static Vite crawler/Vercel support
+  if (!fs.existsSync('public')) {
+    fs.mkdirSync('public', { recursive: true });
+  }
+  await image.write('public/app-icon.jpg');
+  fs.copyFileSync('public/app-icon.jpg', 'public/favicon.ico');
+  console.log('Static fallback public assets successfully copied.');
 }
 
 main().catch((err) => {

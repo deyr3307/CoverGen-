@@ -108,6 +108,10 @@ async function startServer() {
     res.sendFile(path.join(process.cwd(), "src/app-icon.jpg"));
   });
 
+  app.get("/favicon.ico", (req, res) => {
+    res.sendFile(path.join(process.cwd(), "src/app-icon.jpg"));
+  });
+
   app.get("/sw.js", (req, res) => {
     res.setHeader("Content-Type", "application/javascript");
     res.sendFile(path.join(process.cwd(), "src/sw.js"));
