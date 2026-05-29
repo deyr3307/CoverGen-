@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Download } from 'lucide-react';
 
 interface LottieFeaturePlayerProps {
-  type: 'preview' | 'watermark' | 'fonts' | 'export';
+  type: 'preview' | 'watermark' | 'fonts' | 'export' | 'background' | 'layout';
   theme?: 'dark' | 'light';
 }
 
@@ -670,6 +670,179 @@ export function LottieFeaturePlayer({ type, theme = 'dark' }: LottieFeaturePlaye
             </span>
           ))}
         </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // TYPE: BACKGROUND (Cover Page Background Color Selection)
+  // ==========================================
+  if (type === 'background') {
+    const bgColors = [
+      '#ffffff', // Elegant White
+      '#faf6ee', // Antique Cream
+      '#eef6f8', // Ice Blue
+      '#f0fcf4', // Mint Green
+      '#1e293b', // Slate Dark
+    ];
+    return (
+      <div id="icon-anim-background" className={`w-full h-full relative flex items-center justify-center overflow-hidden rounded-2xl transition-all duration-300 ${
+        theme === 'light'
+          ? 'bg-amber-50/70 border border-amber-200/80 text-amber-600'
+          : 'bg-[#ffb020]/10 border border-[#ffb020]/20 text-[#ffb020]'
+      }`}>
+        {/* Subtle grid lines */}
+        <div className={`absolute inset-0 opacity-15 bg-[size:10px_10px] ${
+          theme === 'light'
+            ? 'bg-[linear-gradient(to_right,rgba(251,191,36,0.15)_1px,transparent_1px),linear-gradient(to_bottom,rgba(251,191,36,0.15)_1px,transparent_1px)]'
+            : 'bg-[linear-gradient(to_right,#ffb020_1px,transparent_1px),linear-gradient(to_bottom,#ffb020_1px,transparent_1px)]'
+        }`} />
+
+        {/* Dynamic miniature page that cycles colors */}
+        <motion.div
+          animate={{
+            backgroundColor: bgColors,
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className={`absolute w-[30px] h-[38px] rounded border flex flex-col p-1.5 space-y-1 shadow-md z-10`}
+          style={{ borderColor: theme === 'light' ? '#f59e0b' : '#ffb020' }}
+        >
+          {/* Mock lines on page */}
+          <div className="w-4 h-1 bg-slate-400/40 rounded-full" />
+          <div className="w-full h-[1.5px] bg-slate-350/20" />
+          <div className="w-5/6 h-[1.5px] bg-slate-350/20" />
+          <div className="w-full h-[1.5px] bg-slate-350/20" />
+        </motion.div>
+
+        {/* Color bubbles floating around the page like selection dots */}
+        <div className="absolute inset-0 pointer-events-none z-20">
+          {[
+            { color: '#fbbf24', delay: 0, x: -14, y: -12, scale: [0.8, 1.2, 0.8] }, // Amber
+            { color: '#10b981', delay: 1.5, x: 14, y: 12, scale: [1, 0.7, 1] }, // Emerald
+            { color: '#3b82f6', delay: 3, x: 14, y: -12, scale: [0.7, 1.1, 0.7] }, // Blue
+            { color: '#ec4899', delay: 4.5, x: -14, y: 12, scale: [1.1, 0.8, 1.1] }, // Pink
+          ].map((bubble, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-3.5 h-3.5 rounded-full border border-white shadow-[0_2px_8px_rgba(0,0,0,0.15)] flex items-center justify-center"
+              style={{
+                backgroundColor: bubble.color,
+                top: `calc(50% + ${bubble.y}px)`,
+                left: `calc(50% + ${bubble.x}px)`,
+              }}
+              animate={{
+                scale: bubble.scale,
+                y: [0, -4, 0],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                delay: bubble.delay,
+                ease: 'easeInOut',
+              }}
+            >
+              {/* Central tick inside selection bubble to mimic selecting a color */}
+              <div className="w-1 h-1 rounded-full bg-white animate-pulse" />
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // TYPE: LAYOUT (Custom Template Builder with Moving Grid Blocks)
+  // ==========================================
+  if (type === 'layout') {
+    return (
+      <div id="icon-anim-layout" className={`w-full h-full relative flex items-center justify-center overflow-hidden rounded-2xl transition-all duration-300 ${
+        theme === 'light'
+          ? 'bg-cyan-50/70 border border-cyan-200/80 text-cyan-600'
+          : 'bg-cyan-500/10 border border-cyan-500/20 text-cyan-400'
+      }`}>
+        {/* Subtle grid lines */}
+        <div className={`absolute inset-0 opacity-15 bg-[size:10px_10px] ${
+          theme === 'light'
+            ? 'bg-[linear-gradient(to_right,rgba(6,182,212,0.15)_1px,transparent_1px),linear-gradient(to_bottom,rgba(6,182,212,0.15)_1px,transparent_1px)]'
+            : 'bg-[linear-gradient(to_right,#06b6d4_1px,transparent_1px),linear-gradient(to_bottom,#06b6d4_1px,transparent_1px)]'
+        }`} />
+
+        {/* Outer document blueprint border */}
+        <div className={`absolute w-[44px] h-[52px] rounded-lg border-2 border-dashed flex flex-col justify-between p-1.5 transition-colors duration-300 ${
+          theme === 'light' ? 'border-cyan-300 bg-white/60' : 'border-cyan-500/30 bg-slate-950/40'
+        }`}>
+          {/* Block 1 (Header/Logo Block) */}
+          <motion.div
+            animate={{
+              y: [0, 24, 0],
+              borderColor: ['rgba(6,182,212,0.3)', 'rgba(6,182,212,0.8)', 'rgba(6,182,212,0.3)'],
+            }}
+            transition={{
+              duration: 5,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="h-2.5 rounded border border-cyan-500/30 bg-cyan-500/10 flex items-center justify-between px-1"
+          >
+            <div className="w-1.5 h-1 bg-cyan-500/40 rounded-sm" />
+            <div className="w-3 h-0.5 bg-cyan-500/20 rounded-sm" />
+          </motion.div>
+
+          {/* Block 2 (Title Block) */}
+          <motion.div
+            animate={{
+              scale: [1, 0.95, 1],
+              opacity: [0.8, 1, 0.8],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="h-3 rounded border border-indigo-500/30 bg-indigo-500/5 flex flex-col justify-center space-y-0.5 px-1"
+          >
+            <div className="w-5 h-0.5 bg-indigo-500/30 rounded-full" />
+            <div className="w-4 h-0.5 bg-indigo-500/15 rounded-full" />
+          </motion.div>
+
+          {/* Block 3 (Details / Footer Block) */}
+          <motion.div
+            animate={{
+              y: [0, -24, 0],
+              borderColor: ['rgba(6,182,212,0.3)', 'rgba(6,182,212,0.8)', 'rgba(6,182,212,0.3)'],
+            }}
+            transition={{
+              duration: 5,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="h-2.5 rounded border border-cyan-500/30 bg-cyan-500/10 flex items-center justify-center"
+          >
+            <div className="w-5 h-0.5 bg-cyan-500/35 rounded-full" />
+          </motion.div>
+        </div>
+
+        {/* Drag and Drop gliding grabber handle cursor */}
+        <motion.div
+          animate={{
+            x: [-12, 12, -12],
+            y: [-12, 12, -12],
+          }}
+          transition={{
+            duration: 5,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="absolute z-20 pointer-events-none"
+        >
+          <svg viewBox="0 0 24 24" className="w-4.5 h-4.5 text-cyan-500 drop-shadow-[0_2px_4px_rgba(6,182,212,0.5)]" fill="currentColor">
+            <path d="M4.5,10.5 L12,3 L19.5,10.5 M12,3 L12,21 M4.5,13.5 L12,21 L19.5,13.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+          </svg>
+        </motion.div>
       </div>
     );
   }

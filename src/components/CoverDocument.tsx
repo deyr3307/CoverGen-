@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { CoverPageData, CoverPageDesign, STANDARD_FONTS } from '../types';
+import { CoverPageData, CoverPageDesign, STANDARD_FONTS, getDirectStyle } from '../types';
 import { LOGO_PRESETS, WATERMARK_PRESETS } from '../presets';
 import QRCode from 'qrcode';
 import { NewTemplatesRenderer } from './NewTemplatesRenderer';
@@ -433,10 +433,11 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             }}
           >
             <div
-              className="watermark-animate flex items-center justify-center"
+              className={`flex items-center justify-center ${design.watermarkAnimate ? 'watermark-animate' : ''}`}
               style={{
                 opacity: design.watermarkOpacity,
-                animation: 'watermark-smooth-pan 15s ease-in-out infinite'
+                animation: design.watermarkAnimate ? 'watermark-smooth-pan 15s ease-in-out infinite' : 'none',
+                transform: design.watermarkAnimate ? undefined : `scale(${design.watermarkScale / 100})`
               }}
             >
               {watermarkPreset ? (
@@ -809,9 +810,11 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                       fontFamily: design.fontSubmittedToHeading?.fontFamily || fontFamily || 'Georgia, serif',
                       fontSize: `${(design.fontSubmittedToHeading?.fontSize || 12.5) / 14}em`,
                       color: design.fontSubmittedToHeading?.color || fontColor || '#000000',
-                      fontWeight: 'bold',
+                      fontWeight: (design.fontSubmittedToHeading?.bold !== undefined ? design.fontSubmittedToHeading.bold : true) ? 'bold' : 'normal',
+                      textTransform: (design.fontSubmittedToHeading?.uppercase !== undefined ? design.fontSubmittedToHeading.uppercase : true) ? 'uppercase' : 'none',
+                      fontStyle: (design.fontSubmittedToHeading?.italic !== undefined ? design.fontSubmittedToHeading.italic : false) ? 'italic' : 'normal',
                     }}
-                    className="mb-2 uppercase tracking-wide border-b pb-0.5 w-[160px]"
+                    className="mb-2 tracking-wide border-b pb-0.5 w-[160px]"
                   >
                     Supervised By
                   </h4>
@@ -846,9 +849,11 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                         fontFamily: design.fontSubmittedByHeading?.fontFamily || fontFamily || 'Georgia, serif',
                         fontSize: `${(design.fontSubmittedByHeading?.fontSize || 12.5) / 14}em`,
                         color: design.fontSubmittedByHeading?.color || fontColor || '#000000',
-                        fontWeight: 'bold',
+                        fontWeight: (design.fontSubmittedByHeading?.bold !== undefined ? design.fontSubmittedByHeading.bold : true) ? 'bold' : 'normal',
+                        textTransform: (design.fontSubmittedByHeading?.uppercase !== undefined ? design.fontSubmittedByHeading.uppercase : true) ? 'uppercase' : 'none',
+                        fontStyle: (design.fontSubmittedByHeading?.italic !== undefined ? design.fontSubmittedByHeading.italic : false) ? 'italic' : 'normal',
                       }}
-                      className="mb-2 uppercase tracking-wide border-b pb-0.5 w-[160px]"
+                      className="mb-2 tracking-wide border-b pb-0.5 w-[160px]"
                     >
                       Prepared By
                     </h4>
@@ -2296,16 +2301,16 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   >
                     {data.teacherDetails ? data.teacherDetails.trim() : (
                       <>
-                        <div className="font-bold" style={{ fontSize: `${((design.fontSubmittedToContent?.fontSize || design.fontSubSection.fontSize) + 1) / 14}em` }}>
+                        <div className="font-bold" style={{ fontSize: `${((design.fontSubmittedToContent?.fontSize || design.fontSubSection.fontSize) + 1) / 14}em`, fontWeight: (design.fontSubmittedToContent?.bold !== undefined ? design.fontSubmittedToContent.bold : true) ? 'bold' : 'normal' }}>
                           {data.teacherName || 'Teacher Name'}
                         </div>
-                        <div className="font-medium opacity-80">
+                        <div className="font-medium opacity-80" style={{ fontWeight: (design.fontSubmittedToContent?.bold !== undefined ? design.fontSubmittedToContent.bold : false) ? 'semibold' : 'normal' }}>
                           {data.teacherDesignation || 'Professor'}
                         </div>
                         <div className="opacity-80">
                           {data.teacherDiscipline || 'Environmental Science Discipline'}
                         </div>
-                        <div className="font-bold opacity-90">
+                        <div className="font-bold opacity-90" style={{ fontWeight: (design.fontSubmittedToContent?.bold !== undefined ? design.fontSubmittedToContent.bold : true) ? 'bold' : 'normal' }}>
                           {data.teacherUniversity || 'Khulna University'}
                         </div>
                         {data.teacherLocation && (
@@ -2352,10 +2357,10 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   >
                     {data.studentDetails ? data.studentDetails.trim() : (
                       <>
-                        <div className="font-bold" style={{ fontSize: `${((design.fontSubmittedByContent?.fontSize || design.fontSubSection.fontSize) + 1) / 14}em` }}>
+                        <div className="font-bold" style={{ fontSize: `${((design.fontSubmittedByContent?.fontSize || design.fontSubSection.fontSize) + 1) / 14}em`, fontWeight: (design.fontSubmittedByContent?.bold !== undefined ? design.fontSubmittedByContent.bold : true) ? 'bold' : 'normal' }}>
                           {data.studentName || 'Student Name'}
                         </div>
-                        <div className="font-bold opacity-85">
+                        <div className="font-bold opacity-85" style={{ fontWeight: (design.fontSubmittedByContent?.bold !== undefined ? design.fontSubmittedByContent.bold : true) ? 'bold' : 'normal' }}>
                           Student ID: {data.studentId || '251009'}
                         </div>
                         <div className="opacity-80">
@@ -2364,7 +2369,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                         <div className="opacity-80">
                           {data.studentDiscipline || 'Environmental Science Discipline'}
                         </div>
-                        <div className="font-bold opacity-90">
+                        <div className="font-bold opacity-90" style={{ fontWeight: (design.fontSubmittedByContent?.bold !== undefined ? design.fontSubmittedByContent.bold : true) ? 'bold' : 'normal' }}>
                           {data.studentUniversity || 'Khulna University'}
                         </div>
                         {data.studentLocation && (

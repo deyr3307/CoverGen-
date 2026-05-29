@@ -72,11 +72,11 @@ body:not(.dark) .studio-workspace-container .text-slate-500 {
 }
 
 /* Apply dark text in light mode only to sidebars, inputs, wizards and control interfaces, while leaving LandingPage features and printable A4 Cover Document fully untouched */
-body:not(.dark) .studio-workspace-container h1,
-body:not(.dark) .studio-workspace-container h2,
-body:not(.dark) .studio-workspace-container h3,
-body:not(.dark) .studio-workspace-container h4,
-body:not(.dark) .studio-workspace-container .text-white:not(button *, .bg-indigo-600 *, .hover\:text-white) {
+body:not(.dark) .studio-workspace-container h1:not(#academic-cover-page, #academic-cover-page *),
+body:not(.dark) .studio-workspace-container h2:not(#academic-cover-page, #academic-cover-page *),
+body:not(.dark) .studio-workspace-container h3:not(#academic-cover-page, #academic-cover-page *),
+body:not(.dark) .studio-workspace-container h4:not(#academic-cover-page, #academic-cover-page *),
+body:not(.dark) .studio-workspace-container .text-white:not(button *, .bg-indigo-600 *, .hover\:text-white, #academic-cover-page, #academic-cover-page *) {
   color: #0f172a !important;
 }
 

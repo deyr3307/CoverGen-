@@ -79,6 +79,7 @@ export interface CoverPageDesign {
   watermarkScale: number; // scale percent
   watermarkXOffset?: number; // horizontal offset in pixels (can be negative)
   watermarkYOffset?: number; // vertical offset in pixels (can be negative)
+  watermarkAnimate?: boolean; // toggle to animate the watermark with subtle smooth-panning effect
   
   // Accents and layout
   borderColor: string;
@@ -362,6 +363,7 @@ export const DEFAULT_DESIGN: CoverPageDesign = {
   watermarkScale: 100,
   watermarkXOffset: 0,
   watermarkYOffset: 0,
+  watermarkAnimate: false,
   borderColor: '#ffa07a', // Light Salmon border
   borderStyle: 'double',
   borderWidth: 6,
@@ -376,3 +378,46 @@ export const DEFAULT_DESIGN: CoverPageDesign = {
   templateId: 'top-header-asymmetric', // Use the stunning, highly personalized asymmetric template by default now!
   positions: {}
 };
+
+/**
+ * Shared helper to generate extremely high specificity inline styles for cover documents,
+ * ensuring granular controls work in real-time, override template defaults, and support em/pt sizing.
+ */
+export function getDirectStyle(
+  fontConfig: any, 
+  parentConfig?: any, 
+  fallbackFamily?: string, 
+  fallbackColor?: string, 
+  isHeading = false,
+  baseSize?: number,
+  unit: 'pt' | 'em' = 'em'
+): Record<string, any> {
+  const family = fontConfig?.fontFamily || parentConfig?.fontFamily || fallbackFamily || undefined;
+  const color = fontConfig?.color || parentConfig?.color || fallbackColor || undefined;
+  const bold = fontConfig?.bold !== undefined ? fontConfig.bold : (parentConfig?.bold !== undefined ? parentConfig.bold : isHeading);
+  const italic = fontConfig?.italic !== undefined ? fontConfig.italic : (parentConfig?.italic !== undefined ? parentConfig.italic : false);
+  const uppercase = fontConfig?.uppercase !== undefined ? fontConfig.uppercase : (parentConfig?.uppercase !== undefined ? parentConfig.uppercase : false);
+  const align = fontConfig?.align || parentConfig?.align || undefined;
+  
+  const resolvedSize = fontConfig?.fontSize !== undefined ? fontConfig.fontSize : (parentConfig?.fontSize !== undefined ? parentConfig.fontSize : baseSize);
+  
+  const style: Record<string, any> = {};
+  
+  if (family) style.fontFamily = family;
+  if (color) style.color = color;
+  style.fontWeight = bold ? 'bold' : 'normal';
+  style.fontStyle = italic ? 'italic' : 'normal';
+  style.textTransform = uppercase ? 'uppercase' : 'none';
+  if (align) style.textAlign = align;
+
+  if (resolvedSize !== undefined) {
+    if (unit === 'em') {
+      style.fontSize = `${resolvedSize / 14}em`;
+    } else {
+      style.fontSize = `${resolvedSize}pt`;
+    }
+  }
+
+  return style;
+}
+
