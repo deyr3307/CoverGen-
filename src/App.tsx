@@ -28,12 +28,39 @@ import {
   Moon,
   FileText,
   Image,
-  FileImage
+  FileImage,
+  X,
+  Printer,
+  Check,
+  Settings2
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jspdf from 'jspdf';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ensureSupportedFormat } from './utils';
+
+const pageVariants = {
+  initial: {
+    opacity: 0,
+    x: 18,
+  },
+  animate: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      duration: 0.24,
+      ease: [0.16, 1, 0.3, 1] // Native snappy mobile feels
+    }
+  },
+  exit: {
+    opacity: 0,
+    x: -18,
+    transition: {
+      duration: 0.16,
+      ease: [0.7, 0, 0.84, 0]
+    }
+  }
+};
 
 export default function App() {
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -123,6 +150,58 @@ export default function App() {
   const [zoomLevel, setZoomLevel] = useState<number>(60); // standard nice scale on typical desktop screens
   const [isExporting, setIsExporting] = useState<string | null>(null);
   const [isDownloadOpen, setIsDownloadOpen] = useState<boolean>(false);
+
+  // Advanced PDF Export Option States
+  const [showAdvancedPdfDialog, setShowAdvancedPdfDialog] = useState<boolean>(false);
+  const [pdfIncludePageNumbers, setPdfIncludePageNumbers] = useState<boolean>(false);
+  const [pdfPrintBackground, setPdfPrintBackground] = useState<boolean>(true);
+  const [pdfPaperSize, setPdfPaperSize] = useState<'a4' | 'letter'>('a4');
+  const [pdfQuality, setPdfQuality] = useState<'low' | 'medium' | 'high'>('high');
+
+  // Master unified client-side navigation with Browser History Synchronization
+  const navigateTo = (step: 'landing' | 'inputs' | 'builder', tab: 'inputs' | 'designer' | 'preview' = 'inputs') => {
+    // Avoid redundant history entry pushes
+    const activeState = window.history.state;
+    if (!activeState || activeState.currentStep !== step || activeState.builderTab !== tab) {
+      window.history.pushState({ currentStep: step, builderTab: tab }, '');
+    }
+    setCurrentStep(step);
+    setBuilderTab(tab);
+  };
+
+  const navigateStep = (step: 'landing' | 'inputs' | 'builder') => {
+    const tab = step === 'builder' ? builderTab : 'inputs';
+    navigateTo(step, tab);
+  };
+
+  const navigateTab = (tab: 'inputs' | 'designer' | 'preview') => {
+    navigateTo('builder', tab);
+  };
+
+  // Sync PWA / browser physical back button popstate hooks
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state && typeof event.state === 'object' && 'currentStep' in event.state) {
+        setCurrentStep(event.state.currentStep);
+        setBuilderTab(event.state.builderTab || 'inputs');
+      } else {
+        // Fallback reference for initial history state
+        setCurrentStep('landing');
+        setBuilderTab('inputs');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    // Initialize initial state in history replacement so clicking back from first slide takes them home safely
+    if (!window.history.state || typeof window.history.state !== 'object' || !('currentStep' in window.history.state)) {
+      window.history.replaceState({ currentStep, builderTab }, '');
+    }
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [currentStep, builderTab]);
 
   // Sync to local storage
   useEffect(() => {
@@ -379,11 +458,30 @@ export default function App() {
     });
   };
 
-  const executeExport = async (format: 'pdf' | 'png' | 'jpg', quality: 'low' | 'medium' | 'high' = 'high') => {
+  const executeExport = async (
+    format: 'pdf' | 'png' | 'jpg', 
+    quality: 'low' | 'medium' | 'high' = 'high',
+    options?: {
+      includePageNumbers?: boolean;
+      printBackgroundGraphics?: boolean;
+      paperSize?: 'a4' | 'letter';
+    }
+  ) => {
     const element = document.getElementById('academic-cover-page');
     if (!element) {
       alert("Error: Canvas structure is missing.");
       return;
+    }
+
+    const includePageNumbers = options?.includePageNumbers ?? false;
+    const printBackgroundGraphics = options?.printBackgroundGraphics ?? true;
+    const paperSize = options?.paperSize ?? 'a4';
+
+    let targetWidth = 794;
+    let targetHeight = 1123;
+    if (paperSize === 'letter') {
+      targetWidth = 794;
+      targetHeight = 1027; // Letter size aspect ratio is 8.5 x 11 (approx 1:1.29)
     }
 
     setIsExporting(`Generating ${quality.toUpperCase()} Quality ${format.toUpperCase()}...`);
@@ -410,8 +508,8 @@ export default function App() {
       parent.style.left = '0';
     }
     if (grandParent) {
-      grandParent.style.width = '794px';
-      grandParent.style.height = '1123px';
+      grandParent.style.width = `${targetWidth}px`;
+      grandParent.style.height = `${targetHeight}px`;
     }
 
     // Modern Tailwind v4 oklch & oklab parser bug hotpatch with robust parenthesis matching
@@ -531,6 +629,8 @@ export default function App() {
     };
 
     let stylePatcher: { restore: () => void } | null = null;
+    let noBgStyle: HTMLStyleElement | null = null;
+    let originalPageBg = '';
     const elementsWithStyle = Array.from(document.querySelectorAll('[style]'));
     if (document.documentElement.getAttribute('style')) elementsWithStyle.push(document.documentElement);
     if (document.body.getAttribute('style')) elementsWithStyle.push(document.body);
@@ -600,6 +700,32 @@ export default function App() {
         }
       });
 
+      // Insert Style Override for suppressing Background Graphics
+      if (!printBackgroundGraphics) {
+        noBgStyle = document.createElement('style');
+        noBgStyle.innerHTML = `
+          /* Suppress watermarks */
+          [class*="watermark"], .watermark-animate, [alt="Watermark"], .watermark-container, svg[class*="w-[450px]"] {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            display: none !important;
+          }
+          /* Remove background patterns, grids, lines or frame gradients */
+          #academic-cover-page {
+            background-image: none !important;
+            background-color: #ffffff !important;
+            background: #ffffff !important;
+          }
+        `;
+        document.head.appendChild(noBgStyle);
+        if (element) {
+          originalPageBg = element.style.background;
+          element.style.background = '#ffffff';
+          element.style.backgroundColor = '#ffffff';
+          element.style.backgroundImage = 'none';
+        }
+      }
+
       // Apply stylesheet patch to bypass oklch/oklab parsing failure
       stylePatcher = await patchStylesheets();
 
@@ -613,12 +739,12 @@ export default function App() {
 
       const canvas = await html2canvas(element, {
         scale: scaleValue,
-        width: 794,
-        height: 1123,
+        width: targetWidth,
+        height: targetHeight,
         useCORS: true,
         allowTaint: true,
         logging: true,
-        backgroundColor: pageBackgroundColor || coverDesign.paperColor || '#ffffff',
+        backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
       });
 
       const cleanFileName = `${coverData?.courseNo || 'cover'}_${(coverData?.documentType || '').toLowerCase().replace(/[^a-z0-9]+/g, '_')}`
@@ -640,12 +766,12 @@ export default function App() {
         // Fallback: Re-render without tainted useCORS/taint requirements
         const fallbackCanvas = await html2canvas(element, {
           scale: scaleValue,
-          width: 794,
-          height: 1123,
+          width: targetWidth,
+          height: targetHeight,
           useCORS: false,
           allowTaint: false,
           logging: false,
-          backgroundColor: pageBackgroundColor || coverDesign.paperColor || '#ffffff',
+          backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
         });
         if (format === 'pdf') {
           imgData = fallbackCanvas.toDataURL('image/jpeg', 0.82);
@@ -657,14 +783,16 @@ export default function App() {
       }
 
       if (format === 'pdf') {
-        const docWidth = 210; // A4 standard width (mm)
-        const docHeight = 297; // A4 standard height (mm)
+        const isLetter = paperSize === 'letter';
+        const docWidth = isLetter ? 215.9 : 210; // US Letter vs A4
+        const docHeight = isLetter ? 279.4 : 297;  // US Letter vs A4
+        const pdfFormat = isLetter ? 'letter' : 'a4';
         
         const jsPDFCtor = (jspdf as any).jsPDF || (jspdf as any).default || jspdf;
         const doc = new jsPDFCtor({
           orientation: 'portrait',
           unit: 'mm',
-          format: 'a4',
+          format: pdfFormat,
           compress: true
         });
 
@@ -678,6 +806,14 @@ export default function App() {
         });
 
         doc.addImage(imgData, 'JPEG', 0, 0, docWidth, docHeight, undefined, 'FAST');
+
+        // Draw elegant page numbering if requested
+        if (includePageNumbers) {
+          doc.setFontSize(9);
+          doc.setTextColor(148, 163, 184); // slate-400
+          doc.text("Page 1", docWidth / 2, docHeight - 12, { align: 'center' });
+        }
+
         doc.save(`${cleanFileName}_cover.pdf`);
       } else if (format === 'png') {
         const trigger = document.createElement('a');
@@ -709,6 +845,16 @@ export default function App() {
         }
       }
 
+      // Restore page background style
+      if (!printBackgroundGraphics && element) {
+        element.style.background = originalPageBg;
+      }
+
+      // Cleanup background suppression style
+      if (noBgStyle) {
+        noBgStyle.remove();
+      }
+
       // Instantly restore style systems and stylesheets
       if (stylePatcher) {
         stylePatcher.restore();
@@ -735,8 +881,15 @@ export default function App() {
   };
 
   // Explicit, fail-proof Button Handlers as strictly requested by user
-  const handleDownloadPDF = async (quality: 'low' | 'medium' | 'high' = 'high') => {
-    await executeExport('pdf', quality);
+  const handleDownloadPDF = async (
+    quality: 'low' | 'medium' | 'high' = 'high',
+    options?: {
+      includePageNumbers?: boolean;
+      printBackgroundGraphics?: boolean;
+      paperSize?: 'a4' | 'letter';
+    }
+  ) => {
+    await executeExport('pdf', quality, options);
   };
 
   const handleDownloadJPG = async (quality: 'low' | 'medium' | 'high' = 'high') => {
@@ -753,127 +906,146 @@ export default function App() {
       theme === 'dark' ? 'bg-[#06070a] text-slate-100' : 'bg-[#fafafc] text-slate-800'
     }`}>
       
-      {/* LANDING PAGE WRAPPER */}
-      {currentStep === 'landing' ? (
-        <LandingPage 
-          onGetStarted={() => {
-            setCurrentStep('inputs');
-          }}
-          onExploreFeatures={() => {
-            const el = document.getElementById('explore-features'); 
-            el?.scrollIntoView({ behavior: 'smooth' }); 
-          }}
-          theme={theme}
-          setTheme={setTheme}
-          isInstallable={isInstallable}
-          onInstallApp={handleInstallApp}
-        />
-      ) : currentStep === 'inputs' ? (
-        
-        // FULL-SCREEN FORM INPUTS STATE
-        <div className="studio-workspace-container flex flex-col h-screen overflow-hidden">
-          
-          {/* header navigation bar */}
-          <header className={`relative z-20 border-b px-5 py-3.5 flex items-center justify-between shadow-xl shrink-0 transition-colors duration-300 ${
-            theme === 'dark' ? 'bg-[#080a10] border-slate-900/80 text-white' : 'bg-white border-slate-200/80 text-slate-800'
-          }`}>
-            <div className="flex items-center space-x-3 cursor-pointer select-none" onClick={() => setCurrentStep('landing')}>
-              <AnimatedLogo size="studio" theme={theme} />
-              <div className={`hidden sm:block pl-1.5 py-0.5 border-l ${theme === 'dark' ? 'border-[#161e33]' : 'border-slate-200'}`}>
-                <span className="text-[9px] block font-mono text-slate-500 uppercase tracking-widest leading-none">Studio Workshop</span>
-              </div>
-            </div>
-
-            {/* Stepper overview details dashboard */}
-            <div className={`hidden md:flex items-center gap-2 border px-3.5 py-1.5 rounded-xl text-xs transition-colors duration-300 ${
-              theme === 'dark' ? 'bg-[#030408] border-slate-900' : 'bg-slate-50 border-slate-200'
-            }`}>
-              <span className="font-extrabold text-indigo-500 dark:text-indigo-400">Step 1: Credentials</span>
-              <ChevronRight className={`w-3.5 h-3.5 ${theme === 'dark' ? 'text-slate-700' : 'text-slate-400'}`} />
-              <button 
-                onClick={() => setCurrentStep('builder')}
-                className={`font-medium transition-colors ${theme === 'dark' ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-slate-700'}`}
-              >
-                Step 2: Customizer
-              </button>
-            </div>
-
-            <div className="flex items-center space-x-2.5">
-              {isInstallable && (
-                <button
-                  onClick={handleInstallApp}
-                  className="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1 cursor-pointer transition-all shadow-md animate-pulse"
-                  title="Install CoverGen App"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span className="hidden md:inline">Install App</span>
-                </button>
-              )}
-              {/* STATEFUL THEME TOGGLER (SUN / MOON) */}
-              <button
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className={`p-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center ${
-                  theme === 'dark' 
-                    ? 'bg-slate-900 hover:bg-slate-800 border border-slate-800' 
-                    : 'bg-slate-50 hover:bg-slate-100 border border-slate-200 shadow-sm'
-                }`}
-                title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
-              >
-                {theme === 'dark' ? (
-                  <Sun className="w-3.5 h-3.5 text-amber-500 hover:text-amber-400 transition-colors" />
-                ) : (
-                  <Moon className="w-3.5 h-3.5 text-slate-505" />
-                )}
-              </button>
-
-              <button 
-                onClick={() => setCurrentStep('landing')}
-                className={`px-3.5 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
-                  theme === 'dark' 
-                    ? 'bg-slate-900 hover:bg-slate-800 border-slate-800/80 text-slate-400 hover:text-white' 
-                    : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-800 shadow-sm'
-                }`}
-              >
-                Back
-              </button>
-              <button 
-                onClick={() => {
-                  setBuilderTab('designer');
-                  setCurrentStep('builder');
-                }}
-                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold tracking-wider transition-all shadow-md hover:shadow-blue-500/20 active:scale-95 cursor-pointer flex items-center gap-1"
-              >
-                <span>Next Step</span>
-                <ChevronRight className="w-3.5 h-3.5 text-white" />
-              </button>
-            </div>
-          </header>
-
-          <div className="flex-1 overflow-y-auto">
-            <DataInputPage 
-              coverData={coverData}
-              setCoverData={setCoverData}
-              applyPresetDataset={applyPresetDataset}
-              onNext={() => {
-                // Instantly pre-populate designer tab for optimal wizard experience
-                setBuilderTab('designer');
-                setCurrentStep('builder');
+      <AnimatePresence mode="wait">
+        {currentStep === 'landing' ? (
+          <motion.div
+            key="landing"
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="w-full flex-1 flex flex-col"
+          >
+            <LandingPage 
+              onGetStarted={() => {
+                navigateStep('inputs');
+              }}
+              onExploreFeatures={() => {
+                const el = document.getElementById('explore-features'); 
+                el?.scrollIntoView({ behavior: 'smooth' }); 
               }}
               theme={theme}
+              setTheme={setTheme}
+              isInstallable={isInstallable}
+              onInstallApp={handleInstallApp}
             />
-          </div>
+          </motion.div>
+        ) : currentStep === 'inputs' ? (
+          
+          <motion.div
+            key="inputs"
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="studio-workspace-container flex flex-col h-screen overflow-hidden w-full"
+          >
+            
+            {/* header navigation bar */}
+            <header className={`relative z-20 border-b px-5 py-3.5 flex items-center justify-between shadow-xl shrink-0 transition-colors duration-300 ${
+              theme === 'dark' ? 'bg-[#080a10] border-slate-900/80 text-white' : 'bg-white border-slate-200/80 text-slate-800'
+            }`}>
+              <div className="flex items-center space-x-3 cursor-pointer select-none" onClick={() => navigateStep('landing')}>
+                <AnimatedLogo size="studio" theme={theme} />
+                <div className={`hidden sm:block pl-1.5 py-0.5 border-l ${theme === 'dark' ? 'border-[#161e33]' : 'border-slate-200'}`}>
+                  <span className="text-[9px] block font-mono text-slate-500 uppercase tracking-widest leading-none">Studio Workshop</span>
+                </div>
+              </div>
 
-        </div>
-      ) : (
-        
-        // BUILDER APP WORKSPACE
-        <div className="studio-workspace-container flex flex-col h-screen overflow-hidden">
+              {/* Stepper overview details dashboard */}
+              <div className={`hidden md:flex items-center gap-2 border px-3.5 py-1.5 rounded-xl text-xs transition-colors duration-300 ${
+                theme === 'dark' ? 'bg-[#030408] border-slate-900' : 'bg-slate-50 border-slate-200'
+              }`}>
+                <span className="font-extrabold text-indigo-500 dark:text-indigo-400">Step 1: Credentials</span>
+                <ChevronRight className={`w-3.5 h-3.5 ${theme === 'dark' ? 'text-slate-700' : 'text-slate-400'}`} />
+                <button 
+                  onClick={() => navigateStep('builder')}
+                  className={`font-medium transition-colors ${theme === 'dark' ? 'text-slate-505 hover:text-slate-300' : 'text-slate-400 hover:text-slate-700'}`}
+                >
+                  Step 2: Customizer
+                </button>
+              </div>
+
+              <div className="flex items-center space-x-2.5">
+                {isInstallable && (
+                  <button
+                    onClick={handleInstallApp}
+                    className="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1 cursor-pointer transition-all shadow-md animate-pulse"
+                    title="Install CoverGen App"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span className="hidden md:inline">Install App</span>
+                  </button>
+                )}
+                {/* STATEFUL THEME TOGGLER (SUN / MOON) */}
+                <button
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  className={`p-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center ${
+                    theme === 'dark' 
+                      ? 'bg-slate-900 hover:bg-slate-800 border border-slate-800' 
+                      : 'bg-slate-50 hover:bg-slate-100 border border-slate-200 shadow-sm'
+                  }`}
+                  title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                >
+                  {theme === 'dark' ? (
+                    <Sun className="w-3.5 h-3.5 text-amber-500 hover:text-amber-400 transition-colors" />
+                  ) : (
+                    <Moon className="w-3.5 h-3.5 text-slate-505" />
+                  )}
+                </button>
+
+                <button 
+                  onClick={() => navigateStep('landing')}
+                  className={`px-3.5 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
+                    theme === 'dark' 
+                      ? 'bg-slate-900 hover:bg-slate-800 border-slate-800/80 text-slate-400 hover:text-white' 
+                      : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-800 shadow-sm'
+                  }`}
+                >
+                  Back
+                </button>
+                <button 
+                  onClick={() => {
+                    navigateTo('builder', 'designer');
+                  }}
+                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold tracking-wider transition-all shadow-md hover:shadow-blue-500/20 active:scale-95 cursor-pointer flex items-center gap-1"
+                >
+                  <span>Next Step</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-white" />
+                </button>
+              </div>
+            </header>
+
+            <div className="flex-1 overflow-y-auto w-full">
+              <DataInputPage 
+                coverData={coverData}
+                setCoverData={setCoverData}
+                applyPresetDataset={applyPresetDataset}
+                onNext={() => {
+                  navigateTo('builder', 'designer');
+                }}
+                theme={theme}
+              />
+            </div>
+
+          </motion.div>
+        ) : (
+          
+          // BUILDER APP WORKSPACE
+          <motion.div
+            key="builder"
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="studio-workspace-container flex flex-col h-screen overflow-hidden w-full"
+          >
           
           {/* header navigation bar */}
           <header className={`relative z-20 border-b px-5 py-3.5 flex items-center justify-between shadow-xl transition-colors duration-300 ${
             theme === 'dark' ? 'bg-[#080a10] border-slate-900/80 text-white' : 'bg-white border-slate-200/80 text-slate-800'
           }`}>
-            <div className="flex items-center space-x-3 cursor-pointer select-none" onClick={() => setCurrentStep('landing')}>
+            <div className="flex items-center space-x-3 cursor-pointer select-none" onClick={() => navigateStep('landing')}>
               <AnimatedLogo size="studio" theme={theme} />
               <div className={`hidden sm:block pl-1.5 py-0.5 border-l ${theme === 'dark' ? 'border-[#161e33]' : 'border-slate-200'}`}>
                 <span className="text-[9px] block font-mono text-slate-500 uppercase tracking-widest leading-none">Studio Workshop</span>
@@ -885,7 +1057,7 @@ export default function App() {
               theme === 'dark' ? 'bg-[#030408] border border-[#161e33]' : 'bg-slate-100 border border-slate-200/80'
             }`}>
               <button 
-                onClick={() => setBuilderTab('inputs')}
+                onClick={() => navigateTab('inputs')}
                 className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   builderTab === 'inputs' 
                     ? theme === 'dark'
@@ -899,7 +1071,7 @@ export default function App() {
                 1. Text Inputs
               </button>
               <button 
-                onClick={() => setBuilderTab('designer')}
+                onClick={() => navigateTab('designer')}
                 className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   builderTab === 'designer' 
                     ? theme === 'dark'
@@ -913,7 +1085,7 @@ export default function App() {
                 2. Theme Designer
               </button>
               <button 
-                onClick={() => setBuilderTab('preview')}
+                onClick={() => navigateTab('preview')}
                 className={`md:hidden px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   builderTab === 'preview' 
                     ? theme === 'dark'
@@ -971,7 +1143,7 @@ export default function App() {
               </button>
               
               <button 
-                onClick={() => setCurrentStep('landing')}
+                onClick={() => navigateStep('landing')}
                 className="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold font-sans tracking-wide transition-all cursor-pointer"
               >
                 Exit Studio
@@ -994,7 +1166,7 @@ export default function App() {
                   setCoverData={setCoverData}
                   applyPresetDataset={applyPresetDataset}
                   theme={theme}
-                  onNext={() => setBuilderTab('designer')}
+                  onNext={() => navigateTab('designer')}
                 />
               ) : (
                 <DesignBuilder 
@@ -1095,49 +1267,64 @@ export default function App() {
                         <span className="px-1.5 py-0.5 rounded text-[8px] font-mono bg-emerald-500/10 text-emerald-500 font-extrabold uppercase">High DPI</span>
                       </div>
 
-                      {/* --- VECTOR PDF SECTION --- */}
-                      <div className="p-3.5 border-b border-slate-100 dark:border-slate-800/60">
-                        <div className="flex items-center space-x-2.5 mb-2.5">
-                          <div className="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center shrink-0">
-                            <FileText className="w-3.5 h-3.5" />
+                      {/* --- VECTOR PDF SECTION WITH ADVANCED OPTIONS --- */}
+                      <div className="p-3.5 border-b border-slate-100 dark:border-slate-800/60 text-left">
+                        <div className="flex items-center justify-between mb-2.5">
+                          <div className="flex items-center space-x-2.5 min-w-0">
+                            <div className="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center shrink-0">
+                              <FileText className="w-3.5 h-3.5" />
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-[11px] font-extrabold tracking-wide uppercase">Vector PDF Document</span>
+                              <span className="text-[9px] text-slate-500 dark:text-slate-400">Settings, size & numbers</span>
+                            </div>
                           </div>
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-[11px] font-extrabold tracking-wide uppercase">Vector PDF Document</span>
-                            <span className="text-[9px] text-slate-500 dark:text-slate-400">Best for professional printing</span>
-                          </div>
+                          <button
+                            onClick={() => {
+                              setIsDownloadOpen(false);
+                              setShowAdvancedPdfDialog(true);
+                            }}
+                            className="p-1 px-2 rounded-lg text-[9px] font-mono font-bold uppercase bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 transition-all cursor-pointer select-none"
+                            title="Configure advanced page options"
+                          >
+                            Configure
+                          </button>
                         </div>
                         <div className="grid grid-cols-3 gap-1.5">
                           <button
                             onClick={() => {
                               setIsDownloadOpen(false);
-                              handleDownloadPDF('low');
+                              setPdfQuality('low');
+                              setShowAdvancedPdfDialog(true);
                             }}
                             className={`py-1 rounded text-[9px] font-mono font-bold uppercase transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer ${
                               theme === 'dark' ? 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-400' : 'bg-rose-50 hover:bg-rose-100 text-rose-600'
                             }`}
-                            title="Export standard definition PDF"
+                            title="Configure standard PDF"
                           >
                             Low
                           </button>
                           <button
                             onClick={() => {
                               setIsDownloadOpen(false);
-                              handleDownloadPDF('medium');
+                              setPdfQuality('medium');
+                              setShowAdvancedPdfDialog(true);
                             }}
                             className={`py-1 rounded text-[9px] font-mono font-bold uppercase transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer ${
                               theme === 'dark' ? 'bg-rose-500/20 hover:bg-rose-500/35 text-rose-300' : 'bg-rose-100 hover:bg-rose-200 text-rose-700'
                             }`}
-                            title="Export medium resolution PDF"
+                            title="Configure medium PDF"
                           >
                             Med
                           </button>
                           <button
                             onClick={() => {
                               setIsDownloadOpen(false);
-                              handleDownloadPDF('high');
+                              setPdfQuality('high');
+                              setShowAdvancedPdfDialog(true);
                             }}
                             className="py-1 rounded text-[9px] font-mono font-extrabold uppercase bg-rose-600 hover:bg-rose-550 text-white transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer"
-                            title="Export premium ultra high definition PDF"
+                            title="Configure premium PDF"
                           >
                             High
                           </button>
@@ -1281,12 +1468,202 @@ export default function App() {
                 </div>
               )}
 
+              {/* Advanced PDF Export Dialog */}
+              {showAdvancedPdfDialog && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 select-none animate-fadeIn">
+                  {/* Backdrop Closer */}
+                  <div className="absolute inset-0 cursor-default" onClick={() => setShowAdvancedPdfDialog(false)} />
+                  
+                  <div className={`max-w-md w-full rounded-2xl p-6 relative shadow-2xl space-y-5 animate-scaleUp border z-10 transition-colors duration-300 ${
+                    theme === 'dark' 
+                      ? "bg-[#0b0f19] border-slate-800 text-slate-100 shadow-[0_24px_50px_rgba(0,0,0,0.8)]" 
+                      : "bg-white border-slate-200 text-slate-800 shadow-[0_24px_50px_rgba(0,0,0,0.15)]"
+                  }`}>
+                    
+                    {/* Close Button */}
+                    <button 
+                      onClick={() => setShowAdvancedPdfDialog(false)}
+                      className={`absolute top-5 right-5 p-1 rounded-lg border transition-colors cursor-pointer ${
+                        theme === 'dark' 
+                          ? "bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800" 
+                          : "bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+                      }`}
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+
+                    {/* Header */}
+                    <div className="flex items-center space-x-3 pb-1">
+                      <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center border border-indigo-500/20 shadow-inner">
+                        <Settings2 className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className={`text-sm font-black uppercase tracking-wider text-left ${theme === 'dark' ? "text-white" : "text-slate-800"}`}>
+                          Advanced PDF Settings
+                        </h3>
+                        <p className={`text-[10px] uppercase font-mono tracking-wide text-left ${theme === 'dark' ? "text-slate-400" : "text-slate-550"}`}>
+                          Custom Page Size & Options
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Config Elements */}
+                    <div className="space-y-4 pt-1">
+                      {/* Configuration Element: Paper Size selection */}
+                      <div className="space-y-2">
+                        <label className={`block text-[10px] font-mono font-extrabold uppercase tracking-widest text-left ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                          Paper Form Size
+                        </label>
+                        <div className="grid grid-cols-2 gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setPdfPaperSize('a4')}
+                            className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all cursor-pointer text-center ${
+                              pdfPaperSize === 'a4'
+                                ? 'bg-indigo-600/15 text-indigo-450 border-indigo-550 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/40'
+                                : theme === 'dark'
+                                  ? 'bg-[#121932]/40 border-slate-850 hover:bg-slate-900 text-slate-405'
+                                  : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-650 shadow-sm'
+                            }`}
+                          >
+                            <span className="text-xs font-black uppercase tracking-widest">A4 Paper</span>
+                            <span className="text-[9px] font-mono opacity-80 mt-0.5">210 × 297 mm</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setPdfPaperSize('letter')}
+                            className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all cursor-pointer text-center ${
+                              pdfPaperSize === 'letter'
+                                ? 'bg-indigo-600/15 text-indigo-455 border-indigo-550 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/40'
+                                : theme === 'dark'
+                                  ? 'bg-[#121932]/40 border-slate-850 hover:bg-slate-900 text-slate-405'
+                                  : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-650 shadow-sm'
+                            }`}
+                          >
+                            <span className="text-xs font-black uppercase tracking-widest">Letter Paper</span>
+                            <span className="text-[9px] font-mono opacity-80 mt-0.5">8.5 × 11 in</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Quality Presets */}
+                      <div className="space-y-2">
+                        <label className={`block text-[10px] font-mono font-extrabold uppercase tracking-widest text-left ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                          DPI Resolution
+                        </label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            { id: 'low', label: 'Standard', desc: '1.2x scale' },
+                            { id: 'medium', label: 'Medium', desc: '2.2x scale' },
+                            { id: 'high', label: 'Premium', desc: '3.5x scale' }
+                          ].map((preset) => (
+                            <button
+                              key={preset.id}
+                              type="button"
+                              onClick={() => setPdfQuality(preset.id as any)}
+                              className={`flex flex-col items-center justify-center py-2 rounded-xl border transition-all cursor-pointer text-center ${
+                                pdfQuality === preset.id
+                                  ? 'bg-rose-500/15 text-rose-500 border-rose-500/60 dark:bg-rose-500/20 dark:text-rose-400 dark:border-rose-500/50'
+                                  : theme === 'dark'
+                                    ? 'bg-[#121932]/40 border-slate-850 hover:bg-slate-900 text-slate-400'
+                                    : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-650 shadow-sm'
+                              }`}
+                            >
+                              <span className="text-[11px] font-black uppercase tracking-wider">{preset.label}</span>
+                              <span className="text-[8px] font-mono opacity-70 mt-0.5">{preset.desc}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Config Options: Toggle switches */}
+                      <div className="space-y-3 pt-1">
+                        {/* Option 1: Page Numbers Option */}
+                        <div className={`flex items-center justify-between p-3 rounded-xl border text-left ${
+                          theme === 'dark' ? 'bg-[#101524]/60 border-slate-850' : 'bg-slate-50/50 border-slate-150'
+                        }`}>
+                          <div className="flex flex-col pr-3">
+                            <span className="text-[11px] font-extrabold uppercase tracking-wide">Include Page Numbers</span>
+                            <span className="text-[9px] text-slate-500 dark:text-slate-400 leading-normal mt-0.5">Prints centered pagination label ("Page 1") on footers</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setPdfIncludePageNumbers(prev => !prev)}
+                            className={`w-10 h-5.5 rounded-full transition-colors relative cursor-pointer outline-none shrink-0 ${
+                              pdfIncludePageNumbers ? 'bg-indigo-650' : 'bg-slate-350 dark:bg-slate-800'
+                            }`}
+                          >
+                            <span className={`absolute top-0.5 left-0.5 bg-white w-4.5 h-4.5 rounded-full shadow-md transition-transform duration-200 ${
+                              pdfIncludePageNumbers ? 'translate-x-4.5' : 'translate-x-0'
+                            }`} />
+                          </button>
+                        </div>
+
+                        {/* Option 2: Print Background Graphics option */}
+                        <div className={`flex items-center justify-between p-3 rounded-xl border text-left ${
+                          theme === 'dark' ? 'bg-[#101524]/60 border-slate-850' : 'bg-slate-50/50 border-slate-150'
+                        }`}>
+                          <div className="flex flex-col pr-3">
+                            <span className="text-[11px] font-extrabold uppercase tracking-wide">Print Background Graphics</span>
+                            <span className="text-[9px] text-slate-500 dark:text-slate-400 leading-normal mt-0.5">Include gradients, borders, frames and background watermark designs</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setPdfPrintBackground(prev => !prev)}
+                            className={`w-10 h-5.5 rounded-full transition-colors relative cursor-pointer outline-none shrink-0 ${
+                              pdfPrintBackground ? 'bg-indigo-655' : 'bg-slate-350 dark:bg-slate-800'
+                            }`}
+                          >
+                            <span className={`absolute top-0.5 left-0.5 bg-white w-4.5 h-4.5 rounded-full shadow-md transition-transform duration-200 ${
+                              pdfPrintBackground ? 'translate-x-4.5' : 'translate-x-0'
+                            }`} />
+                          </button>
+                        </div>
+                      </div>
+
+                    </div>
+
+                    {/* Action buttons panel */}
+                    <div className="flex space-x-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowAdvancedPdfDialog(false)}
+                        className={`flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all border cursor-pointer text-center ${
+                          theme === 'dark'
+                            ? 'bg-slate-900 hover:bg-slate-850 border-slate-800 text-slate-400 hover:text-white'
+                            : 'bg-slate-100 hover:bg-slate-150 border-slate-200 text-slate-650 shadow-sm'
+                        }`}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          setShowAdvancedPdfDialog(false);
+                          await handleDownloadPDF(pdfQuality, {
+                            includePageNumbers: pdfIncludePageNumbers,
+                            printBackgroundGraphics: pdfPrintBackground,
+                            paperSize: pdfPaperSize
+                          });
+                        }}
+                        className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-black uppercase tracking-wider hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center space-x-2 cursor-pointer border border-emerald-400/20"
+                      >
+                        <Printer className="w-3.5 h-3.5" />
+                        <span>Export PDF</span>
+                      </button>
+                    </div>
+
+                  </div>
+                </div>
+              )}
+
             </div>
 
           </div>
 
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
     </div>
   );
