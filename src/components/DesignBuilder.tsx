@@ -1963,7 +1963,6 @@ export function DesignBuilder({
                 </button>
               </div>
             </div>
-
             {/* The Accordion List of 12 Topics */}
             <div className="space-y-2.5">
               {granularFields.map((match, idx) => {
@@ -2117,6 +2116,45 @@ export function DesignBuilder({
                                 />
                               </div>
                             </div>
+                          </div>
+                        )}
+
+                        {match.id === 'discipline' && (
+                          <div className={`p-4 border-b border-dashed mb-2 space-y-3 rounded-xl ${
+                            isDark ? 'border-[#1a284c]/50 bg-[#0e1628]/30' : 'border-slate-200 bg-slate-50/50'
+                          }`}>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-[#d95d39] dark:text-[#fa8072]">
+                                Label Terminology
+                              </span>
+                              <div className="flex bg-slate-200 dark:bg-slate-900 rounded-lg p-0.5 border dark:border-slate-800">
+                                <button
+                                  type="button"
+                                  onClick={() => setCoverDesign(prev => ({ ...prev, disciplineLabel: 'Discipline' }))}
+                                  className={`px-3 py-1 select-none text-[10px] font-sans font-bold uppercase rounded-md transition-all cursor-pointer ${
+                                    (coverDesign.disciplineLabel || 'Discipline') === 'Discipline'
+                                      ? 'bg-indigo-600 text-white shadow-sm'
+                                      : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                                  }`}
+                                >
+                                  Discipline
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setCoverDesign(prev => ({ ...prev, disciplineLabel: 'Department' }))}
+                                  className={`px-3 py-1 select-none text-[10px] font-sans font-bold uppercase rounded-md transition-all cursor-pointer ${
+                                    (coverDesign.disciplineLabel || 'Discipline') === 'Department'
+                                      ? 'bg-indigo-600 text-white shadow-sm'
+                                      : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                                  }`}
+                                >
+                                  Department
+                                </button>
+                              </div>
+                            </div>
+                            <p className="text-[10px] text-slate-400 leading-normal pl-0.5">
+                              This toggle updates dynamic label fallbacks and defaults on the rendered cover page to match your school structure.
+                            </p>
                           </div>
                         )}
                         <SingleFontEditor

@@ -11,6 +11,7 @@ import { InformationForm } from './components/InformationForm';
 import { DesignBuilder } from './components/DesignBuilder';
 import { CoverDocument } from './components/CoverDocument';
 import { DataInputPage } from './components/DataInputPage';
+import { SplashScreen } from './components/SplashScreen';
 import { 
   GraduationCap, 
   RotateCcw, 
@@ -63,6 +64,7 @@ const pageVariants = {
 };
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState<boolean>(true);
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     const saved = localStorage.getItem('theme');
     return (saved === 'light' || saved === 'dark') ? saved : 'dark';
@@ -902,9 +904,16 @@ export default function App() {
 
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans selection:bg-indigo-600 selection:text-white antialiased transition-colors duration-300 ${
-      theme === 'dark' ? 'bg-[#06070a] text-slate-100' : 'bg-[#fafafc] text-slate-800'
-    }`}>
+    <>
+      <AnimatePresence>
+        {showSplash && (
+          <SplashScreen onComplete={() => setShowSplash(false)} />
+        )}
+      </AnimatePresence>
+
+      <div className={`min-h-screen flex flex-col font-sans selection:bg-indigo-600 selection:text-white antialiased transition-colors duration-300 ${
+        theme === 'dark' ? 'bg-[#06070a] text-slate-100' : 'bg-[#fafafc] text-slate-800'
+      }`}>
       
       <AnimatePresence mode="wait">
         {currentStep === 'landing' ? (
@@ -1666,5 +1675,6 @@ export default function App() {
       </AnimatePresence>
 
     </div>
+    </>
   );
 }

@@ -101,6 +101,9 @@ export interface CoverPageDesign {
   // Selected Template Style
   templateId?: 'ku' | 'du-classic' | 'du-minimal' | 'jnu' | 'ruet' | 'jnu-finance' | 'presidency' | 'jnu-traditional' | 'teal-bars' | 'ku-law-table' | 'cu-boxed-code' | 'asymmetrical-research' | 'top-header-asymmetric';
 
+  // Discipline vs Department label toggle
+  disciplineLabel?: 'Discipline' | 'Department';
+
   // Drag and drop custom element positions
   positions?: Record<string, { x: number; y: number }>;
 }
@@ -376,6 +379,7 @@ export const DEFAULT_DESIGN: CoverPageDesign = {
   qrCodeSize: 60,
   qrCodePosition: 'bottom-right',
   templateId: 'top-header-asymmetric', // Use the stunning, highly personalized asymmetric template by default now!
+  disciplineLabel: 'Discipline',
   positions: {}
 };
 

@@ -483,13 +483,8 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 <div 
                   className="border-[2px] rounded-xl px-12 py-2 text-center select-none"
                   style={{
-                    fontFamily: design.fontUniversity?.fontFamily || design.fontTitle?.fontFamily || fontFamily || 'Georgia, serif',
-                    fontSize: `${(design.fontUniversity?.fontSize || design.fontTitle?.fontSize || 16) / 14}em`,
-                    color: design.fontUniversity?.color || design.fontTitle?.color || fontColor || '#1e3a8a',
+                    ...getDirectStyle(design.fontUniversity, design.fontTitle, fontFamily, fontColor || '#1e3a8a', true, 16, 'em'),
                     borderColor: design.fontUniversity?.color || design.fontTitle?.color || fontColor || '#1e3a8a',
-                    fontWeight: design.fontUniversity?.bold !== undefined ? (design.fontUniversity.bold ? 'bold' : 'normal') : (design.fontTitle?.bold !== false ? 'bold' : 'normal'),
-                    fontStyle: design.fontUniversity?.italic ? 'italic' : (design.fontTitle?.italic ? 'italic' : 'normal'),
-                    textTransform: (design.fontUniversity?.uppercase !== undefined ? design.fontUniversity.uppercase : true) ? 'uppercase' : 'none',
                     boxShadow: '0 2px 8px rgba(30, 58, 138, 0.05)'
                   }}
                 >
@@ -517,12 +512,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             <DraggableBlock elementId="documentType" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
               <h3 
                 style={{
-                  fontFamily: design.fontAssignmentTopic?.fontFamily || fontFamily || 'Georgia, serif',
-                  fontSize: `${(design.fontAssignmentTopic?.fontSize || 26) / 14}em`,
-                  color: design.fontAssignmentTopic?.color || fontColor || '#1e3a8a',
-                  fontWeight: design.fontAssignmentTopic?.bold !== false ? 'bold' : 'normal',
-                  fontStyle: design.fontAssignmentTopic?.italic ? 'italic' : 'normal',
-                  textTransform: design.fontAssignmentTopic?.uppercase !== false ? 'capitalize' : 'none',
+                  ...getDirectStyle(design.fontAssignmentTopic, design.fontTitle, fontFamily, fontColor || '#1e3a8a', true, 26, 'em')
                 }}
                 className="tracking-wide text-center underline decoration-2 underline-offset-8"
               >
@@ -537,21 +527,16 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 <div className="flex items-start text-left">
                   <span className="mr-2.5 mt-[2px] leading-none" style={{ color: design.accentColor || '#f97316' }}>✦</span>
                   <span 
-                    className="shrink-0 w-[140px] font-bold"
+                    className="shrink-0 w-[140px]"
                     style={{
-                      fontFamily: design.fontCourseTitleHeading?.fontFamily || fontFamily || 'Georgia, serif',
-                      fontSize: `${(design.fontCourseTitleHeading?.fontSize || 12) / 14}em`,
-                      color: design.fontCourseTitleHeading?.color || fontColor || '#1e3a8a'
+                      ...getDirectStyle(design.fontCourseTitleHeading, design.fontCourse, fontFamily, fontColor || '#1e3a8a', true, 12, 'em')
                     }}
                   >
                     {data.courseNameHeading || 'Course Title'} :
                   </span>
                   <span 
-                    className="font-bold"
                     style={{
-                      fontFamily: design.fontCourseTitleContent?.fontFamily || fontFamily || 'Georgia, serif',
-                      fontSize: `${(design.fontCourseTitleContent?.fontSize || 12) / 14}em`,
-                      color: design.fontCourseTitleContent?.color || fontColor || undefined
+                      ...getDirectStyle(design.fontCourseTitleContent, design.fontCourse, fontFamily, fontColor, true, 12, 'em')
                     }}
                   >
                     {data.courseName || 'Bangladesh Studies'}
@@ -562,21 +547,16 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 <div className="flex items-start text-left">
                   <span className="mr-2.5 mt-[2px] leading-none" style={{ color: design.accentColor || '#3b82f6' }}>✦</span>
                   <span 
-                    className="shrink-0 w-[140px] font-bold"
+                    className="shrink-0 w-[140px]"
                     style={{
-                      fontFamily: design.fontCourseNoHeading?.fontFamily || fontFamily || 'Georgia, serif',
-                      fontSize: `${(design.fontCourseNoHeading?.fontSize || 12) / 14}em`,
-                      color: design.fontCourseNoHeading?.color || fontColor || '#1e3a8a'
+                      ...getDirectStyle(design.fontCourseNoHeading, design.fontCourse, fontFamily, fontColor || '#1e3a8a', true, 12, 'em')
                     }}
                   >
                     {data.courseNoHeading || 'Course Code'} :
                   </span>
                   <span 
-                    className="font-bold"
                     style={{
-                      fontFamily: design.fontCourseNoContent?.fontFamily || fontFamily || 'Georgia, serif',
-                      fontSize: `${(design.fontCourseNoContent?.fontSize || 12) / 14}em`,
-                      color: design.fontCourseNoContent?.color || fontColor || undefined
+                      ...getDirectStyle(design.fontCourseNoContent, design.fontCourse, fontFamily, fontColor, true, 12, 'em')
                     }}
                   >
                     {data.courseNo || 'HIS 105'}
@@ -588,21 +568,16 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   <div className="flex items-start text-left">
                     <span className="mr-2.5 mt-[2px] leading-none" style={{ color: design.accentColor || '#ef4444' }}>✦</span>
                     <span 
-                      className="shrink-0 w-[140px] font-bold"
+                      className="shrink-0 w-[140px]"
                       style={{
-                        fontFamily: design.fontTopicTitle?.fontFamily || fontFamily || 'Georgia, serif',
-                        fontSize: `${(design.fontTopicTitle?.fontSize || 12) / 14}em`,
-                        color: design.fontTopicTitle?.color || fontColor || '#1e3a8a'
+                        ...getDirectStyle(design.fontAssignmentTopic, design.fontTitle, fontFamily, fontColor || '#1e3a8a', true, 12, 'em')
                       }}
                     >
                       Topic :
                     </span>
                     <span 
-                      className="font-semibold italic"
                       style={{
-                        fontFamily: design.fontTopicTitle?.fontFamily || fontFamily || 'Georgia, serif',
-                        fontSize: `${(design.fontTopicTitle?.fontSize || 12) / 14}em`,
-                        color: design.fontTopicTitle?.color || fontColor || undefined
+                        ...getDirectStyle(design.fontTopicTitle, design.fontTitle, fontFamily, fontColor, true, 12, 'em')
                       }}
                     >
                       {data.topicTitle || data.assignmentNoText || ''}
@@ -622,10 +597,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 >
                   <h4 
                     style={{
-                      fontFamily: design.fontSubmittedToHeading?.fontFamily || fontFamily || 'Georgia, serif',
-                      fontSize: `${(design.fontSubmittedToHeading?.fontSize || 11.5) / 14}em`,
-                      color: design.fontSubmittedToHeading?.color || fontColor || '#1e3a8a',
-                      fontWeight: 'bold',
+                      ...getDirectStyle(design.fontSubmittedToHeading, design.fontSubSection, fontFamily, fontColor || '#1e3a8a', true, 11.5, 'em')
                     }}
                     className="border-b pb-1.5 mb-2 uppercase tracking-wide opacity-90"
                   >
@@ -634,9 +606,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   <div 
                     className="space-y-0.5 leading-normal"
                     style={{ 
-                      fontFamily: design.fontSubmittedToContent?.fontFamily || fontFamily || 'Georgia, serif',
-                      fontSize: `${(design.fontSubmittedToContent?.fontSize || 11) / 14}em`,
-                      color: design.fontSubmittedToContent?.color || fontColor || undefined
+                      ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor, false, 11, 'em')
                     }}
                   >
                     {data.teacherDetails ? (
@@ -645,7 +615,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                       <>
                         <div className="font-bold">{data.teacherName || 'Sawban Ibn Farid'}</div>
                         <div className="font-semibold text-[0.9em] opacity-80">{data.teacherDesignation || 'Lecturer'}</div>
-                        <div className="text-[0.9em] opacity-80">{data.teacherDiscipline || 'Department of CSE'}</div>
+                        <div className="text-[0.9em] opacity-80">{data.teacherDiscipline || (design.disciplineLabel === 'Discipline' ? 'CSE Discipline' : 'Department of CSE')}</div>
                         <div className="font-semibold text-[0.9em] opacity-80">{data.teacherUniversity || 'Presidency University'}</div>
                       </>
                     )}
@@ -661,10 +631,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 >
                   <h4 
                     style={{
-                      fontFamily: design.fontSubmittedByHeading?.fontFamily || fontFamily || 'Georgia, serif',
-                      fontSize: `${(design.fontSubmittedByHeading?.fontSize || 11.5) / 14}em`,
-                      color: design.fontSubmittedByHeading?.color || fontColor || '#1e3a8a',
-                      fontWeight: 'bold',
+                      ...getDirectStyle(design.fontSubmittedByHeading, design.fontSubSection, fontFamily, fontColor || '#1e3a8a', true, 11.5, 'em')
                     }}
                     className="border-b pb-1.5 mb-2 uppercase tracking-wide opacity-90"
                   >
@@ -673,9 +640,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   <div 
                     className="space-y-0.5 leading-normal"
                     style={{ 
-                      fontFamily: design.fontSubmittedByContent?.fontFamily || fontFamily || 'Georgia, serif',
-                      fontSize: `${(design.fontSubmittedByContent?.fontSize || 11) / 14}em`,
-                      color: design.fontSubmittedByContent?.color || fontColor || undefined
+                      ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor, false, 11, 'em')
                     }}
                   >
                     {data.studentDetails ? (
@@ -685,7 +650,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                         <div className="font-bold">{data.studentName || 'Mst. Urmi Akter'}</div>
                         <div className="font-bold text-[0.9em] font-mono">ID: {data.studentId || '242450038'}</div>
                         <div className="text-[0.9em] opacity-80">{data.studentYearTerm || 'Section 04'}</div>
-                        <div className="text-[0.9em] opacity-80">{data.studentDiscipline || 'Department of CSE'}</div>
+                        <div className="text-[0.9em] opacity-80">{data.studentDiscipline || (design.disciplineLabel === 'Discipline' ? 'CSE Discipline' : 'Department of CSE')}</div>
                       </>
                     )}
                   </div>
@@ -698,10 +663,8 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               <div 
                 className="rounded-full px-8 py-1.5 font-bold tracking-wide text-center border-2 bg-blue-50/20 dark:bg-slate-900/10"
                 style={{ 
-                  fontFamily: design.fontSubmissionDateHeading?.fontFamily || fontFamily || 'Georgia, serif',
-                  fontSize: `${(design.fontSubmissionDateHeading?.fontSize || 11) / 14}em`,
-                  borderColor: design.fontSubmissionDateHeading?.color || fontColor || '#2563eb',
-                  color: design.fontSubmissionDateHeading?.color || fontColor || '#1e3a8a'
+                  ...getDirectStyle(design.fontSubmissionDateHeading, design.fontDate, fontFamily, fontColor || '#1e3a8a', true, 11, 'em'),
+                  borderColor: design.fontSubmissionDateHeading?.color || fontColor || '#2563eb'
                 }}
               >
                 Submission Date : {formatDate(data.submissionDate)}
@@ -716,12 +679,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             <div className="text-center mt-3 flex flex-col items-center w-full">
               <h2
                 style={{
-                  fontFamily: design.fontUniversity?.fontFamily || design.fontTitle?.fontFamily || fontFamily || 'Georgia, serif',
-                  fontSize: `${(design.fontUniversity?.fontSize || design.fontTitle?.fontSize || 25) / 14}em`,
-                  color: design.fontUniversity?.color || design.fontTitle?.color || fontColor || '#000000',
-                  fontWeight: design.fontUniversity?.bold !== undefined ? (design.fontUniversity.bold ? 'bold' : 'normal') : (design.fontTitle?.bold !== false ? 'bold' : 'normal'),
-                  fontStyle: design.fontUniversity?.italic ? 'italic' : (design.fontTitle?.italic ? 'italic' : 'normal'),
-                  textTransform: (design.fontUniversity?.uppercase !== undefined ? design.fontUniversity.uppercase : false) ? 'uppercase' : 'none',
+                  ...getDirectStyle(design.fontUniversity, design.fontTitle, fontFamily, fontColor || '#000000', true, 25, 'em')
                 }}
                 className="tracking-wide"
               >
@@ -750,12 +708,9 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 {data.documentType && (
                   <div 
                     style={{
-                      fontFamily: design.fontAssignmentTopic?.fontFamily || fontFamily || 'Georgia, serif',
-                      fontSize: `${(design.fontAssignmentTopic?.fontSize || 12.5) / 14}em`,
-                      fontWeight: 'bold',
-                      color: design.fontAssignmentTopic?.color || fontColor || '#000000'
+                      ...getDirectStyle(design.fontAssignmentTopic, design.fontTitle, fontFamily, fontColor || '#000000', true, 12.5, 'em')
                     }}
-                    className="uppercase tracking-widest mb-2"
+                    className="uppercase tracking-widest mb-2 text-center"
                   >
                     {data.documentType}
                   </div>
@@ -763,13 +718,10 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 
                 <h1 
                   style={{
-                    fontFamily: design.fontTopicTitle?.fontFamily || fontFamily || 'Georgia, serif',
-                    color: design.fontTopicTitle?.color || fontColor || '#000000',
-                    fontSize: `${(design.fontTopicTitle?.fontSize || 19) / 14}em`,
-                    fontWeight: design.fontTopicTitle?.bold !== false ? 'bold' : 'normal',
+                    ...getDirectStyle(design.fontTopicTitle, design.fontTitle, fontFamily, fontColor || '#000000', true, 19, 'em'),
                     lineHeight: '1.4'
                   }}
-                  className="leading-relaxed px-4 underline underline-offset-4 decoration-1"
+                  className="leading-relaxed px-4 underline underline-offset-4 decoration-1 text-center"
                 >
                   "{data.topicTitle || 'TOPIC TITLE HERE'}"
                 </h1>
@@ -777,25 +729,39 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             </DraggableBlock>
 
             {/* Course Information centered banner */}
-            <DraggableBlock elementId="courseDetails" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
-              <div className="text-center space-y-1.5 my-3">
-                <div 
-                  style={{
-                    fontFamily: design.fontCourseTitleContent?.fontFamily || fontFamily || 'Georgia, serif',
-                    fontSize: `${(design.fontCourseTitleContent?.fontSize || 13) / 14}em`,
-                    color: design.fontCourseTitleContent?.color || fontColor || '#000000'
-                  }}
-                >
-                  <span className="font-bold">Course Name:</span> {data.courseName || 'Field Study and Research Monograph'}
+            <DraggableBlock elementId="courseDetails" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full text-center">
+              <div className="text-center space-y-1.5 my-3 flex flex-col items-center">
+                <div className="flex justify-center flex-wrap items-center gap-1.5">
+                  <span 
+                    style={{
+                      ...getDirectStyle(design.fontCourseTitleHeading, design.fontCourse, fontFamily, fontColor || '#000000', true, 13, 'em')
+                    }}
+                  >
+                    Course Name:
+                  </span>
+                  <span 
+                    style={{
+                      ...getDirectStyle(design.fontCourseTitleContent, design.fontCourse, fontFamily, fontColor || '#000000', true, 13, 'em')
+                    }}
+                  >
+                    {data.courseName || 'Field Study and Research Monograph'}
+                  </span>
                 </div>
-                <div 
-                  style={{
-                    fontFamily: design.fontCourseNoContent?.fontFamily || fontFamily || 'Georgia, serif',
-                    fontSize: `${(design.fontCourseNoContent?.fontSize || 13) / 14}em`,
-                    color: design.fontCourseNoContent?.color || fontColor || '#000000'
-                  }}
-                >
-                  <span className="font-bold">Course Code:</span> {data.courseNo || '4205'}
+                <div className="flex justify-center flex-wrap items-center gap-1.5">
+                  <span 
+                    style={{
+                      ...getDirectStyle(design.fontCourseNoHeading, design.fontCourse, fontFamily, fontColor || '#000000', true, 13, 'em')
+                    }}
+                  >
+                    Course Code:
+                  </span>
+                  <span 
+                    style={{
+                      ...getDirectStyle(design.fontCourseNoContent, design.fontCourse, fontFamily, fontColor || '#000000', true, 13, 'em')
+                    }}
+                  >
+                    {data.courseNo || '4205'}
+                  </span>
                 </div>
               </div>
             </DraggableBlock>
@@ -807,12 +773,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 <div className="flex flex-col items-start justify-start text-left">
                   <h4 
                     style={{
-                      fontFamily: design.fontSubmittedToHeading?.fontFamily || fontFamily || 'Georgia, serif',
-                      fontSize: `${(design.fontSubmittedToHeading?.fontSize || 12.5) / 14}em`,
-                      color: design.fontSubmittedToHeading?.color || fontColor || '#000000',
-                      fontWeight: (design.fontSubmittedToHeading?.bold !== undefined ? design.fontSubmittedToHeading.bold : true) ? 'bold' : 'normal',
-                      textTransform: (design.fontSubmittedToHeading?.uppercase !== undefined ? design.fontSubmittedToHeading.uppercase : true) ? 'uppercase' : 'none',
-                      fontStyle: (design.fontSubmittedToHeading?.italic !== undefined ? design.fontSubmittedToHeading.italic : false) ? 'italic' : 'normal',
+                      ...getDirectStyle(design.fontSubmittedToHeading, design.fontSubSection, fontFamily, fontColor || '#000000', true, 12.5, 'em')
                     }}
                     className="mb-2 tracking-wide border-b pb-0.5 w-[160px]"
                   >
@@ -821,9 +782,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   <div 
                     className="space-y-0.5 leading-normal"
                     style={{ 
-                      fontFamily: design.fontSubmittedToContent?.fontFamily || fontFamily || 'Georgia, serif',
-                      fontSize: `${(design.fontSubmittedToContent?.fontSize || 11) / 14}em`,
-                      color: design.fontSubmittedToContent?.color || fontColor || '#000000'
+                      ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor || '#000000', false, 11, 'em')
                     }}
                   >
                     {data.teacherDetails ? (
@@ -846,12 +805,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   <div className="flex flex-col items-start justify-start text-left">
                     <h4 
                       style={{
-                        fontFamily: design.fontSubmittedByHeading?.fontFamily || fontFamily || 'Georgia, serif',
-                        fontSize: `${(design.fontSubmittedByHeading?.fontSize || 12.5) / 14}em`,
-                        color: design.fontSubmittedByHeading?.color || fontColor || '#000000',
-                        fontWeight: (design.fontSubmittedByHeading?.bold !== undefined ? design.fontSubmittedByHeading.bold : true) ? 'bold' : 'normal',
-                        textTransform: (design.fontSubmittedByHeading?.uppercase !== undefined ? design.fontSubmittedByHeading.uppercase : true) ? 'uppercase' : 'none',
-                        fontStyle: (design.fontSubmittedByHeading?.italic !== undefined ? design.fontSubmittedByHeading.italic : false) ? 'italic' : 'normal',
+                        ...getDirectStyle(design.fontSubmittedByHeading, design.fontSubSection, fontFamily, fontColor || '#000000', true, 12.5, 'em')
                       }}
                       className="mb-2 tracking-wide border-b pb-0.5 w-[160px]"
                     >
@@ -860,9 +814,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                     <div 
                       className="space-y-0.5 leading-normal"
                       style={{ 
-                        fontFamily: design.fontSubmittedByContent?.fontFamily || fontFamily || 'Georgia, serif',
-                        fontSize: `${(design.fontSubmittedByContent?.fontSize || 11) / 14}em`,
-                        color: design.fontSubmittedByContent?.color || fontColor || '#000000'
+                        ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor || '#000000', false, 11, 'em')
                       }}
                     >
                       {data.studentDetails ? (
@@ -887,9 +839,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               <div 
                 className="text-center font-bold tracking-wider mt-8 select-none" 
                 style={{ 
-                  fontFamily: design.fontSubmissionDateHeading?.fontFamily || fontFamily || 'Georgia, serif', 
-                  fontSize: `${((design.fontSubmissionDateHeading?.fontSize || 12)) / 14}em`,
-                  color: design.fontSubmissionDateHeading?.color || fontColor || '#000000'
+                  ...getDirectStyle(design.fontSubmissionDateHeading, design.fontDate, fontFamily, fontColor || '#000000', true, 12, 'em')
                 }}
               >
                 Date of Submission: {formatDate(data.submissionDate)}
@@ -935,11 +885,9 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               <DraggableBlock elementId="documentType" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
                 <div 
                   style={{
-                    fontFamily: design.fontAssignmentTopic?.fontFamily || fontFamily || '"Inter", sans-serif',
-                    fontSize: `${(design.fontAssignmentTopic?.fontSize || 14) / 14}em`,
-                    color: design.fontAssignmentTopic?.color || fontColor || '#000000'
+                    ...getDirectStyle(design.fontAssignmentTopic, design.fontTitle, fontFamily, fontColor || '#000000', true, 14, 'em')
                   }}
-                  className="font-bold tracking-wider uppercase"
+                  className="tracking-wider uppercase text-center"
                 >
                   {data.documentType || 'Internship Report'}
                 </div>
@@ -950,13 +898,10 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               <DraggableBlock elementId="topicTitle" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 max-w-2xl px-6">
                 <h1 
                   style={{
-                    fontFamily: design.fontTopicTitle?.fontFamily || fontFamily || '"Inter", sans-serif',
-                    color: design.fontTopicTitle?.color || fontColor || '#000000',
-                    fontSize: `${(design.fontTopicTitle?.fontSize || 19) / 14}em`,
-                    fontWeight: design.fontTopicTitle?.bold !== false ? 'bold' : 'normal',
+                    ...getDirectStyle(design.fontTopicTitle, design.fontTitle, fontFamily, fontColor || '#000000', true, 19, 'em'),
                     lineHeight: '1.45',
                   }}
-                  className="leading-relaxed px-4 underline underline-offset-6 decoration-2"
+                  className="leading-relaxed px-4 underline underline-offset-6 decoration-2 text-center"
                 >
                   {data.topicTitle || 'General Banking Activities of Pubali Bank Ltd.'}
                 </h1>
@@ -971,26 +916,21 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 <div className="flex flex-col items-center justify-center text-center">
                   <h4 
                     style={{
-                      fontFamily: design.fontSubmittedToHeading?.fontFamily || fontFamily || '"Inter", sans-serif',
-                      fontSize: `${(design.fontSubmittedToHeading?.fontSize || 13) / 14}em`,
-                      color: design.fontSubmittedToHeading?.color || fontColor || '#0891b2',
-                      borderColor: design.fontSubmittedToHeading?.color || fontColor || '#0891b2',
-                      fontWeight: 'bold',
+                      ...getDirectStyle(design.fontSubmittedToHeading, design.fontSubSection, fontFamily, fontColor || '#0891b2', true, 13, 'em'),
+                      borderColor: design.fontSubmittedToHeading?.color || fontColor || '#0891b2'
                     }}
-                    className="mb-1.5 uppercase tracking-widest border-b-2 pb-1 px-4"
+                    className="mb-1.5 uppercase tracking-widest border-b-2 pb-1 px-4 text-center"
                   >
                     {data.teacherHeading || 'Submitted To'}
                   </h4>
                   <div 
-                    className="space-y-0.5 leading-normal"
+                    className="space-y-0.5 leading-normal text-center"
                     style={{ 
-                      fontFamily: design.fontSubmittedToContent?.fontFamily || fontFamily || '"Inter", sans-serif',
-                      fontSize: `${(design.fontSubmittedToContent?.fontSize || 11.5) / 14}em`,
-                      color: design.fontSubmittedToContent?.color || fontColor || undefined
+                      ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor, false, 11.5, 'em')
                     }}
                   >
                     {data.teacherDetails ? (
-                      <div className="whitespace-pre-line text-center">{data.teacherDetails}</div>
+                       <div className="whitespace-pre-line text-center">{data.teacherDetails}</div>
                     ) : (
                       <>
                         <div className="font-bold">{data.teacherName || 'Teacher Name'}</div>
@@ -1008,22 +948,17 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 <div className="flex flex-col items-center justify-center text-center">
                   <h4 
                     style={{
-                      fontFamily: design.fontSubmittedByHeading?.fontFamily || fontFamily || '"Inter", sans-serif',
-                      fontSize: `${(design.fontSubmittedByHeading?.fontSize || 13) / 14}em`,
-                      color: design.fontSubmittedByHeading?.color || fontColor || '#0891b2',
-                      borderColor: design.fontSubmittedByHeading?.color || fontColor || '#0891b2',
-                      fontWeight: 'bold',
+                      ...getDirectStyle(design.fontSubmittedByHeading, design.fontSubSection, fontFamily, fontColor || '#0891b2', true, 13, 'em'),
+                      borderColor: design.fontSubmittedByHeading?.color || fontColor || '#0891b2'
                     }}
-                    className="mb-1.5 uppercase tracking-widest border-b-2 pb-1 px-4"
+                    className="mb-1.5 uppercase tracking-widest border-b-2 pb-1 px-4 text-center"
                   >
                     {data.submittedByLabel || 'Prepared By'}
                   </h4>
                   <div 
-                    className="space-y-0.5 leading-normal"
+                    className="space-y-0.5 leading-normal text-center"
                     style={{ 
-                      fontFamily: design.fontSubmittedByContent?.fontFamily || fontFamily || '"Inter", sans-serif',
-                      fontSize: `${(design.fontSubmittedByContent?.fontSize || 11.5) / 14}em`,
-                      color: design.fontSubmittedByContent?.color || fontColor || undefined
+                      ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor, false, 11.5, 'em')
                     }}
                   >
                     {data.studentDetails ? (
@@ -1046,9 +981,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               <div 
                 className="text-center font-bold tracking-wider select-none cyan-accent-banner px-6 py-1 bg-cyan-50/40 dark:bg-slate-905/10 border border-cyan-600/20 rounded-md" 
                 style={{ 
-                  fontFamily: design.fontSubmissionDateHeading?.fontFamily || fontFamily || '"Inter", sans-serif', 
-                  fontSize: `${(design.fontSubmissionDateHeading?.fontSize || 12) / 14}em`,
-                  color: design.fontSubmissionDateHeading?.color || fontColor || '#0891b2'
+                  ...getDirectStyle(design.fontSubmissionDateHeading, design.fontDate, fontFamily, fontColor || '#0891b2', true, 12, 'em')
                 }}
               >
                 Date of Submission: {formatDate(data.submissionDate)}
@@ -1063,12 +996,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             <div className="flex flex-col items-center justify-center text-center mt-3 w-full">
               <h2
                 style={{
-                  fontFamily: design.fontUniversity?.fontFamily || design.fontTitle?.fontFamily || fontFamily || 'UnifrakturMaguntia, "Times New Roman", serif',
-                  fontSize: `${(design.fontUniversity?.fontSize || design.fontTitle?.fontSize || 32) / 14}em`,
-                  color: design.fontUniversity?.color || design.fontTitle?.color || fontColor || accentColor,
-                  fontWeight: design.fontUniversity?.bold !== undefined ? (design.fontUniversity.bold ? 'bold' : 'normal') : (design.fontTitle?.bold !== false ? 'bold' : 'normal'),
-                  fontStyle: design.fontUniversity?.italic ? 'italic' : (design.fontTitle?.italic ? 'italic' : 'normal'),
-                  textTransform: (design.fontUniversity?.uppercase !== undefined ? design.fontUniversity.uppercase : false) ? 'uppercase' : 'none',
+                  ...getDirectStyle(design.fontUniversity, design.fontTitle, fontFamily, fontColor || accentColor, true, 32, 'em')
                 }}
                 className="tracking-wide leading-none"
               >
@@ -1101,12 +1029,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               <div className="text-center my-1 select-none">
                 <span
                   style={{
-                    fontFamily: design.fontAssignmentTopic?.fontFamily || design.fontTitle?.fontFamily || fontFamily,
-                    color: design.fontAssignmentTopic?.color || fontColor || '#334155',
-                    fontSize: `${(design.fontAssignmentTopic?.fontSize || 12) / 14}em`,
-                    fontWeight: design.fontAssignmentTopic?.bold !== false ? 'bold' : 'normal',
-                    fontStyle: design.fontAssignmentTopic?.italic ? 'italic' : 'normal',
-                    textTransform: design.fontAssignmentTopic?.uppercase !== false ? 'uppercase' : 'none',
+                    ...getDirectStyle(design.fontAssignmentTopic, design.fontTitle, fontFamily, fontColor || '#334155', true, 12, 'em')
                   }}
                   className="tracking-[0.15em]"
                 >
@@ -1120,12 +1043,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               <div className="my-1 py-1 px-6 w-full text-center flex flex-col items-center">
                 <h1 
                   style={{
-                    fontFamily: design.fontTopicTitle?.fontFamily || design.fontTitle?.fontFamily || fontFamily,
-                    color: design.fontTopicTitle?.color || fontColor || accentColor,
-                    fontSize: `${(design.fontTopicTitle?.fontSize || 20) / 14}em`,
-                    fontWeight: design.fontTopicTitle?.bold !== false ? 'bold' : 'normal',
-                    fontStyle: design.fontTopicTitle?.italic ? 'italic' : 'normal',
-                    textTransform: design.fontTopicTitle?.uppercase !== false ? 'uppercase' : 'none',
+                    ...getDirectStyle(design.fontTopicTitle, design.fontTitle, fontFamily, fontColor || accentColor, true, 20, 'em'),
                     lineHeight: '1.4',
                   }}
                   className="max-w-2xl text-center leading-snug tracking-wide px-4"
@@ -1140,12 +1058,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 <div 
                   className="text-center tracking-wide select-none"
                   style={{ 
-                    fontFamily: design.fontAssignmentTopic?.fontFamily || design.fontTitle?.fontFamily || fontFamily,
-                    color: design.fontAssignmentTopic?.color || fontColor || '#334155',
-                    fontSize: `${((design.fontAssignmentTopic?.fontSize || 12) - 1.5) / 14}em`,
-                    fontWeight: (design.fontAssignmentTopic?.bold !== undefined ? design.fontAssignmentTopic.bold : true) ? 'bold' : 'normal',
-                    fontStyle: (design.fontAssignmentTopic?.italic !== undefined ? design.fontAssignmentTopic.italic : false) ? 'italic' : 'normal',
-                    textTransform: (design.fontAssignmentTopic?.uppercase !== undefined ? design.fontAssignmentTopic.uppercase : true) ? 'uppercase' : 'none'
+                    ...getDirectStyle(design.fontAssignmentTopic, design.fontTitle, fontFamily, fontColor || '#334155', true, 10.5, 'em')
                   }}
                 >
                   <span className="opacity-75">Assignment No:</span> {data.assignmentNoText}
@@ -1156,55 +1069,33 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             {/* Course Code & Name Block inside */}
             <DraggableBlock elementId="courseDetails" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
               <div className="text-center space-y-1 my-1">
-                <div 
-                  style={{ 
-                    fontFamily: design.fontCourseTitleContent?.fontFamily || design.fontCourse?.fontFamily || fontFamily, 
-                    fontSize: `${(design.fontCourseTitleContent?.fontSize || 12) / 14}em`,
-                    color: design.fontCourseTitleContent?.color || fontColor || '#1e293b'
-                  }} 
-                >
+                <div className="flex justify-center items-center gap-1.5">
                   <span 
-                    className="tracking-wider" 
                     style={{ 
-                      fontFamily: design.fontCourseTitleHeading?.fontFamily || design.fontCourse?.fontFamily || fontFamily,
-                      fontSize: `${(design.fontCourseTitleHeading?.fontSize || 12) / 14}em`,
-                      color: design.fontCourseTitleHeading?.color || fontColor || accentColor,
-                      fontWeight: design.fontCourseTitleHeading?.bold !== false ? 'bold' : 'normal'
+                      ...getDirectStyle(design.fontCourseTitleHeading, design.fontCourse, fontFamily, fontColor || accentColor, true, 12, 'em')
                     }}
                   >
                     Course Title:
                   </span>{' '}
                   <span 
                     style={{
-                      fontWeight: design.fontCourseTitleContent?.bold !== false ? 'bold' : 'normal',
-                      fontStyle: design.fontCourseTitleContent?.italic ? 'italic' : 'normal',
+                      ...getDirectStyle(design.fontCourseTitleContent, design.fontCourse, fontFamily, fontColor || '#1e293b', true, 12, 'em')
                     }}
                   >
                     {data.courseName || 'Course Name'}
                   </span>
                 </div>
-                <div 
-                  style={{ 
-                    fontFamily: design.fontCourseNoContent?.fontFamily || design.fontCourse?.fontFamily || fontFamily, 
-                    fontSize: `${(design.fontCourseNoContent?.fontSize || 12) / 14}em`,
-                    color: design.fontCourseNoContent?.color || fontColor || '#1e293b'
-                  }} 
-                >
+                <div className="flex justify-center items-center gap-1.5">
                   <span 
-                    className="tracking-wider" 
                     style={{ 
-                      fontFamily: design.fontCourseNoHeading?.fontFamily || design.fontCourse?.fontFamily || fontFamily,
-                      fontSize: `${(design.fontCourseNoHeading?.fontSize || 12) / 14}em`,
-                      color: design.fontCourseNoHeading?.color || fontColor || accentColor,
-                      fontWeight: design.fontCourseNoHeading?.bold !== false ? 'bold' : 'normal'
+                      ...getDirectStyle(design.fontCourseNoHeading, design.fontCourse, fontFamily, fontColor || accentColor, true, 12, 'em')
                     }}
                   >
                     Course Code:
                   </span>{' '}
                   <span 
                     style={{
-                      fontWeight: design.fontCourseNoContent?.bold !== false ? 'bold' : 'normal',
-                      fontStyle: design.fontCourseNoContent?.italic ? 'italic' : 'normal',
+                      ...getDirectStyle(design.fontCourseNoContent, design.fontCourse, fontFamily, fontColor || '#1e293b', true, 12, 'em')
                     }}
                   >
                     {data.courseNo || 'Course Code'}
@@ -1221,12 +1112,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 <div className="flex flex-col items-center text-center max-w-lg">
                   <span 
                     style={{ 
-                      fontFamily: design.fontSubmittedToHeading?.fontFamily || design.fontSubSection?.fontFamily || fontFamily,
-                      fontSize: `${(design.fontSubmittedToHeading?.fontSize || 9) / 14}em`,
-                      color: design.fontSubmittedToHeading?.color || fontColor || accentColor,
-                      fontWeight: design.fontSubmittedToHeading?.bold !== false ? 'bold' : 'normal',
-                      fontStyle: design.fontSubmittedToHeading?.italic ? 'italic' : 'normal',
-                      textTransform: design.fontSubmittedToHeading?.uppercase !== false ? 'uppercase' : 'none',
+                      ...getDirectStyle(design.fontSubmittedToHeading, design.fontSubSection, fontFamily, fontColor || accentColor, true, 9, 'em')
                     }}
                     className="tracking-[0.12em] mb-1"
                   >
@@ -1234,9 +1120,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   </span>
                   <div 
                     style={{ 
-                      fontFamily: design.fontSubmittedToContent?.fontFamily || design.fontSubSection?.fontFamily || fontFamily, 
-                      fontSize: `${(design.fontSubmittedToContent?.fontSize || 10.5) / 14}em`,
-                      color: design.fontSubmittedToContent?.color || fontColor || '#1e293b'
+                      ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor || '#1e293b', false, 10.5, 'em')
                     }} 
                     className="flex flex-col items-center leading-normal"
                   >
@@ -1246,7 +1130,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                       <>
                         <span className="font-bold text-[1.15em]">{data.teacherName || 'Teacher Name'}</span>
                         <span className="text-[0.95em] opacity-80">{data.teacherDesignation || 'Professor'}</span>
-                        <span className="text-[0.9em] opacity-70">{data.teacherDiscipline || 'Department'}</span>
+                        <span className="text-[0.9em] opacity-70">{data.teacherDiscipline || design.disciplineLabel || 'Department'}</span>
                         <span className="font-semibold text-[0.95em] opacity-85">{data.teacherUniversity || 'University'}</span>
                       </>
                     )}
@@ -1259,12 +1143,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 <div className="flex flex-col items-center text-center max-w-lg">
                   <span 
                     style={{ 
-                      fontFamily: design.fontSubmittedByHeading?.fontFamily || design.fontSubSection?.fontFamily || fontFamily,
-                      fontSize: `${(design.fontSubmittedByHeading?.fontSize || 9) / 14}em`,
-                      color: design.fontSubmittedByHeading?.color || fontColor || accentColor,
-                      fontWeight: design.fontSubmittedByHeading?.bold !== false ? 'bold' : 'normal',
-                      fontStyle: design.fontSubmittedByHeading?.italic ? 'italic' : 'normal',
-                      textTransform: design.fontSubmittedByHeading?.uppercase !== false ? 'uppercase' : 'none',
+                      ...getDirectStyle(design.fontSubmittedByHeading, design.fontSubSection, fontFamily, fontColor || accentColor, true, 9, 'em')
                     }}
                     className="tracking-[0.12em] mb-1"
                   >
@@ -1272,20 +1151,18 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   </span>
                   <div 
                     style={{ 
-                      fontFamily: design.fontSubmittedByContent?.fontFamily || design.fontSubSection?.fontFamily || fontFamily, 
-                      fontSize: `${(design.fontSubmittedByContent?.fontSize || 10.5) / 14}em`,
-                      color: design.fontSubmittedByContent?.color || fontColor || '#1e293b'
+                      ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor || '#1e293b', false, 10.5, 'em')
                     }} 
                     className="flex flex-col items-center leading-normal"
                   >
                     {data.studentDetails ? (
-                      <span className="whitespace-pre-line text-center">{data.studentDetails}</span>
+                       <span className="whitespace-pre-line text-center">{data.studentDetails}</span>
                     ) : (
                       <>
                         <span className="font-bold text-[1.15em]">{data.studentName || 'Student Name'}</span>
                         <span className="font-bold text-[0.95em] font-mono">ID NO: {data.studentId || 'Student ID'}</span>
                         {data.studentYearTerm && <span className="text-[0.9em] opacity-80">{data.studentYearTerm}</span>}
-                        <span className="text-[0.9em] opacity-80">{data.studentDiscipline || 'Discipline'}</span>
+                        <span className="text-[0.9em] opacity-80">{data.studentDiscipline || design.disciplineLabel || 'Discipline'}</span>
                       </>
                     )}
                   </div>
@@ -1299,19 +1176,13 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               <div 
                 className="text-center font-bold tracking-wider my-1" 
                 style={{ 
-                  fontFamily: design.fontSubmissionDateHeading?.fontFamily || design.fontDate?.fontFamily || fontFamily,
-                  fontSize: `${(design.fontSubmissionDateHeading?.fontSize || 11) / 14}em`, 
-                  color: design.fontSubmissionDateHeading?.color || fontColor || accentColor 
+                  ...getDirectStyle(design.fontSubmissionDateHeading, design.fontDate, fontFamily, fontColor || accentColor, true, 11, 'em')
                 }}
               >
                 <span>DATE:</span>{' '}
                 <span 
                   style={{
-                    fontFamily: design.fontSubmissionDateContent?.fontFamily || design.fontDate?.fontFamily || fontFamily,
-                    fontSize: `${(design.fontSubmissionDateContent?.fontSize || 11) / 14}em`,
-                    color: design.fontSubmissionDateContent?.color || fontColor || '#1e293b',
-                    fontWeight: design.fontSubmissionDateContent?.bold !== false ? 'bold' : 'normal',
-                    fontStyle: design.fontSubmissionDateContent?.italic ? 'italic' : 'normal',
+                    ...getDirectStyle(design.fontSubmissionDateContent, design.fontDate, fontFamily, fontColor || '#1e293b', true, 11, 'em')
                   }}
                   className="ml-1"
                 >
@@ -1346,14 +1217,9 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             <div className="text-center mt-2 w-full">
               <h2 
                 style={{ 
-                  fontFamily: design.fontUniversity?.fontFamily || design.fontTitle?.fontFamily || fontFamily || '"Times New Roman", Times, serif',
-                  fontSize: `${(design.fontUniversity?.fontSize || design.fontTitle?.fontSize || 26) / 14}em`, 
-                  color: design.fontUniversity?.color || design.fontTitle?.color || fontColor || accentColor, 
-                  fontWeight: design.fontUniversity?.bold !== undefined ? (design.fontUniversity.bold ? 'bold' : 'normal') : (design.fontTitle?.bold !== false ? 'bold' : 'normal'),
-                  textTransform: (design.fontUniversity?.uppercase !== undefined ? design.fontUniversity.uppercase : (design.fontTitle?.uppercase !== false)) ? 'uppercase' : 'none',
-                  fontStyle: design.fontUniversity?.italic ? 'italic' : (design.fontTitle?.italic ? 'italic' : 'normal'),
+                  ...getDirectStyle(design.fontUniversity, design.fontTitle, fontFamily, fontColor || accentColor, true, 26, 'em')
                 }} 
-                className="tracking-[0.1em] leading-tight"
+                className="tracking-[0.15em] leading-tight text-center"
               >
                 {data.universityName || data.teacherUniversity || 'UNIVERSITY OF DHAKA'}
               </h2>
@@ -1379,14 +1245,9 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               <div className="text-center my-1 select-none">
                 <h3 
                   style={{ 
-                    fontFamily: design.fontAssignmentTopic?.fontFamily || fontFamily || '"Times New Roman", Times, serif',
-                    fontSize: `${(design.fontAssignmentTopic?.fontSize || 15) / 14}em`,
-                    color: design.fontAssignmentTopic?.color || fontColor || '#334155',
-                    fontWeight: design.fontAssignmentTopic?.bold !== false ? 'bold' : 'normal',
-                    fontStyle: design.fontAssignmentTopic?.italic ? 'italic' : 'normal',
-                    textTransform: design.fontAssignmentTopic?.uppercase !== false ? 'uppercase' : 'none',
+                    ...getDirectStyle(design.fontAssignmentTopic, design.fontTitle, fontFamily, fontColor || '#334155', true, 15, 'em')
                   }}
-                  className="tracking-wider"
+                  className="tracking-wider text-center"
                 >
                   {data.documentType || 'Assignment On'}
                 </h3>
@@ -1398,14 +1259,10 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               <div className="px-8 text-center my-2">
                 <h1 
                   style={{
-                    fontFamily: design.fontTopicTitle?.fontFamily || fontFamily || '"Times New Roman", Times, serif',
-                    color: design.fontTopicTitle?.color || fontColor || '#0f172a',
-                    fontSize: `${(design.fontTopicTitle?.fontSize || 22) / 14}em`,
-                    fontWeight: design.fontTopicTitle?.bold !== false ? 'bold' : 'normal',
-                    fontStyle: design.fontTopicTitle?.italic ? 'italic' : 'normal',
+                    ...getDirectStyle(design.fontTopicTitle, design.fontTitle, fontFamily, fontColor || '#0f172a', true, 22, 'em'),
                     lineHeight: '1.4',
                   }}
-                  className="max-w-2xl px-2 leading-relaxed"
+                  className="max-w-2xl px-2 leading-relaxed text-center"
                 >
                   "{data.topicTitle || 'TOPIC TITLE HERE'}"
                 </h1>
@@ -1416,12 +1273,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               <DraggableBlock elementId="assignmentNo" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 mt-1">
                 <div 
                   style={{
-                    fontFamily: design.fontAssignmentTopic?.fontFamily || fontFamily || '"Times New Roman", Times, serif',
-                    fontSize: `${((design.fontAssignmentTopic?.fontSize || 15) * 0.8) / 14}em`,
-                    color: design.fontAssignmentTopic?.color || fontColor || '#334155',
-                    fontWeight: design.fontAssignmentTopic?.bold !== false ? 'bold' : 'normal',
-                    fontStyle: design.fontAssignmentTopic?.italic ? 'italic' : 'normal',
-                    textTransform: design.fontAssignmentTopic?.uppercase !== false ? 'uppercase' : 'none',
+                    ...getDirectStyle(design.fontAssignmentTopic, design.fontTitle, fontFamily, fontColor || '#334155', true, 12, 'em')
                   }}
                   className="text-center tracking-wide select-none"
                 >
@@ -1439,13 +1291,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 <div className="flex flex-col items-start justify-start text-left">
                   <h4 
                     style={{
-                      fontFamily: design.fontSubmittedByHeading?.fontFamily || fontFamily || '"Times New Roman", Times, serif',
-                      color: design.fontSubmittedByHeading?.color || fontColor || accentColor,
-                      borderColor: design.fontSubmittedByHeading?.color || fontColor || accentColor,
-                      fontSize: `${(design.fontSubmittedByHeading?.fontSize || 13) / 14}em`,
-                      fontWeight: design.fontSubmittedByHeading?.bold !== false ? 'bold' : 'normal',
-                      fontStyle: design.fontSubmittedByHeading?.italic ? 'italic' : 'normal',
-                      textTransform: design.fontSubmittedByHeading?.uppercase !== false ? 'uppercase' : 'none',
+                      ...getDirectStyle(design.fontSubmittedByHeading, design.fontSubSection, fontFamily, fontColor || accentColor, true, 13, 'em')
                     }}
                     className="mb-3 tracking-wider border-b pb-1 pr-6"
                   >
@@ -1454,9 +1300,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   <div 
                     className="space-y-1"
                     style={{ 
-                      fontFamily: design.fontSubmittedByContent?.fontFamily || fontFamily || '"Times New Roman", Times, serif', 
-                      fontSize: `${(design.fontSubmittedByContent?.fontSize || 11) / 14}em`,
-                      color: design.fontSubmittedByContent?.color || fontColor || undefined
+                      ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor, false, 11, 'em')
                     }}
                   >
                     {data.studentDetails ? (
@@ -1466,7 +1310,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                         <div className="font-bold text-[1.1em]">{data.studentName || 'Student Name'}</div>
                         <div>Roll No: {data.studentId || '251009'}</div>
                         {data.studentYearTerm && <div>{data.studentYearTerm}</div>}
-                        <div>{data.studentDiscipline || 'Department'}</div>
+                        <div>{data.studentDiscipline || design.disciplineLabel || 'Department'}</div>
                         <div className="font-bold">{data.studentUniversity || 'University'}</div>
                       </>
                     )}
@@ -1479,13 +1323,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 <div className="flex flex-col items-start justify-start text-left">
                   <h4 
                     style={{
-                      fontFamily: design.fontSubmittedToHeading?.fontFamily || fontFamily || '"Times New Roman", Times, serif',
-                      color: design.fontSubmittedToHeading?.color || fontColor || accentColor,
-                      borderColor: design.fontSubmittedToHeading?.color || fontColor || accentColor,
-                      fontSize: `${(design.fontSubmittedToHeading?.fontSize || 13) / 14}em`,
-                      fontWeight: design.fontSubmittedToHeading?.bold !== false ? 'bold' : 'normal',
-                      fontStyle: design.fontSubmittedToHeading?.italic ? 'italic' : 'normal',
-                      textTransform: design.fontSubmittedToHeading?.uppercase !== false ? 'uppercase' : 'none',
+                      ...getDirectStyle(design.fontSubmittedToHeading, design.fontSubSection, fontFamily, fontColor || accentColor, true, 13, 'em')
                     }}
                     className="mb-3 tracking-wider border-b pb-1 pr-6"
                   >
@@ -1494,9 +1332,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   <div 
                     className="space-y-1"
                     style={{ 
-                      fontFamily: design.fontSubmittedToContent?.fontFamily || fontFamily || '"Times New Roman", Times, serif', 
-                      fontSize: `${(design.fontSubmittedToContent?.fontSize || 11) / 14}em`,
-                      color: design.fontSubmittedToContent?.color || fontColor || undefined
+                      ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor, false, 11, 'em')
                     }}
                   >
                     {data.teacherDetails ? (
@@ -1505,7 +1341,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                       <>
                         <div className="font-bold text-[1.1em]">{data.teacherName || 'Teacher Name'}</div>
                         <div className="font-medium opacity-80">{data.teacherDesignation || 'Professor'}</div>
-                        <div className="opacity-80">{data.teacherDiscipline || 'Department'}</div>
+                        <div className="opacity-80">{data.teacherDiscipline || design.disciplineLabel || 'Department'}</div>
                         <div className="font-bold">{data.teacherUniversity || 'University'}</div>
                       </>
                     )}
@@ -1520,20 +1356,15 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               <div 
                 className="text-center font-bold tracking-wider mt-10 mb-2" 
                 style={{ 
-                  fontFamily: design.fontSubmissionDateHeading?.fontFamily || fontFamily || '"Times New Roman", Times, serif', 
-                  fontSize: `${(design.fontSubmissionDateHeading?.fontSize || 11.5) / 14}em`,
-                  color: design.fontSubmissionDateHeading?.color || fontColor || accentColor
+                  ...getDirectStyle(design.fontSubmissionDateHeading, design.fontDate, fontFamily, fontColor || accentColor, true, 11.5, 'em')
                 }}
               >
                 <span>DATE OF SUBMISSION:</span>{' '}
                 <span 
                   style={{
-                    fontFamily: design.fontSubmissionDateContent?.fontFamily || fontFamily || '"Times New Roman", Times, serif',
-                    fontSize: `${(design.fontSubmissionDateContent?.fontSize || 11.5) / 14}em`,
-                    color: design.fontSubmissionDateContent?.color || fontColor || undefined,
-                    fontWeight: design.fontSubmissionDateContent?.bold !== false ? 'bold' : 'normal',
+                    ...getDirectStyle(design.fontSubmissionDateContent, design.fontDate, fontFamily, fontColor, true, 11.5, 'em')
                   }}
-                  className="ml-1 font-semibold"
+                  className="ml-1"
                 >
                   {formatDate(data.submissionDate)}
                 </span>
@@ -1549,12 +1380,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             <div className="text-center mt-2 flex flex-col items-center w-full">
               <h2 
                 style={{ 
-                  fontFamily: design.fontUniversity?.fontFamily || design.fontTitle?.fontFamily || fontFamily || 'Georgia, serif',
-                  fontSize: `${(design.fontUniversity?.fontSize || design.fontTitle?.fontSize || 24) / 14}em`, 
-                  color: design.fontUniversity?.color || design.fontTitle?.color || fontColor || accentColor, 
-                  fontWeight: design.fontUniversity?.bold !== undefined ? (design.fontUniversity.bold ? 'bold' : 'normal') : (design.fontTitle?.bold !== false ? 'bold' : 'normal'),
-                  textTransform: (design.fontUniversity?.uppercase !== undefined ? design.fontUniversity.uppercase : (design.fontTitle?.uppercase !== false)) ? 'uppercase' : 'none',
-                  fontStyle: design.fontUniversity?.italic ? 'italic' : (design.fontTitle?.italic ? 'italic' : 'normal'),
+                  ...getDirectStyle(design.fontUniversity, design.fontTitle, fontFamily, fontColor || accentColor, true, 24, 'em')
                 }} 
                 className="tracking-wide"
               >
@@ -1563,12 +1389,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               {data.teacherDiscipline && (
                 <span 
                   style={{ 
-                    fontFamily: design.fontDiscipline?.fontFamily || design.fontSubSection?.fontFamily || fontFamily || 'Georgia, serif', 
-                    fontSize: `${(design.fontDiscipline?.fontSize || 12) / 14}em`,
-                    color: design.fontDiscipline?.color || design.fontSubSection?.color || fontColor || '#475569',
-                    fontWeight: design.fontDiscipline?.bold !== undefined ? (design.fontDiscipline.bold ? 'bold' : 'normal') : (design.fontSubSection?.bold !== false ? 'bold' : 'normal'),
-                    fontStyle: design.fontDiscipline?.italic !== undefined ? (design.fontDiscipline.italic ? 'italic' : 'normal') : (design.fontSubSection?.italic ? 'italic' : 'normal'),
-                    textTransform: (design.fontDiscipline?.uppercase !== undefined ? design.fontDiscipline.uppercase : true) ? 'uppercase' : 'none',
+                    ...getDirectStyle(design.fontDiscipline, design.fontSubSection, fontFamily, fontColor || '#475569', true, 12, 'em')
                   }} 
                   className="mt-0.5 uppercase tracking-wider block shadow-none opacity-85"
                 >
@@ -1596,12 +1417,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             <DraggableBlock elementId="documentType" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
               <div 
                 style={{
-                  fontFamily: design.fontAssignmentTopic?.fontFamily || fontFamily || 'Georgia, serif',
-                  fontSize: `${(design.fontAssignmentTopic?.fontSize || 9.5) / 14}em`,
-                  color: design.fontAssignmentTopic?.color || fontColor || '#64748b',
-                  fontWeight: design.fontAssignmentTopic?.bold !== false ? 'bold' : 'normal',
-                  fontStyle: design.fontAssignmentTopic?.italic ? 'italic' : 'normal',
-                  textTransform: design.fontAssignmentTopic?.uppercase !== false ? 'uppercase' : 'none',
+                  ...getDirectStyle(design.fontAssignmentTopic, design.fontTitle, fontFamily, fontColor || '#64748b', true, 9.5, 'em')
                 }}
                 className="text-center tracking-widest border-y py-1 px-8 border-current/20 w-auto select-none"
               >
@@ -1614,14 +1430,10 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               <div className="px-6 text-center my-2">
                 <h1 
                   style={{
-                    fontFamily: design.fontTopicTitle?.fontFamily || fontFamily || 'Georgia, serif',
-                    color: design.fontTopicTitle?.color || fontColor || '#0f172a',
-                    fontSize: `${(design.fontTopicTitle?.fontSize || 22) / 14}em`,
-                    fontWeight: design.fontTopicTitle?.bold !== false ? 'bold' : 'normal',
-                    fontStyle: design.fontTopicTitle?.italic ? 'italic' : 'normal',
+                    ...getDirectStyle(design.fontTopicTitle, design.fontTitle, fontFamily, fontColor || '#0f172a', true, 22, 'em'),
                     lineHeight: '1.4',
                   }}
-                  className="max-w-2xl px-2"
+                  className="max-w-2xl px-2 text-center"
                 >
                   {data.topicTitle || 'TOPIC TITLE HERE'}
                 </h1>
@@ -1632,12 +1444,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               <DraggableBlock elementId="assignmentNo" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 mt-1">
                 <div 
                   style={{
-                    fontFamily: design.fontAssignmentTopic?.fontFamily || fontFamily || 'Georgia, serif',
-                    fontSize: `${(design.fontAssignmentTopic?.fontSize || 9.5) / 14}em`,
-                    color: design.fontAssignmentTopic?.color || fontColor || '#334155',
-                    fontWeight: design.fontAssignmentTopic?.bold !== false ? 'bold' : 'normal',
-                    fontStyle: design.fontAssignmentTopic?.italic ? 'italic' : 'normal',
-                    textTransform: design.fontAssignmentTopic?.uppercase !== false ? 'uppercase' : 'none',
+                    ...getDirectStyle(design.fontAssignmentTopic, design.fontTitle, fontFamily, fontColor || '#334155', true, 9.5, 'em')
                   }}
                   className="text-center tracking-wide select-none"
                 >
@@ -1649,47 +1456,37 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             {/* Course Information Box */}
             <DraggableBlock elementId="courseDetails" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
               <div className="rounded-xl p-3 border border-current/15 text-center space-y-1 w-[85%] select-none bg-current/2">
-                <div 
-                  style={{ 
-                    fontFamily: design.fontCourseTitleContent?.fontFamily || fontFamily || 'Georgia, serif', 
-                    fontSize: `${(design.fontCourseTitleContent?.fontSize || 11) / 14}em`,
-                    color: design.fontCourseTitleContent?.color || fontColor || '#334155'
-                  }} 
-                >
+                <div className="flex justify-center items-center gap-1.5">
                   <span 
                     style={{
-                      fontFamily: design.fontCourseTitleHeading?.fontFamily || fontFamily || 'Georgia, serif',
-                      fontSize: `${(design.fontCourseTitleHeading?.fontSize || 11) / 14}em`,
-                      color: design.fontCourseTitleHeading?.color || fontColor || '#9f1239', // beautiful deep rose-red
-                      fontWeight: design.fontCourseTitleHeading?.bold !== false ? 'bold' : 'normal',
+                      ...getDirectStyle(design.fontCourseTitleHeading, design.fontCourse, fontFamily, fontColor || '#9f1239', true, 11, 'em')
                     }}
                     className="uppercase tracking-wider"
                   >
                     Course Title:
                   </span>{' '}
-                  <span style={{ fontWeight: design.fontCourseTitleContent?.bold !== false ? 'bold' : 'normal' }}>
+                  <span 
+                    style={{ 
+                      ...getDirectStyle(design.fontCourseTitleContent, design.fontCourse, fontFamily, fontColor || '#334155', true, 11, 'em')
+                    }} 
+                  >
                     {data.courseName || 'Course Title'}
                   </span>
                 </div>
-                <div 
-                  style={{ 
-                    fontFamily: design.fontCourseNoContent?.fontFamily || fontFamily || 'Georgia, serif', 
-                    fontSize: `${(design.fontCourseNoContent?.fontSize || 11) / 14}em`,
-                    color: design.fontCourseNoContent?.color || fontColor || '#334155'
-                  }}
-                >
+                <div className="flex justify-center items-center gap-1.5">
                   <span 
                     style={{
-                      fontFamily: design.fontCourseNoHeading?.fontFamily || fontFamily || 'Georgia, serif',
-                      fontSize: `${(design.fontCourseNoHeading?.fontSize || 11) / 14}em`,
-                      color: design.fontCourseNoHeading?.color || fontColor || '#9f1239',
-                      fontWeight: design.fontCourseNoHeading?.bold !== false ? 'bold' : 'normal',
+                      ...getDirectStyle(design.fontCourseNoHeading, design.fontCourse, fontFamily, fontColor || '#9f1239', true, 11, 'em')
                     }}
                     className="uppercase tracking-wider"
                   >
                     Course Code:
                   </span>{' '}
-                  <span style={{ fontWeight: design.fontCourseNoContent?.bold !== false ? 'bold' : 'normal' }} className="font-mono">
+                  <span 
+                    style={{ 
+                      ...getDirectStyle(design.fontCourseNoContent, design.fontCourse, fontFamily, fontColor || '#334155', true, 11, 'em')
+                    }}
+                  >
                     {data.courseNo || 'Course Code'}
                   </span>
                 </div>
@@ -1704,23 +1501,16 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 <div className="flex flex-col items-start justify-start text-left">
                   <h4 
                     style={{
-                      fontFamily: design.fontSubmittedToHeading?.fontFamily || fontFamily || 'Georgia, serif',
-                      color: design.fontSubmittedToHeading?.color || fontColor || '#d97706', // beautiful amber highlighting fallback
-                      fontSize: `${(design.fontSubmittedToHeading?.fontSize || 11.5) / 14}em`,
-                      fontWeight: design.fontSubmittedToHeading?.bold !== false ? 'bold' : 'normal',
-                      fontStyle: design.fontSubmittedToHeading?.italic ? 'italic' : 'normal',
-                      textTransform: design.fontSubmittedToHeading?.uppercase !== false ? 'uppercase' : 'none',
+                      ...getDirectStyle(design.fontSubmittedToHeading, design.fontSubSection, fontFamily, fontColor || '#d97706', true, 11.5, 'em')
                     }}
-                    className="mb-2.5 tracking-wider border-l-4 pl-2"
+                    className="mb-2.5 tracking-wider border-l-4 pl-2 text-left"
                   >
                     {data.teacherHeading || 'SUBMITTED TO'}
                   </h4>
                   <div 
-                    className="space-y-0.5"
+                    className="space-y-0.5 text-left"
                     style={{ 
-                      fontFamily: design.fontSubmittedToContent?.fontFamily || fontFamily || 'Georgia, serif', 
-                      fontSize: `${(design.fontSubmittedToContent?.fontSize || 10.5) / 14}em`,
-                      color: design.fontSubmittedToContent?.color || fontColor || '#1e293b'
+                      ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor || '#1e293b', false, 10.5, 'em')
                     }}
                   >
                     {data.teacherDetails ? (
@@ -1729,7 +1519,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                       <>
                         <div className="font-bold text-[1.1em]">{data.teacherName || 'Teacher Name'}</div>
                         <div className="opacity-80">{data.teacherDesignation || 'Professor'}</div>
-                        <div className="opacity-80">{data.teacherDiscipline || 'Department'}</div>
+                        <div className="opacity-80">{data.teacherDiscipline || design.disciplineLabel || 'Department'}</div>
                         <div className="font-bold opacity-85">{data.teacherUniversity || 'Jagannath University'}</div>
                       </>
                     )}
@@ -1742,23 +1532,16 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 <div className="flex flex-col items-start justify-start text-left">
                   <h4 
                     style={{
-                      fontFamily: design.fontSubmittedByHeading?.fontFamily || fontFamily || 'Georgia, serif',
-                      color: design.fontSubmittedByHeading?.color || fontColor || '#d97706', // beautiful amber highlighting fallback
-                      fontSize: `${(design.fontSubmittedByHeading?.fontSize || 11.5) / 14}em`,
-                      fontWeight: design.fontSubmittedByHeading?.bold !== false ? 'bold' : 'normal',
-                      fontStyle: design.fontSubmittedByHeading?.italic ? 'italic' : 'normal',
-                      textTransform: design.fontSubmittedByHeading?.uppercase !== false ? 'uppercase' : 'none',
+                      ...getDirectStyle(design.fontSubmittedByHeading, design.fontSubSection, fontFamily, fontColor || '#d97706', true, 11.5, 'em')
                     }}
-                    className="mb-2.5 tracking-wider border-l-4 pl-2"
+                    className="mb-2.5 tracking-wider border-l-4 pl-2 text-left"
                   >
                     {data.submittedByLabel || 'SUBMITTED BY'}
                   </h4>
                   <div 
-                    className="space-y-0.5"
+                    className="space-y-0.5 text-left"
                     style={{ 
-                      fontFamily: design.fontSubmittedByContent?.fontFamily || fontFamily || 'Georgia, serif', 
-                      fontSize: `${(design.fontSubmittedByContent?.fontSize || 10.5) / 14}em`,
-                      color: design.fontSubmittedByContent?.color || fontColor || '#1e293b'
+                      ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor || '#1e293b', false, 10.5, 'em')
                     }}
                   >
                     {data.studentDetails ? (
@@ -1768,7 +1551,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                         <div className="font-bold text-[1.1em]">{data.studentName || 'Student Name'}</div>
                         <div>ID: {data.studentId || '18PHY040'}</div>
                         {data.studentYearTerm && <div>{data.studentYearTerm}</div>}
-                        <div>{data.studentDiscipline || 'Department'}</div>
+                        <div>{data.studentDiscipline || design.disciplineLabel || 'Department'}</div>
                         <div className="font-bold opacity-85">{data.studentUniversity || 'Jagannath University'}</div>
                       </>
                     )}
@@ -1783,19 +1566,15 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               <div 
                 className="text-center font-bold tracking-wider mt-8 select-none" 
                 style={{ 
-                  fontFamily: design.fontSubmissionDateHeading?.fontFamily || fontFamily || 'Georgia, serif', 
-                  fontSize: `${(design.fontSubmissionDateHeading?.fontSize || 11) / 14}em` 
+                  ...getDirectStyle(design.fontSubmissionDateHeading, design.fontDate, fontFamily, fontColor || '#9f1239', true, 11, 'em')
                 }}
               >
-                <span style={{ color: design.fontSubmissionDateHeading?.color || fontColor || '#9f1239' }}>Date of Submission:</span>{' '}
+                <span>Date of Submission:</span>{' '}
                 <span 
                   style={{
-                    fontFamily: design.fontSubmissionDateContent?.fontFamily || fontFamily || 'Georgia, serif',
-                    fontSize: `${(design.fontSubmissionDateContent?.fontSize || 11) / 14}em`,
-                    color: design.fontSubmissionDateContent?.color || fontColor || '#1e293b',
-                    fontWeight: design.fontSubmissionDateContent?.bold !== false ? 'bold' : 'normal',
+                    ...getDirectStyle(design.fontSubmissionDateContent, design.fontDate, fontFamily, fontColor || '#1e293b', true, 11, 'em')
                   }}
-                  className="ml-1 font-semibold"
+                  className="ml-1"
                 >
                   {formatDate(data.submissionDate)}
                 </span>
@@ -1811,12 +1590,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             <div className="text-center mt-2 flex flex-col items-center w-full">
               <h2 
                 style={{ 
-                  fontFamily: design.fontUniversity?.fontFamily || design.fontTitle?.fontFamily || fontFamily || 'Georgia, serif',
-                  fontSize: `${(design.fontUniversity?.fontSize || design.fontTitle?.fontSize || 24) / 14}em`, 
-                  color: design.fontUniversity?.color || design.fontTitle?.color || fontColor || '#1e3a8a', 
-                  fontWeight: design.fontUniversity?.bold !== undefined ? (design.fontUniversity.bold ? 'bold' : 'normal') : (design.fontTitle?.bold !== false ? 'bold' : 'normal'),
-                  textTransform: (design.fontUniversity?.uppercase !== undefined ? design.fontUniversity.uppercase : (design.fontTitle?.uppercase !== false)) ? 'uppercase' : 'none',
-                  fontStyle: design.fontUniversity?.italic ? 'italic' : (design.fontTitle?.italic ? 'italic' : 'normal'),
+                  ...getDirectStyle(design.fontUniversity, design.fontTitle, fontFamily, fontColor || '#1e3a8a', true, 24, 'em')
                 }} 
                 className="tracking-wide"
               >
@@ -1825,12 +1599,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               {data.teacherDiscipline && (
                 <span 
                   style={{ 
-                    fontFamily: design.fontDiscipline?.fontFamily || design.fontSubSection?.fontFamily || fontFamily || 'Georgia, serif', 
-                    fontSize: `${(design.fontDiscipline?.fontSize || 12) / 14}em`,
-                    color: design.fontDiscipline?.color || design.fontSubSection?.color || fontColor || '#b45309',
-                    fontWeight: design.fontDiscipline?.bold !== undefined ? (design.fontDiscipline.bold ? 'bold' : 'normal') : 'bold',
-                    fontStyle: design.fontDiscipline?.italic !== undefined ? (design.fontDiscipline.italic ? 'italic' : 'normal') : 'normal',
-                    textTransform: (design.fontDiscipline?.uppercase !== undefined ? design.fontDiscipline.uppercase : true) ? 'uppercase' : 'none',
+                    ...getDirectStyle(design.fontDiscipline, design.fontSubSection, fontFamily, fontColor || '#b45309', true, 12, 'em')
                   }} 
                   className="font-bold mt-1 uppercase tracking-wider block"
                 >
@@ -1858,10 +1627,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             <DraggableBlock elementId="documentType" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
               <div 
                 style={{
-                  fontFamily: design.fontAssignmentTopic?.fontFamily || fontFamily || 'Georgia, serif',
-                  fontSize: `${(design.fontAssignmentTopic?.fontSize || 11) / 14}em`,
-                  color: design.fontAssignmentTopic?.color || fontColor || '#000000',
-                  fontWeight: design.fontAssignmentTopic?.bold !== false ? 'bold' : 'normal'
+                  ...getDirectStyle(design.fontAssignmentTopic, design.fontTitle, fontFamily, fontColor || '#000000', true, 11, 'em')
                 }}
                 className="text-center uppercase tracking-widest py-1 px-8 w-auto select-none"
               >
@@ -1874,13 +1640,10 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               <div className="px-4 text-center my-3">
                 <h1 
                   style={{
-                    fontFamily: design.fontTopicTitle?.fontFamily || fontFamily || 'Georgia, serif',
-                    color: design.fontTopicTitle?.color || fontColor || '#000000',
-                    fontSize: `${(design.fontTopicTitle?.fontSize || 24) / 14}em`,
-                    fontWeight: design.fontTopicTitle?.bold !== false ? 'bold' : 'normal',
+                    ...getDirectStyle(design.fontTopicTitle, design.fontTitle, fontFamily, fontColor || '#000000', true, 24, 'em'),
                     lineHeight: '1.4',
                   }}
-                  className="max-w-2xl px-2 leading-snug"
+                  className="max-w-2xl px-2 leading-snug text-center"
                 >
                   {data.topicTitle || 'TOPIC TITLE HERE'}
                 </h1>
@@ -1891,10 +1654,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               <DraggableBlock elementId="assignmentNo" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 mt-1">
                 <div 
                   style={{
-                    fontFamily: design.fontAssignmentTopic?.fontFamily || fontFamily || 'Georgia, serif',
-                    fontSize: `${(design.fontAssignmentTopic?.fontSize || 11) / 14}em`,
-                    color: design.fontAssignmentTopic?.color || fontColor || '#000000',
-                    fontWeight: design.fontAssignmentTopic?.bold !== false ? 'bold' : 'normal'
+                    ...getDirectStyle(design.fontAssignmentTopic, design.fontTitle, fontFamily, fontColor || '#000000', true, 11, 'em')
                   }}
                   className="text-center tracking-wide select-none"
                 >
@@ -1906,39 +1666,35 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             {/* Course Information with direct professional Green coloring */}
             <DraggableBlock elementId="courseDetails" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
               <div className="text-center space-y-1.5 w-full select-none">
-                <div 
-                  style={{ 
-                    fontFamily: design.fontCourseTitleHeading?.fontFamily || fontFamily || 'Georgia, serif', 
-                    fontSize: `${(design.fontCourseTitleHeading?.fontSize || 13) / 14}em`,
-                    color: design.fontCourseTitleHeading?.color || fontColor || '#15803d'
-                  }} 
-                >
-                  <span className="font-bold uppercase tracking-wider">Course Title:</span>{' '}
+                <div className="flex justify-center items-center gap-1.5">
+                  <span 
+                    style={{ 
+                      ...getDirectStyle(design.fontCourseTitleHeading, design.fontCourse, fontFamily, fontColor || '#15803d', true, 13, 'em')
+                    }}
+                    className="font-bold uppercase tracking-wider"
+                  >
+                    Course Title:
+                  </span>{' '}
                   <span 
                     style={{
-                      fontFamily: design.fontCourseTitleContent?.fontFamily || fontFamily || 'Georgia, serif',
-                      fontSize: `${(design.fontCourseTitleContent?.fontSize || 13) / 14}em`,
-                      color: design.fontCourseTitleContent?.color || fontColor || '#15803d',
-                      fontWeight: design.fontCourseTitleContent?.bold !== false ? 'bold' : 'normal'
+                      ...getDirectStyle(design.fontCourseTitleContent, design.fontCourse, fontFamily, fontColor || '#15803d', true, 13, 'em')
                     }}
                   >
                     {data.courseName || 'Course Title'}
                   </span>
                 </div>
-                <div 
-                  style={{ 
-                    fontFamily: design.fontCourseNoHeading?.fontFamily || fontFamily || 'Georgia, serif', 
-                    fontSize: `${(design.fontCourseNoHeading?.fontSize || 13) / 14}em`,
-                    color: design.fontCourseNoHeading?.color || fontColor || '#15803d'
-                  }} 
-                >
-                  <span className="font-bold uppercase tracking-wider">Course Code:</span>{' '}
+                <div className="flex justify-center items-center gap-1.5">
+                  <span 
+                    style={{ 
+                      ...getDirectStyle(design.fontCourseNoHeading, design.fontCourse, fontFamily, fontColor || '#15803d', true, 13, 'em')
+                    }}
+                    className="font-bold uppercase tracking-wider"
+                  >
+                    Course Code:
+                  </span>{' '}
                   <span 
                     style={{
-                      fontFamily: design.fontCourseNoContent?.fontFamily || fontFamily || 'Georgia, serif',
-                      fontSize: `${(design.fontCourseNoContent?.fontSize || 13) / 14}em`,
-                      color: design.fontCourseNoContent?.color || fontColor || '#15803d',
-                      fontWeight: design.fontCourseNoContent?.bold !== false ? 'bold' : 'normal'
+                      ...getDirectStyle(design.fontCourseNoContent, design.fontCourse, fontFamily, fontColor || '#15803d', true, 13, 'em')
                     }}
                   >
                     {data.courseNo || 'Course Code'}
@@ -1955,21 +1711,16 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 <div className="flex flex-col items-start justify-start text-left">
                   <h4 
                     style={{
-                      fontFamily: design.fontSubmittedToHeading?.fontFamily || fontFamily || 'Georgia, serif',
-                      color: design.fontSubmittedToHeading?.color || fontColor || '#ef4444', 
-                      fontSize: `${(design.fontSubmittedToHeading?.fontSize || 12.5) / 14}em`,
-                      fontWeight: design.fontSubmittedToHeading?.bold !== false ? 'bold' : 'normal'
+                      ...getDirectStyle(design.fontSubmittedToHeading, design.fontSubSection, fontFamily, fontColor || '#ef4444', true, 12.5, 'em')
                     }}
                     className="mb-2 tracking-wider uppercase"
                   >
                     {data.teacherHeading || 'SUBMITTED TO'}
                   </h4>
                   <div 
-                    className="space-y-0.5"
+                    className="space-y-0.5 text-left"
                     style={{ 
-                      fontFamily: design.fontSubmittedToContent?.fontFamily || fontFamily || 'Georgia, serif', 
-                      fontSize: `${(design.fontSubmittedToContent?.fontSize || 11) / 14}em`,
-                      color: design.fontSubmittedToContent?.color || fontColor || '#000000'
+                      ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor || '#000000', false, 11, 'em')
                     }}
                   >
                     {data.teacherDetails ? (
@@ -1978,7 +1729,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                       <>
                         <div className="font-bold text-[1.1em]">{data.teacherName || 'Teacher Name'}</div>
                         <div className="opacity-80">{data.teacherDesignation || 'Professor'}</div>
-                        <div className="opacity-80">{data.teacherDiscipline || 'Department'}</div>
+                        <div className="opacity-80">{data.teacherDiscipline || design.disciplineLabel || 'Department'}</div>
                         <div className="font-bold opacity-90">{data.teacherUniversity || 'Jagannath University'}</div>
                       </>
                     )}
@@ -1991,21 +1742,16 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 <div className="flex flex-col items-start justify-start text-left">
                   <h4 
                     style={{
-                      fontFamily: design.fontSubmittedByHeading?.fontFamily || fontFamily || 'Georgia, serif',
-                      color: design.fontSubmittedByHeading?.color || fontColor || '#ef4444', 
-                      fontSize: `${(design.fontSubmittedByHeading?.fontSize || 12.5) / 14}em`,
-                      fontWeight: design.fontSubmittedByHeading?.bold !== false ? 'bold' : 'normal'
+                      ...getDirectStyle(design.fontSubmittedByHeading, design.fontSubSection, fontFamily, fontColor || '#ef4444', true, 12.5, 'em')
                     }}
                     className="mb-2 tracking-wider uppercase"
                   >
                     {data.submittedByLabel || 'SUBMITTED BY'}
                   </h4>
                   <div 
-                    className="space-y-0.5"
+                    className="space-y-0.5 text-left"
                     style={{ 
-                      fontFamily: design.fontSubmittedByContent?.fontFamily || fontFamily || 'Georgia, serif', 
-                      fontSize: `${(design.fontSubmittedByContent?.fontSize || 11) / 14}em`,
-                      color: design.fontSubmittedByContent?.color || fontColor || '#000000'
+                      ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor || '#000000', false, 11, 'em')
                     }}
                   >
                     {data.studentDetails ? (
@@ -2015,7 +1761,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                         <div className="font-bold text-[1.1em]">{data.studentName || 'Student Name'}</div>
                         <div>ID: {data.studentId || '18PHY040'}</div>
                         {data.studentYearTerm && <div>{data.studentYearTerm}</div>}
-                        <div className="opacity-80">{data.studentDiscipline || 'Department'}</div>
+                        <div className="opacity-80">{data.studentDiscipline || design.disciplineLabel || 'Department'}</div>
                         <div className="font-bold opacity-90">{data.studentUniversity || 'Jagannath University'}</div>
                       </>
                     )}
@@ -2030,18 +1776,13 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               <div 
                 className="text-center mt-8 select-none" 
                 style={{ 
-                  fontFamily: design.fontSubmissionDateHeading?.fontFamily || fontFamily || 'Georgia, serif', 
-                  fontSize: `${(design.fontSubmissionDateHeading?.fontSize || 11.5) / 14}em`,
-                  color: design.fontSubmissionDateHeading?.color || fontColor || '#000000'
+                  ...getDirectStyle(design.fontSubmissionDateHeading, design.fontDate, fontFamily, fontColor || '#000000', true, 11.5, 'em')
                 }}
               >
-                <span className="font-bold">Date of Submission:</span>{' '}
+                <span>Date of Submission:</span>{' '}
                 <span 
                   style={{
-                    fontFamily: design.fontSubmissionDateContent?.fontFamily || fontFamily || 'Georgia, serif',
-                    fontSize: `${(design.fontSubmissionDateContent?.fontSize || 11.5) / 14}em`,
-                    color: design.fontSubmissionDateContent?.color || fontColor || '#000000',
-                    fontWeight: design.fontSubmissionDateContent?.bold !== false ? 'bold' : 'normal'
+                    ...getDirectStyle(design.fontSubmissionDateContent, design.fontDate, fontFamily, fontColor || '#000000', true, 11.5, 'em')
                   }}
                   className="ml-1"
                 >
@@ -2308,7 +2049,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                           {data.teacherDesignation || 'Professor'}
                         </div>
                         <div className="opacity-80">
-                          {data.teacherDiscipline || 'Environmental Science Discipline'}
+                          {data.teacherDiscipline || (design.disciplineLabel === 'Department' ? 'Department of Environmental Science' : 'Environmental Science Discipline')}
                         </div>
                         <div className="font-bold opacity-90" style={{ fontWeight: (design.fontSubmittedToContent?.bold !== undefined ? design.fontSubmittedToContent.bold : true) ? 'bold' : 'normal' }}>
                           {data.teacherUniversity || 'Khulna University'}
@@ -2367,7 +2108,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                           {data.studentYearTerm || '1st Year, 2nd Term'}
                         </div>
                         <div className="opacity-80">
-                          {data.studentDiscipline || 'Environmental Science Discipline'}
+                          {data.studentDiscipline || (design.disciplineLabel === 'Department' ? 'Department of Environmental Science' : 'Environmental Science Discipline')}
                         </div>
                         <div className="font-bold opacity-90" style={{ fontWeight: (design.fontSubmittedByContent?.bold !== undefined ? design.fontSubmittedByContent.bold : true) ? 'bold' : 'normal' }}>
                           {data.studentUniversity || 'Khulna University'}

@@ -757,19 +757,60 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
           </DraggableBlock>
 
           <DraggableBlock elementId="courseTitle" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 mt-2 text-center w-full">
-            <div 
-              className="text-center block w-full"
-              style={resolveStyle(design.fontCourse, {
-                fontFamily: fontFamily || 'Georgia, serif',
-                fontSize: 13,
-                color: fontColor || '#000000',
-                bold: false,
-                italic: false,
-                uppercase: false,
-                align: 'center'
-              })}
-            >
-              Course Name: <span style={{ fontWeight: 'semibold' }}>{data.courseName || 'Research Methodology'}</span> Course No: <span style={{ fontWeight: 'semibold' }}>{data.courseNo || '351'}</span>
+            <div className="text-center block w-full space-x-1">
+              <span 
+                style={resolveStyle(design.fontCourseTitleHeading, {
+                  fontFamily: fontFamily || 'Georgia, serif',
+                  fontSize: 13,
+                  color: fontColor || '#000000',
+                  bold: false,
+                  italic: false,
+                  uppercase: false,
+                  align: 'center'
+                }, { display: 'inline' })}
+              >
+                Course Name:
+              </span>
+              <span 
+                style={resolveStyle(design.fontCourseTitleContent, {
+                  fontFamily: fontFamily || 'Georgia, serif',
+                  fontSize: 13,
+                  color: fontColor || '#000511',
+                  bold: true,
+                  italic: false,
+                  uppercase: false,
+                  align: 'center'
+                }, { display: 'inline' })}
+              >
+                {data.courseName || 'Research Methodology'}
+              </span>
+              <span className="mx-2 opacity-40">|</span>
+              <span 
+                style={resolveStyle(design.fontCourseNoHeading, {
+                  fontFamily: fontFamily || 'Georgia, serif',
+                  fontSize: 13,
+                  color: fontColor || '#000000',
+                  bold: false,
+                  italic: false,
+                  uppercase: false,
+                  align: 'center'
+                }, { display: 'inline' })}
+              >
+                Course No:
+              </span>
+              <span 
+                style={resolveStyle(design.fontCourseNoContent, {
+                  fontFamily: fontFamily || 'Georgia, serif',
+                  fontSize: 13,
+                  color: fontColor || '#000511',
+                  bold: true,
+                  italic: false,
+                  uppercase: false,
+                  align: 'center'
+                }, { display: 'inline' })}
+              >
+                {data.courseNo || '351'}
+              </span>
             </div>
           </DraggableBlock>
         </div>
@@ -824,7 +865,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                   >
                     <div style={{ fontWeight: (design.fontSubmittedToContent?.bold !== undefined ? design.fontSubmittedToContent.bold : true) ? 'semibold' : 'normal' }}>{data.teacherName || 'Dr. Abul Kashem Mohammad Jamal Uddin'}</div>
                     <div className="opacity-80">{data.teacherDesignation || 'Professor'}</div>
-                    <div className="opacity-80">{data.teacherDiscipline || 'Department of Sociology'}</div>
+                    <div className="opacity-80">{data.teacherDiscipline || (design.disciplineLabel === 'Discipline' ? 'Sociology Discipline' : 'Department of Sociology')}</div>
                     {data.studentUniversity && <div className="opacity-80">{data.studentUniversity || 'University of Dhaka'}</div>}
                   </div>
                 )}
@@ -877,7 +918,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                     <div style={{ fontWeight: (design.fontSubmittedByContent?.bold !== undefined ? design.fontSubmittedByContent.bold : true) ? 'semibold' : 'normal' }}>{data.studentName || 'Tahmid Ul Islam'}</div>
                     {data.studentYearTerm && <div className="opacity-80">{data.studentYearTerm || 'Session: 2017-18'}</div>}
                     {data.studentId && <div className="opacity-80">Class Roll: {data.studentId || '155'}</div>}
-                    <div className="opacity-80">{data.studentDiscipline || 'Department of Sociology'}</div>
+                    <div className="opacity-80">{data.studentDiscipline || (design.disciplineLabel === 'Discipline' ? 'Sociology Discipline' : 'Department of Sociology')}</div>
                     {data.studentUniversity && <div className="opacity-80">{data.studentUniversity || 'University of Dhaka'}</div>}
                   </div>
                 )}
@@ -1009,24 +1050,22 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
           </DraggableBlock>
 
           <DraggableBlock elementId="courseTitle" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 mt-1 text-center flex flex-col space-y-1.5 w-full">
-            <div 
-              className="text-center w-full block font-semibold"
-              style={resolveStyle(design.fontCourse, {
-                fontFamily: fontFamily || '"Times New Roman", Times, serif',
-                fontSize: 13,
-                color: fontColor || '#111827',
-                bold: true,
-                italic: false,
-                uppercase: false,
-                align: 'center'
-              })}
-            >
-              <span className="opacity-80" style={{ fontWeight: 'normal' }}>{data.courseNameHeading || 'Course Title:'}</span> <span style={{ fontWeight: 'bold' }}>{data.courseName || 'Energy Sources'}</span>
-            </div>
-            {data.courseNo && (
-              <div 
-                className="text-center w-full block font-semibold"
-                style={resolveStyle(design.fontCourse, {
+            <div className="text-center w-full block">
+              <span 
+                style={resolveStyle(design.fontCourseTitleHeading, {
+                  fontFamily: fontFamily || '"Times New Roman", Times, serif',
+                  fontSize: 13,
+                  color: fontColor || '#4b5563',
+                  bold: false,
+                  italic: false,
+                  uppercase: false,
+                  align: 'center'
+                }, { display: 'inline' })}
+              >
+                {data.courseNameHeading || 'Course Title:'}
+              </span>{" "}
+              <span 
+                style={resolveStyle(design.fontCourseTitleContent, {
                   fontFamily: fontFamily || '"Times New Roman", Times, serif',
                   fontSize: 13,
                   color: fontColor || '#111827',
@@ -1034,9 +1073,39 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                   italic: false,
                   uppercase: false,
                   align: 'center'
-                })}
+                }, { display: 'inline' })}
               >
-                <span className="opacity-80" style={{ fontWeight: 'normal' }}>{data.courseNoHeading || 'Course Code:'}</span> <span style={{ fontWeight: 'bold' }}>{data.courseNo || 'PHY403'}</span>
+                {data.courseName || 'Energy Sources'}
+              </span>
+            </div>
+            {data.courseNo && (
+              <div className="text-center w-full block">
+                <span 
+                  style={resolveStyle(design.fontCourseNoHeading, {
+                    fontFamily: fontFamily || '"Times New Roman", Times, serif',
+                    fontSize: 13,
+                    color: fontColor || '#4b5563',
+                    bold: false,
+                    italic: false,
+                    uppercase: false,
+                    align: 'center'
+                  }, { display: 'inline' })}
+                >
+                  {data.courseNoHeading || 'Course Code:'}
+                </span>{" "}
+                <span 
+                  style={resolveStyle(design.fontCourseNoContent, {
+                    fontFamily: fontFamily || '"Times New Roman", Times, serif',
+                    fontSize: 13,
+                    color: fontColor || '#111827',
+                    bold: true,
+                    italic: false,
+                    uppercase: false,
+                    align: 'center'
+                  }, { display: 'inline' })}
+                >
+                  {data.courseNo || 'PHY403'}
+                </span>
               </div>
             )}
           </DraggableBlock>
@@ -1093,7 +1162,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                   >
                     <div style={{ fontWeight: (design.fontSubmittedToContent?.bold !== undefined ? design.fontSubmittedToContent.bold : true) ? 'bold' : 'normal' }}>{data.teacherName || 'Arpon Chakraborty'}</div>
                     <div className="opacity-90">{data.teacherDesignation || 'Assistant Professor'}</div>
-                    <div className="opacity-90">{data.teacherDiscipline || 'Department of Physics'}</div>
+                    <div className="opacity-90">{data.teacherDiscipline || (design.disciplineLabel === 'Discipline' ? 'Physics Discipline' : 'Department of Physics')}</div>
                     <div className="opacity-90">{data.teacherUniversity || 'Jagannath University, Dhaka'}</div>
                   </div>
                 )}
@@ -1146,7 +1215,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                     <div style={{ fontWeight: (design.fontSubmittedByContent?.bold !== undefined ? design.fontSubmittedByContent.bold : true) ? 'bold' : 'normal' }}>{data.studentName || 'Md Abdul Basir'}</div>
                     {data.studentId && <div className="opacity-90">ID: {data.studentId || '18PHY040'}</div>}
                     {data.studentYearTerm && <div className="opacity-90">{data.studentYearTerm || '31th Batch'}</div>}
-                    <div className="opacity-90">{data.studentDiscipline || 'Department of Physics'}</div>
+                    <div className="opacity-90">{data.studentDiscipline || (design.disciplineLabel === 'Discipline' ? 'Physics Discipline' : 'Department of Physics')}</div>
                     <div className="opacity-90">{data.studentUniversity || 'Jagannath University, Dhaka'}</div>
                   </div>
                 )}
