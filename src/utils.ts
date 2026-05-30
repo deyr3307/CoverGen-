@@ -217,3 +217,48 @@ export async function ensureSupportedFormat(file: File | Blob): Promise<Blob | F
   }
   return file;
 }
+
+/**
+ * Safely base64 encodes the application state (coverData, coverDesign, background)
+ * into a URL-friendly query parameter representation, omitting massive custom base64 images.
+ */
+export function encodeSharedState(coverData: any, coverDesign: any, pageBackgroundColor: string): string {
+  try {
+    const cleanDesign = { ...coverDesign };
+    if (cleanDesign.logoUrl && cleanDesign.logoUrl.startsWith('data:')) {
+      cleanDesign.logoUrl = ''; // omit custom base64 upload logos to stay within URI limits
+    }
+    if (cleanDesign.watermarkUrl && cleanDesign.watermarkUrl.startsWith('data:')) {
+      cleanDesign.watermarkUrl = ''; // omit custom base64 watermark uploads
+    }
+
+    const payload = {
+      coverData,
+      coverDesign: cleanDesign,
+      pageBackgroundColor
+    };
+
+    const jsonStr = JSON.stringify(payload);
+    // Unicode-safe Base64 encoding
+    const b64 = btoa(unescape(encodeURIComponent(jsonStr)));
+    return encodeURIComponent(b64);
+  } catch (err) {
+    console.error("Failed to encode shared state:", err);
+    return '';
+  }
+}
+
+/**
+ * Safely decodes a shared base64 application state from a URL parameter.
+ */
+export function decodeSharedState(encoded: string): { coverData: any; coverDesign: any; pageBackgroundColor: string } | null {
+  if (!encoded) return null;
+  try {
+    const b64 = decodeURIComponent(encoded);
+    const jsonStr = decodeURIComponent(escape(atob(b64)));
+    return JSON.parse(jsonStr);
+  } catch (err) {
+    console.error("Failed to decode shared state:", err);
+    return null;
+  }
+}

@@ -33,12 +33,14 @@ import {
   X,
   Printer,
   Check,
-  Settings2
+  Settings2,
+  Share2,
+  Copy
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jspdf from 'jspdf';
 import { motion, AnimatePresence } from 'motion/react';
-import { ensureSupportedFormat } from './utils';
+import { ensureSupportedFormat, encodeSharedState, decodeSharedState } from './utils';
 
 const pageVariants = {
   initial: {
@@ -112,26 +114,100 @@ export default function App() {
   }, [theme]);
 
   // Wizard view toggle: 'landing' | 'inputs' | 'builder'
-  const [currentStep, setCurrentStep] = useState<'landing' | 'inputs' | 'builder'>('landing');
+  const [currentStep, setCurrentStep] = useState<'landing' | 'inputs' | 'builder'>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('share')) return 'builder';
+    }
+    return 'landing';
+  });
   
   // Custom builder tabs: 'inputs' | 'designer' | 'preview'
-  const [builderTab, setBuilderTab] = useState<'inputs' | 'designer' | 'preview'>('inputs');
+  const [builderTab, setBuilderTab] = useState<'inputs' | 'designer' | 'preview'>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('share')) return 'preview';
+    }
+    return 'inputs';
+  });
 
-  // Shared persistent state (cached in localStorage)
+  const [isSharedView, setIsSharedView] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.has('share');
+    }
+    return false;
+  });
+
+  // Keep backups of local storage on mount (before overriding with shared state) to allow easy restore!
+  const [backedUpData] = useState<string | null>(() => {
+    return localStorage.getItem('cover_page_data');
+  });
+  const [backedUpDesign] = useState<string | null>(() => {
+    return localStorage.getItem('cover_page_design');
+  });
+
+  // Helper to retrieve shared state from query parameter
+  const getSharedState = () => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const shareData = params.get('share');
+      if (shareData) {
+        return decodeSharedState(shareData);
+      }
+    }
+    return null;
+  };
+
+  const sharedState = getSharedState();
+
+  // Shared persistent state (cached in localStorage or loaded from share URL)
   const [coverData, setCoverData] = useState<CoverPageData>(() => {
+    if (sharedState?.coverData) {
+      return sharedState.coverData;
+    }
     const saved = localStorage.getItem('cover_page_data');
     return saved ? JSON.parse(saved) : { ...DEFAULT_COVER_DATA };
   });
 
   const [coverDesign, setCoverDesign] = useState<CoverPageDesign>(() => {
+    if (sharedState?.coverDesign) {
+      return sharedState.coverDesign;
+    }
     const saved = localStorage.getItem('cover_page_design');
     return saved ? JSON.parse(saved) : { ...DEFAULT_DESIGN };
   });
 
   // State Management for background color
   const [pageBackgroundColor, setPageBackgroundColor] = useState<string>(() => {
+    if (sharedState?.pageBackgroundColor) {
+      return sharedState.pageBackgroundColor;
+    }
     return coverDesign.paperColor || '#ffffff';
   });
+
+  const handleRestoreMyDesign = () => {
+    setIsSharedView(false);
+    // Remove query parameter from browser bar without reload
+    const url = new URL(window.location.href);
+    url.searchParams.delete('share');
+    window.history.replaceState({}, '', url.pathname + url.search);
+
+    if (backedUpData) {
+      setCoverData(JSON.parse(backedUpData));
+    } else {
+      setCoverData({ ...DEFAULT_COVER_DATA });
+    }
+
+    if (backedUpDesign) {
+      const designObj = JSON.parse(backedUpDesign);
+      setCoverDesign(designObj);
+      setPageBackgroundColor(designObj.paperColor || '#ffffff');
+    } else {
+      setCoverDesign({ ...DEFAULT_DESIGN });
+      setPageBackgroundColor(DEFAULT_DESIGN.paperColor || '#ffffff');
+    }
+  };
 
   // Keep pageBackgroundColor in sync with coverDesign
   useEffect(() => {
@@ -152,6 +228,8 @@ export default function App() {
   const [zoomLevel, setZoomLevel] = useState<number>(60); // standard nice scale on typical desktop screens
   const [isExporting, setIsExporting] = useState<string | null>(null);
   const [isDownloadOpen, setIsDownloadOpen] = useState<boolean>(false);
+  const [isShareOpen, setIsShareOpen] = useState<boolean>(false);
+  const [isShareCopied, setIsShareCopied] = useState<boolean>(false);
 
   // Advanced PDF Export Option States
   const [showAdvancedPdfDialog, setShowAdvancedPdfDialog] = useState<boolean>(false);
@@ -949,6 +1027,39 @@ export default function App() {
             exit="exit"
             className="studio-workspace-container flex flex-col h-screen overflow-hidden w-full"
           >
+            {isSharedView && (
+              <div className="bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-600 text-white text-xs py-2.5 px-4 flex items-center justify-between shadow-md relative z-30 select-none shrink-0 border-b border-indigo-500/20">
+                <div className="flex items-center space-x-2">
+                  <span className="flex h-2.5 w-2.5 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+                  </span>
+                  <span className="font-semibold tracking-wide">
+                    ✨ Shared Academic Cover Page Loaded! You can customize or export this design.
+                  </span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <button 
+                    onClick={handleRestoreMyDesign}
+                    className="bg-white/15 hover:bg-white/25 active:bg-white/10 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-white/10"
+                  >
+                    Restore My Previous Design
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setIsSharedView(false);
+                      const url = new URL(window.location.href);
+                      url.searchParams.delete('share');
+                      window.history.replaceState({}, '', url.pathname + url.search);
+                    }}
+                    className="text-white/70 hover:text-white p-1 rounded transition-colors cursor-pointer"
+                    title="Dismiss Notification"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            )}
             
             {/* header navigation bar */}
             <header className={`relative z-20 border-b px-5 py-3.5 flex items-center justify-between shadow-xl shrink-0 transition-colors duration-300 ${
@@ -1049,6 +1160,39 @@ export default function App() {
             exit="exit"
             className="studio-workspace-container flex flex-col h-screen overflow-hidden w-full"
           >
+            {isSharedView && (
+              <div className="bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-600 text-white text-xs py-2.5 px-4 flex items-center justify-between shadow-md relative z-30 select-none shrink-0 border-b border-indigo-500/20">
+                <div className="flex items-center space-x-2">
+                  <span className="flex h-2.5 w-2.5 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+                  </span>
+                  <span className="font-semibold tracking-wide">
+                    ✨ Shared Academic Cover Page Loaded! You can customize or export this design.
+                  </span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <button 
+                    onClick={handleRestoreMyDesign}
+                    className="bg-white/15 hover:bg-white/25 active:bg-white/10 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-white/10"
+                  >
+                    Restore My Previous Design
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setIsSharedView(false);
+                      const url = new URL(window.location.href);
+                      url.searchParams.delete('share');
+                      window.history.replaceState({}, '', url.pathname + url.search);
+                    }}
+                    className="text-white/70 hover:text-white p-1 rounded transition-colors cursor-pointer"
+                    title="Dismiss Notification"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            )}
           
           {/* header navigation bar */}
           <header className={`relative z-20 border-b px-5 py-3.5 flex items-center justify-between shadow-xl transition-colors duration-300 ${
@@ -1234,6 +1378,186 @@ export default function App() {
                 <div className={`flex items-center space-x-1.5 backdrop-blur border p-1 rounded-lg pointer-events-auto shadow-xl transition-colors duration-300 ${
                   theme === 'dark' ? 'bg-[#090b12]/90 border-slate-800' : 'bg-white/95 border-slate-200/90'
                 }`}>
+                  
+                  {/* Elegant Share to Social Media Dropdown */}
+                  <div 
+                    className="dropdown relative"
+                    onMouseLeave={() => {
+                      setIsShareOpen(false);
+                      setIsShareCopied(false);
+                    }}
+                  >
+                    <button 
+                      onClick={() => setIsShareOpen(p => !p)}
+                      className={`relative px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center transition-all cursor-pointer ${
+                        theme === 'dark' 
+                          ? 'bg-transparent text-slate-300 hover:text-white hover:bg-slate-800/60' 
+                          : 'bg-transparent text-slate-700 hover:text-slate-900 hover:bg-slate-50'
+                      }`}
+                    >
+                      <Share2 className={`w-3.5 h-3.5 mr-2 ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-600'}`} />
+                      <span>Share</span>
+                    </button>
+
+                    <div className={`absolute right-[-40px] md:right-0 top-full mt-2 w-72 rounded-2xl shadow-2xl py-3 animate-fadeIn z-20 ${
+                      isShareOpen ? 'opacity-100 pointer-events-auto scale-100 translate-y-0' : 'opacity-0 pointer-events-none scale-95 -translate-y-2'
+                    } ${
+                      theme === 'dark' ? 'bg-[#090b11] border border-slate-850 shadow-[0_12px_40px_rgba(0,0,0,0.6)]' : 'bg-white border border-slate-200/80 shadow-[0_12px_40px_rgba(0,0,0,0.1)]'
+                    }`} style={{ transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+                      <div className="px-3.5 pb-2.5 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between">
+                        <span className="text-[10px] font-mono font-black uppercase text-slate-400">Share design</span>
+                        <span className="px-1.5 py-0.5 rounded text-[8px] font-mono bg-indigo-500/10 text-indigo-500 font-extrabold uppercase">Live URL</span>
+                      </div>
+
+                      {/* --- COPY DIRECT URL STATE --- */}
+                      <div className="p-3.5 border-b border-slate-100 dark:border-slate-800/60 text-left">
+                        <span className="text-[9px] uppercase font-mono tracking-wider text-slate-400 block mb-2">Direct Shared Link</span>
+                        <div className="flex space-x-2">
+                          <input 
+                            type="text"
+                            readOnly
+                            value={(() => {
+                              const b64Str = encodeSharedState(coverData, coverDesign, pageBackgroundColor);
+                              return b64Str ? `${window.location.origin}${window.location.pathname}?share=${b64Str}` : window.location.href;
+                            })()}
+                            className={`flex-1 text-[10px] font-mono p-1.5 px-2.5 rounded-lg border focus:outline-none select-all ${
+                              theme === 'dark' ? 'bg-[#05070a] border-slate-800 text-slate-350' : 'bg-slate-50 border-slate-200 text-slate-600'
+                            }`}
+                          />
+                          <button
+                            onClick={() => {
+                              const b64Str = encodeSharedState(coverData, coverDesign, pageBackgroundColor);
+                              const fullUrl = b64Str ? `${window.location.origin}${window.location.pathname}?share=${b64Str}` : window.location.href;
+                              navigator.clipboard.writeText(fullUrl);
+                              setIsShareCopied(true);
+                              setTimeout(() => setIsShareCopied(false), 2000);
+                            }}
+                            className={`p-2 rounded-lg transition-transform hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center shrink-0 ${
+                              isShareCopied 
+                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
+                                : theme === 'dark' ? 'bg-indigo-650 hover:bg-indigo-600 text-white' : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                            }`}
+                            title="Copy link to clipboard"
+                          >
+                            {isShareCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* --- SOCIAL MEDIA ROW --- */}
+                      <div className="p-3 px-3.5 grid grid-cols-4 gap-2">
+                        
+                        {/* Twitter/X */}
+                        <button
+                          onClick={() => {
+                            const b64Str = encodeSharedState(coverData, coverDesign, pageBackgroundColor);
+                            const fullUrl = b64Str ? `${window.location.origin}${window.location.pathname}?share=${b64Str}` : window.location.href;
+                            const text = `Take a look at the assignment cover page I designed for "${coverData.topicTitle || 'my course'}"! Built on CoverGen:`;
+                            window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(fullUrl)}&text=${encodeURIComponent(text)}`, '_blank');
+                          }}
+                          className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all hover:scale-105 cursor-pointer border ${
+                            theme === 'dark' 
+                              ? 'bg-slate-900/60 border-slate-850 hover:bg-slate-850 hover:border-slate-800 text-slate-300 hover:text-white' 
+                              : 'bg-slate-50 border-slate-150 hover:bg-slate-100/80 text-slate-650 hover:text-slate-900'
+                          }`}
+                        >
+                          {/* Sleek Minimalist X Icon svg */}
+                          <svg className="w-4 h-4 mb-1 fill-current" viewBox="0 0 24 24">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                          </svg>
+                          <span className="text-[8px] font-bold tracking-wide">X (Twitter)</span>
+                        </button>
+
+                        {/* LinkedIn */}
+                        <button
+                          onClick={() => {
+                            const b64Str = encodeSharedState(coverData, coverDesign, pageBackgroundColor);
+                            const fullUrl = b64Str ? `${window.location.origin}${window.location.pathname}?share=${b64Str}` : window.location.href;
+                            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(fullUrl)}`, '_blank');
+                          }}
+                          className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all hover:scale-105 cursor-pointer border ${
+                            theme === 'dark' 
+                              ? 'bg-slate-900/60 border-slate-850 hover:bg-slate-850 hover:border-slate-800 text-slate-300 hover:text-white' 
+                              : 'bg-slate-50 border-slate-150 hover:bg-slate-100/80 text-slate-650 hover:text-slate-900'
+                          }`}
+                        >
+                          <svg className="w-4 h-4 mb-1 fill-current text-[#0077b5]" viewBox="0 0 24 24">
+                            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                          </svg>
+                          <span className="text-[8px] font-bold tracking-wide">LinkedIn</span>
+                        </button>
+
+                        {/* Facebook */}
+                        <button
+                          onClick={() => {
+                            const b64Str = encodeSharedState(coverData, coverDesign, pageBackgroundColor);
+                            const fullUrl = b64Str ? `${window.location.origin}${window.location.pathname}?share=${b64Str}` : window.location.href;
+                            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fullUrl)}`, '_blank');
+                          }}
+                          className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all hover:scale-105 cursor-pointer border ${
+                            theme === 'dark' 
+                              ? 'bg-slate-900/60 border-slate-850 hover:bg-slate-850 hover:border-slate-800 text-slate-300 hover:text-white' 
+                              : 'bg-slate-50 border-slate-150 hover:bg-slate-100/80 text-slate-650 hover:text-slate-900'
+                          }`}
+                        >
+                          <svg className="w-4 h-4 mb-1 fill-current text-[#1877f2]" viewBox="0 0 24 24">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                          </svg>
+                          <span className="text-[8px] font-bold tracking-wide">Facebook</span>
+                        </button>
+
+                        {/* WhatsApp */}
+                        <button
+                          onClick={() => {
+                            const b64Str = encodeSharedState(coverData, coverDesign, pageBackgroundColor);
+                            const fullUrl = b64Str ? `${window.location.origin}${window.location.pathname}?share=${b64Str}` : window.location.href;
+                            const text = `Hey, look at my cover page design: "${coverData.topicTitle || 'My Cover Page'}" on CoverGen!`;
+                            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}%20${encodeURIComponent(fullUrl)}`, '_blank');
+                          }}
+                          className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all hover:scale-105 cursor-pointer border ${
+                            theme === 'dark' 
+                              ? 'bg-slate-900/60 border-slate-850 hover:bg-slate-850 hover:border-slate-800 text-slate-300 hover:text-white' 
+                              : 'bg-slate-50 border-slate-150 hover:bg-slate-100/80 text-slate-650 hover:text-slate-900'
+                          }`}
+                        >
+                          <svg className="w-4 h-4 mb-1 fill-current text-[#25d366]" viewBox="0 0 24 24">
+                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.717-1.455L0 24zm6.49-4.23c1.61.957 3.197 1.48 4.903 1.481 5.4 0 9.791-4.385 9.794-9.789.002-2.589-1.002-5.023-2.827-6.849-1.826-1.825-4.262-2.828-6.852-2.829-5.395 0-9.786 4.386-9.79 9.79-.001 1.77.469 3.493 1.365 5.011l-.999 3.648 3.733-.949z"/>
+                          </svg>
+                          <span className="text-[8px] font-bold tracking-wide">WhatsApp</span>
+                        </button>
+
+                      </div>
+
+                      {/* Web Share API integration if supported */}
+                      {typeof navigator !== 'undefined' && navigator.share && (
+                        <div className="pt-1.5 px-3.5 border-t border-slate-105 dark:border-slate-800/40">
+                          <button
+                            onClick={async () => {
+                              const b64Str = encodeSharedState(coverData, coverDesign, pageBackgroundColor);
+                              const fullUrl = b64Str ? `${window.location.origin}${window.location.pathname}?share=${b64Str}` : window.location.href;
+                              try {
+                                await navigator.share({
+                                  title: 'Assignment Cover Page Generator',
+                                  text: `Check out my cover page design: "${coverData.topicTitle || 'Academic Report'}"!`,
+                                  url: fullUrl
+                                });
+                              } catch (e) {
+                                console.log("User cancelled Web Share", e);
+                              }
+                            }}
+                            className="w-full py-1.5 rounded-lg text-[9px] font-mono font-black uppercase bg-indigo-500/10 text-indigo-500 hover:bg-slate-50 hover:text-indigo-600 dark:hover:bg-slate-900 transition-colors cursor-pointer text-center"
+                          >
+                            Use System Share Menu
+                          </button>
+                        </div>
+                      )}
+
+                    </div>
+                  </div>
+
+                  {/* Clean vertical divider inside controlling panel */}
+                  <div className={`h-6 w-[1.5px] shrink-0 self-center ${theme === 'dark' ? 'bg-[#182033]' : 'bg-slate-205'}`} />
+
                   <div 
                     className="dropdown relative"
                     onMouseLeave={() => setIsDownloadOpen(false)}

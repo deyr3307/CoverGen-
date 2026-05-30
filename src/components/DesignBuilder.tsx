@@ -1199,24 +1199,25 @@ export function DesignBuilder({
   // Preset university styles binder
   const applyTemplatePresetId = (id: 'ku' | 'du-classic' | 'du-minimal' | 'jnu' | 'ruet' | 'jnu-finance' | 'presidency' | 'jnu-traditional' | 'teal-bars' | 'ku-law-table' | 'cu-boxed-code' | 'asymmetrical-research' | 'top-header-asymmetric') => {
     setCoverDesign(prev => {
-      const base = { ...prev, templateId: id };
-      const currentLogo = prev.logoUrl || ''; // Preserve custom uploaded logo
-      
-      // Choose appropriate default logo based on template selection if not a custom file
-      let defaultLogo = '';
-      if (!currentLogo.startsWith('data:')) {
-        if (id === 'ku') defaultLogo = 'preset-science';
-        else if (id === 'du-classic' || id === 'du-minimal' || id === 'asymmetrical-research') defaultLogo = 'preset-du';
-        else if (id === 'jnu' || id === 'jnu-finance' || id === 'jnu-traditional' || id === 'teal-bars' || id === 'top-header-asymmetric') defaultLogo = 'preset-jnu';
-        else if (id === 'ruet') defaultLogo = 'preset-ruet';
-        else if (id === 'presidency') defaultLogo = 'preset-presidency';
-        else if (id === 'ku-law-table') defaultLogo = 'preset-khulna';
-        else if (id === 'cu-boxed-code') defaultLogo = 'preset-academic';
-      } else {
-        defaultLogo = currentLogo;
-      }
+      const getPreset = (): CoverPageDesign => {
+        const base = { ...prev, templateId: id };
+        const currentLogo = prev.logoUrl || ''; // Preserve custom uploaded logo
+        
+        // Choose appropriate default logo based on template selection if not a custom file
+        let defaultLogo = '';
+        if (!currentLogo.startsWith('data:')) {
+          if (id === 'ku') defaultLogo = 'preset-science';
+          else if (id === 'du-classic' || id === 'du-minimal' || id === 'asymmetrical-research') defaultLogo = 'preset-du';
+          else if (id === 'jnu' || id === 'jnu-finance' || id === 'jnu-traditional' || id === 'teal-bars' || id === 'top-header-asymmetric') defaultLogo = 'preset-jnu';
+          else if (id === 'ruet') defaultLogo = 'preset-ruet';
+          else if (id === 'presidency') defaultLogo = 'preset-presidency';
+          else if (id === 'ku-law-table') defaultLogo = 'preset-khulna';
+          else if (id === 'cu-boxed-code') defaultLogo = 'preset-academic';
+        } else {
+          defaultLogo = currentLogo;
+        }
 
-      switch (id) {
+        switch (id) {
         case 'presidency':
           return {
             ...base,
@@ -1560,8 +1561,39 @@ export function DesignBuilder({
             fontSubmissionDateContent: { fontFamily: '"Times New Roman", Times, serif', color: '#475569', fontSize: 12, bold: true, uppercase: false, italic: false, align: 'center' },
           };
       }
+    };
+
+    const presetDesign = getPreset();
+    const mergedDesign = { ...presetDesign };
+    const allFontKeys = [
+      'fontTitle', 'fontCourse', 'fontSubSection', 'fontDate',
+      'fontAssignmentTopic', 'fontTopicTitle', 'fontCourseNoHeading', 'fontCourseNoContent',
+      'fontCourseTitleHeading', 'fontCourseTitleContent', 'fontSubmittedToHeading', 'fontSubmittedToContent',
+      'fontSubmittedByHeading', 'fontSubmittedByContent', 'fontSubmissionDateHeading', 'fontSubmissionDateContent',
+      'fontUniversity', 'fontDiscipline'
+    ];
+    
+    allFontKeys.forEach((fontKey) => {
+      const presetFont = presetDesign[fontKey as keyof CoverPageDesign] as FontConfig | undefined;
+      if (presetFont) {
+        const userManualKeys = prev.customizedProperties?.[fontKey] || [];
+        const userFont = prev[fontKey as keyof CoverPageDesign] as FontConfig | undefined;
+        
+        if (userFont) {
+          const merged = { ...presetFont };
+          userManualKeys.forEach((k) => {
+            if (userFont[k as keyof FontConfig] !== undefined) {
+              (merged as any)[k] = userFont[k as keyof FontConfig];
+            }
+          });
+          (mergedDesign as any)[fontKey] = merged;
+        }
+      }
     });
-  };
+    
+    return mergedDesign;
+  });
+};
 
   // Helper to adjust individual font settings safely
   const updateFontConfig = (section: string, key: string, value: any) => {
@@ -1618,8 +1650,18 @@ export function DesignBuilder({
         }
       }
       
+      const updatedCustomProps = { ...(prev.customizedProperties || {}) };
+      const fieldStr = String(field);
+      if (!updatedCustomProps[fieldStr]) {
+        updatedCustomProps[fieldStr] = [];
+      }
+      if (!updatedCustomProps[fieldStr].includes(key)) {
+        updatedCustomProps[fieldStr] = [...updatedCustomProps[fieldStr], key];
+      }
+      
       return {
         ...prev,
+        customizedProperties: updatedCustomProps,
         [field]: {
           ...baseConfig,
           [key]: value

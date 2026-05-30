@@ -106,6 +106,7 @@ export interface CoverPageDesign {
 
   // Drag and drop custom element positions
   positions?: Record<string, { x: number; y: number }>;
+  customizedProperties?: Record<string, string[]>;
 }
 
 // Default values as specified in user guidelines
@@ -380,7 +381,8 @@ export const DEFAULT_DESIGN: CoverPageDesign = {
   qrCodePosition: 'bottom-right',
   templateId: 'top-header-asymmetric', // Use the stunning, highly personalized asymmetric template by default now!
   disciplineLabel: 'Discipline',
-  positions: {}
+  positions: {},
+  customizedProperties: {}
 };
 
 /**
