@@ -435,11 +435,25 @@ export function LandingPage({
           ))}
         </div>
 
-        {/* Description paragraph matching the font-serif look */}
+        {/* Description paragraph matching the font-serif look with slow staggered reveal */}
         <p className={`font-serif text-lg md:text-xl max-w-2xl mb-12 leading-relaxed opacity-90 select-text transition-colors duration-300 ${
           theme === 'dark' ? 'text-slate-300' : 'text-slate-600'
         }`}>
-          Stop fighting with formatting. CoverGen helps you create beautifully structured assignment cover pages instantly.
+          {"Stop fighting with formatting. CoverGen helps you create beautifully structured assignment cover pages instantly.".split(" ").map((word, index) => (
+            <motion.span
+              key={index}
+              initial={{ opacity: 0, filter: 'blur(2px)', y: 4 }}
+              animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
+              transition={{
+                duration: 0.45,
+                delay: 0.6 + index * 0.08, // Starts after hero title lines slide in, showing up word by word
+                ease: 'easeOut'
+              }}
+              className="inline-block mr-1.5"
+            >
+              {word}
+            </motion.span>
+          ))}
         </p>
 
         {/* Call to Actions */}

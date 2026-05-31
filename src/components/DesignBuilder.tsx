@@ -51,7 +51,7 @@ import {
   ZoomIn,
   Palette
 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface FontSelectorDropdownProps {
   value: string;
@@ -137,9 +137,10 @@ interface TemplateThumbnailProps {
   id: 'ku' | 'du-classic' | 'du-minimal' | 'jnu' | 'ruet' | 'jnu-finance' | 'presidency' | 'jnu-traditional' | 'teal-bars' | 'ku-law-table' | 'cu-boxed-code' | 'asymmetrical-research' | 'top-header-asymmetric';
   isSelected: boolean;
   isDark: boolean;
+  large?: boolean;
 }
 
-export function TemplateThumbnail({ id, isSelected, isDark }: TemplateThumbnailProps) {
+export function TemplateThumbnail({ id, isSelected, isDark, large = false }: TemplateThumbnailProps) {
   let borderClass = 'border-slate-350';
   let borderStyles: React.CSSProperties = {};
   let accentBarColor = '#1e3a8a';
@@ -150,7 +151,7 @@ export function TemplateThumbnail({ id, isSelected, isDark }: TemplateThumbnailP
 
   if (id === 'du-classic') {
     borderClass = isSelected ? 'border-blue-500 ring-1 ring-blue-500/20' : 'border-blue-900/40 dark:border-blue-800/40';
-    borderStyles = { borderStyle: 'solid', borderWidth: '2.5px' };
+    borderStyles = { borderStyle: 'solid', borderWidth: large ? '4px' : '2.5px' };
     accentBarColor = '#1e3a8a';
     logoColor = '#dc2626'; // red crest
   } else if (id === 'du-minimal') {
@@ -160,7 +161,7 @@ export function TemplateThumbnail({ id, isSelected, isDark }: TemplateThumbnailP
     logoColor = '#1e3a8a';
   } else if (id === 'jnu') {
     borderClass = isSelected ? 'border-rose-500 ring-1 ring-rose-500/20' : 'border-[#be123c]/40 dark:border-[#be123c]/30';
-    borderStyles = { borderStyle: 'double', borderWidth: '3.5px' };
+    borderStyles = { borderStyle: 'double', borderWidth: large ? '5px' : '3.5px' };
     accentBarColor = '#be123c';
     logoColor = '#be123c';
   } else if (id === 'jnu-finance') {
@@ -181,7 +182,7 @@ export function TemplateThumbnail({ id, isSelected, isDark }: TemplateThumbnailP
     logoColor = '#0284c7';
   } else if (id === 'presidency') {
     borderClass = isSelected ? 'border-blue-600 ring-1 ring-blue-500/30' : 'border-blue-700/50 dark:border-blue-800/50';
-    borderStyles = { borderStyle: 'double', borderWidth: '3px' };
+    borderStyles = { borderStyle: 'double', borderWidth: large ? '5px' : '3px' };
     accentBarColor = '#2563eb';
     logoColor = '#b91c1c';
   } else if (id === 'jnu-traditional') {
@@ -222,15 +223,17 @@ export function TemplateThumbnail({ id, isSelected, isDark }: TemplateThumbnailP
 
   return (
     <div 
-      className={`relative w-[60px] h-[82px] rounded-lg shadow-md shrink-0 transition-all duration-300 overflow-hidden flex flex-col justify-between p-1.5 ${paperBg} ${borderClass}`}
+      className={`relative rounded-lg shadow-md shrink-0 transition-all duration-300 overflow-hidden flex flex-col justify-between ${
+        large ? 'w-[140px] h-[192px] p-3 shadow-lg' : 'w-[60px] h-[82px] p-1.5'
+      } ${paperBg} ${borderClass}`}
       style={borderStyles}
     >
       {/* Top and bottom accent bars for teal-bars like layouts */}
       {topBarColor && (
-        <div className="absolute top-0 left-0 right-0 h-1.5 z-20" style={{ backgroundColor: topBarColor }} />
+        <div className="absolute top-0 left-0 right-0 z-20 transition-all duration-300" style={{ backgroundColor: topBarColor, height: large ? '12px' : '6px' }} />
       )}
       {bottomBarColor && (
-        <div className="absolute bottom-0 left-0 right-0 h-1.5 z-20" style={{ backgroundColor: bottomBarColor }} />
+        <div className="absolute bottom-0 left-0 right-0 z-20 transition-all duration-300" style={{ backgroundColor: bottomBarColor, height: large ? '12px' : '6px' }} />
       )}
 
       {/* Background gear watermark for RUET */}
@@ -239,31 +242,31 @@ export function TemplateThumbnail({ id, isSelected, isDark }: TemplateThumbnailP
           <motion.div 
             animate={{ rotate: 360 }}
             transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-            className="w-10 h-10 rounded-full border border-dashed border-orange-500"
+            className={`rounded-full border border-dashed border-orange-500 ${large ? 'w-24 h-24' : 'w-10 h-10'}`}
           />
         </div>
       )}
 
       {/* Mini Header / Crest representation */}
-      <div className="flex flex-col items-center space-y-0.5 z-10">
+      <div className={`flex flex-col items-center z-10 ${large ? 'space-y-1.5' : 'space-y-0.5'}`}>
         {/* Tiny logo */}
         <div 
-          className="w-2.5 h-2.5 rounded-full flex items-center justify-center animate-pulse"
+          className={`rounded-full flex items-center justify-center animate-pulse ${large ? 'w-6 h-6' : 'w-2.5 h-2.5'}`}
           style={{ backgroundColor: logoColor }}
         >
-          <div className="w-1 w-[3.5px] h-[3.5px] bg-white rounded-full opacity-70" />
+          <div className={`bg-white rounded-full opacity-70 ${large ? 'w-2.5 h-2.5' : 'w-[3.5px] h-[3.5px]'}`} />
         </div>
         
         {/* Subtitle/document type line */}
-        <div className="w-8 h-[2px] bg-slate-300 dark:bg-slate-700 rounded-sm" />
+        <div className={`bg-slate-300 dark:bg-slate-700 rounded-sm ${large ? 'w-16 h-[4px]' : 'w-8 h-[2px]'}`} />
       </div>
 
       {/* Main Topic / Title space */}
-      <div className="flex flex-col items-center space-y-1 z-10 w-full px-1">
+      <div className={`flex flex-col items-center z-10 w-full ${large ? 'space-y-2 px-3' : 'space-y-1 px-1'}`}>
         {/* Dual Accent Bars representing Title */}
-        <div className="w-full h-[3px] rounded-sm" style={{ backgroundColor: accentBarColor }} />
-        <div className="w-4/5 h-[2px] rounded-sm opacity-80" style={{ backgroundColor: accentBarColor }} />
-        <div className="w-3/5 h-[2px] bg-slate-200 dark:bg-slate-800 rounded opacity-60" />
+        <div className="w-full rounded-sm" style={{ backgroundColor: accentBarColor, height: large ? '6px' : '3px' }} />
+        <div className="w-4/5 rounded-sm opacity-80" style={{ backgroundColor: accentBarColor, height: large ? '4px' : '2px' }} />
+        <div className={`w-3/5 bg-slate-200 dark:bg-slate-800 rounded opacity-60 ${large ? 'h-[3px]' : 'h-[2px]'}`} />
       </div>
 
       {/* Bottom details block (Traditional vs Dual Column vs Offset) */}
@@ -271,72 +274,72 @@ export function TemplateThumbnail({ id, isSelected, isDark }: TemplateThumbnailP
         {id === 'du-minimal' ? (
           /* Dual columns side by side */
           <div className="flex justify-between px-0.5 w-full">
-            <div className="space-y-[2px] w-[45%]">
-              <div className="w-full h-[1.5px] bg-slate-300 dark:bg-slate-700 rounded" />
-              <div className="w-4/5 h-[1.5px] bg-slate-200 dark:bg-slate-800 rounded" />
+            <div className={`w-[45%] ${large ? 'space-y-[4px]' : 'space-y-[2px]'}`}>
+              <div className={`w-full bg-slate-300 dark:bg-slate-700 rounded ${large ? 'h-[3px]' : 'h-[1.5px]'}`} />
+              <div className={`w-4/5 bg-slate-200 dark:bg-slate-800 rounded ${large ? 'h-[3px]' : 'h-[1.5px]'}`} />
             </div>
-            <div className="whitespace-nowrap space-y-[2px] w-[45%]">
-              <div className="w-full h-[1.5px] bg-slate-300 dark:bg-slate-700 rounded" />
-              <div className="w-4/5 h-[1.5px] bg-slate-200 dark:bg-slate-800 rounded" />
+            <div className={`whitespace-nowrap w-[45%] ${large ? 'space-y-[4px]' : 'space-y-[2px]'}`}>
+              <div className={`w-full bg-slate-300 dark:bg-slate-700 rounded ${large ? 'h-[3px]' : 'h-[1.5px]'}`} />
+              <div className={`w-4/5 bg-slate-200 dark:bg-slate-800 rounded ${large ? 'h-[3px]' : 'h-[1.5px]'}`} />
             </div>
           </div>
         ) : id === 'ruet' ? (
           /* Tech design with a dividing line down/bottom alignment */
-          <div className="space-y-[3px] w-full flex flex-col items-center">
-            <div className="w-full h-[0.5px] bg-orange-500/20" />
+          <div className={`w-full flex flex-col items-center ${large ? 'space-y-[6px]' : 'space-y-[3px]'}`}>
+            <div className={`w-full bg-orange-500/20 ${large ? 'h-[1px]' : 'h-[0.5px]'}`} />
             <div className="w-full flex justify-between px-0.5">
-              <div className="w-[45%] h-[1.5px] bg-slate-300 dark:bg-slate-700 rounded" />
-              <div className="w-[45%] h-[1.5px] bg-slate-300 dark:bg-slate-700 rounded" />
+              <div className={`w-[45%] bg-slate-300 dark:bg-slate-700 rounded ${large ? 'h-[3px]' : 'h-[1.5px]'}`} />
+              <div className={`w-[45%] bg-slate-300 dark:bg-slate-700 rounded ${large ? 'h-[3px]' : 'h-[1.5px]'}`} />
             </div>
           </div>
         ) : id === 'ku-law-table' ? (
           /* Table miniature representation */
           <div className="border border-slate-300 dark:border-slate-700 rounded-[2px] overflow-hidden bg-slate-50/50 dark:bg-slate-900/40">
-            <div className="bg-slate-200 dark:bg-slate-850 h-[3px] flex border-b border-slate-350 dark:border-slate-700">
+            <div className={`bg-slate-200 dark:bg-slate-850 flex border-b border-slate-350 dark:border-slate-700 ${large ? 'h-[6px]' : 'h-[3px]'}`}>
               <div className="w-1/2 border-r border-slate-300 dark:border-slate-700 h-full" />
               <div className="w-1/2 h-full" />
             </div>
-            <div className="h-2.5 flex">
-              <div className="w-1/2 border-r border-slate-300 dark:border-slate-700 p-[1px] space-y-[1px]">
-                <div className="w-full h-[0.8px] bg-slate-400 opacity-60 rounded" />
-                <div className="w-3/4 h-[0.8px] bg-slate-300 rounded" />
+            <div className={`flex ${large ? 'h-5' : 'h-2.5'}`}>
+              <div className={`w-1/2 border-r border-slate-300 dark:border-slate-700 p-[1px] ${large ? 'space-y-[2px]' : 'space-y-[1px]'}`}>
+                <div className={`w-full bg-slate-400 opacity-60 rounded ${large ? 'h-[2px]' : 'h-[0.8px]'}`} />
+                <div className={`w-3/4 bg-slate-300 rounded ${large ? 'h-[2px]' : 'h-[0.8px]'}`} />
               </div>
-              <div className="w-1/2 p-[1px] space-y-[1px]">
-                <div className="w-full h-[0.8px] bg-slate-400 opacity-60 rounded" />
-                <div className="w-3/4 h-[0.8px] bg-slate-300 rounded" />
+              <div className={`w-1/2 p-[1px] ${large ? 'space-y-[2px]' : 'space-y-[1px]'}`}>
+                <div className={`w-full bg-slate-400 opacity-60 rounded ${large ? 'h-[2px]' : 'h-[0.8px]'}`} />
+                <div className={`w-3/4 bg-slate-300 rounded ${large ? 'h-[2px]' : 'h-[0.8px]'}`} />
               </div>
             </div>
           </div>
         ) : id === 'cu-boxed-code' ? (
           /* Chittagong double boxes courses and colons list list */
           <div className="space-y-0.5 flex flex-col items-center py-0.5">
-            <div className="w-5/6 h-[4px] border border-slate-300 dark:border-slate-700 flex items-center justify-center rounded-[1px] bg-slate-50 dark:bg-slate-900">
-              <div className="w-[10px] h-[0.5px] bg-slate-400" />
+            <div className={`border border-slate-300 dark:border-slate-700 flex items-center justify-center rounded-[1px] bg-slate-50 dark:bg-slate-900 ${large ? 'w-5/6 h-[8px]' : 'w-5/6 h-[4px]'}`}>
+              <div className={`bg-slate-400 ${large ? 'w-[25px] h-[1px]' : 'w-[10px] h-[0.5px]'}`} />
             </div>
-            <div className="w-5/6 h-[4px] border border-slate-300 dark:border-slate-700 flex items-center justify-center rounded-[1px] bg-slate-50 dark:bg-slate-900">
-              <div className="w-[12px] h-[0.5px] bg-slate-400" />
+            <div className={`border border-slate-300 dark:border-slate-700 flex items-center justify-center rounded-[1px] bg-slate-50 dark:bg-slate-900 ${large ? 'w-5/6 h-[8px]' : 'w-5/6 h-[4px]'}`}>
+              <div className={`bg-slate-400 ${large ? 'w-[30px] h-[1px]' : 'w-[12px] h-[0.5px]'}`} />
             </div>
           </div>
         ) : id === 'asymmetrical-research' || id === 'top-header-asymmetric' ? (
           /* Staggered asymmetric mini representation */
-          <div className="flex flex-col w-full px-0.5 relative space-y-[3px]">
+          <div className={`flex flex-col w-full px-0.5 relative ${large ? 'space-y-[6px]' : 'space-y-[3px]'}`}>
             {/* Left/teacher element */}
             <div className="w-[55%] flex flex-col space-y-[1px] self-start items-start">
-              <div className="w-[12px] h-[1.2px] bg-slate-450 dark:bg-slate-500 rounded" />
-              <div className="w-[14px] h-[0.8px] bg-slate-300 dark:bg-slate-750 rounded" />
+              <div className={`bg-slate-455 dark:bg-slate-500 rounded ${large ? 'w-[25px] h-[3px]' : 'w-[12px] h-[1.2px]'}`} />
+              <div className={`bg-slate-300 dark:bg-slate-750 rounded ${large ? 'w-[30px] h-[2px]' : 'w-[14px] h-[0.8px]'}`} />
             </div>
             {/* Right/student element staggered down */}
             <div className="w-[55%] flex flex-col space-y-[1px] self-end items-end pt-1">
-              <div className="w-[12px] h-[1.2px] bg-slate-450 dark:bg-slate-500 rounded" />
-              <div className="w-[16px] h-[0.8px] bg-slate-300 dark:bg-slate-750 rounded" />
+              <div className={`bg-slate-455 dark:bg-slate-500 rounded ${large ? 'w-[25px] h-[3px]' : 'w-[12px] h-[1.2px]'}`} />
+              <div className={`bg-slate-300 dark:bg-slate-750 rounded ${large ? 'w-[35px] h-[2px]' : 'w-[16px] h-[0.8px]'}`} />
             </div>
           </div>
         ) : (
           /* Classic centered stack or standard rows */
-          <div className="flex flex-col items-center space-y-[2px] w-full">
-            <div className="w-11/12 h-[1.5px] bg-slate-300 dark:bg-slate-750 rounded-sm" />
-            <div className="w-3/4 h-[1.5px] bg-slate-250 dark:bg-slate-800 rounded-sm" />
-            <div className="w-1/2 h-[1.5px] bg-slate-200 dark:bg-slate-850 rounded-sm" />
+          <div className={`flex flex-col items-center w-full ${large ? 'space-y-[4px]' : 'space-y-[2px]'}`}>
+            <div className={`w-11/12 bg-slate-300 dark:bg-slate-755 rounded-sm ${large ? 'h-[3px]' : 'h-[1.5px]'}`} />
+            <div className={`w-3/4 bg-slate-250 dark:bg-slate-800 rounded-sm ${large ? 'h-[3px]' : 'h-[1.5px]'}`} />
+            <div className={`w-1/2 bg-slate-200 dark:bg-slate-850 rounded-sm ${large ? 'h-[3px]' : 'h-[1.5px]'}`} />
           </div>
         )}
       </div>
@@ -734,6 +737,7 @@ export function DesignBuilder({
 }: DesignBuilderProps) {
   const [activeTab, setActiveTab] = useState<'templates' | 'text' | 'borders' | 'watermark' | 'background'>('templates');
   const [thumbnailZoom, setThumbnailZoom] = useState<number>(1.0);
+  const [hoveredTemplateId, setHoveredTemplateId] = useState<string | null>(null);
   const [expandedTopics, setExpandedTopics] = useState<Record<string, boolean>>({
     assignmentTopic: true,
   });
@@ -1898,6 +1902,8 @@ export function DesignBuilder({
                     key={tmpl.id}
                     type="button"
                     onClick={() => applyTemplatePresetId(tmpl.id as any)}
+                    onMouseEnter={() => setHoveredTemplateId(tmpl.id as any)}
+                    onMouseLeave={() => setHoveredTemplateId(null)}
                     className={`w-full text-left p-3.5 rounded-2xl flex items-center space-x-4 border transition-all cursor-pointer ${
                       isSelected
                         ? isDark
@@ -2307,6 +2313,11 @@ export function DesignBuilder({
                     { name: 'Soft Sand', value: '#f6f3eb', labelBg: 'bg-[#f6f3eb] border-[#ded9c9]' },
                     { name: 'Light Salmon background', value: '#ffe4d6', labelBg: 'bg-[#ffe4d6] border-[#f2c7b1]' },
                     { name: 'Salmon Tint background', value: '#fff0eb', labelBg: 'bg-[#fff0eb] border-[#fbdcd0]' },
+                    { name: 'Academic Ivory', value: '#faf8f5', labelBg: 'bg-[#faf8f5] border-[#eae5dc]' },
+                    { name: 'Linen Parchment', value: '#faf0e6', labelBg: 'bg-[#faf0e6] border-[#eaddcf]' },
+                    { name: 'Mint Whisper', value: '#f4f8f6', labelBg: 'bg-[#f4f8f6] border-[#e2ece7]' },
+                    { name: 'Glacier Blue', value: '#f1f5f9', labelBg: 'bg-[#f1f5f9] border-[#e2e8f0]' },
+                    { name: 'Editorial Rose', value: '#fdf5f5', labelBg: 'bg-[#fdf5f5] border-[#f8e4e4]' },
                   ].map((preset) => (
                     <button
                       key={preset.value}
@@ -2983,7 +2994,12 @@ export function DesignBuilder({
                     { name: 'Classic Crepe Blue', hex: '#f0f9ff' },
                     { name: 'Slate Soft Gray', hex: '#f8fafc' },
                     { name: 'Pale Corn Yellow', hex: '#fefcf0' },
-                    { name: 'Mint Eucalyptus Green', hex: '#f0fdf4' }
+                    { name: 'Mint Eucalyptus Green', hex: '#f0fdf4' },
+                    { name: 'Academic Ivory', hex: '#faf8f5' },
+                    { name: 'Linen Parchment', hex: '#faf0e6' },
+                    { name: 'Mint Whisper', hex: '#f4f8f6' },
+                    { name: 'Glacier Blue', hex: '#f1f5f9' },
+                    { name: 'Editorial Rose', hex: '#fdf5f5' }
                   ].map((preset) => {
                     const isSelected = pageBackgroundColor.toLowerCase() === preset.hex.toLowerCase();
                     return (
@@ -3041,7 +3057,68 @@ export function DesignBuilder({
 
       </div>
 
+      <AnimatePresence>
+        {hoveredTemplateId && activeTab === 'templates' && (() => {
+          const matchedTmpl = [
+            { id: 'ku', name: 'Khulna University Preset', desc: 'Symmetric shield style with borderless canvas and clean serif layout.', badge: 'Royal Blue Accent' },
+            { id: 'ku-law-table', name: 'KU Law Split Table Layout', desc: 'Academic layout structured with dual submitted tables.', badge: 'Premium KU Law' },
+            { id: 'du-classic', name: 'Dhaka University Classic', desc: 'Formal Gothic-style headings, Classic inner lining border.', badge: 'Blue Gothic' },
+            { id: 'du-minimal', name: 'Dhaka University Minimal', desc: 'Borderless clean design and dual details column layout.', badge: 'Simple Times' },
+            { id: 'jnu', name: 'Jagannath University Preset', desc: 'No-border elegant layout with decorative banner styling.', badge: 'Amber Highlight' },
+            { id: 'ruet', name: 'RUET Modern Preset', desc: 'Orange-themed cover with side lines and custom watermark.', badge: 'Modern Accent' },
+            { id: 'jnu-finance', name: 'Finance / Academic Classic (JNU Style)', desc: 'Dual-column layout with crimson and green details.', badge: 'Academic Finance' },
+            { id: 'presidency', name: 'Presidency Classic Double Border', desc: 'Double border frame and bottom card closures.', badge: 'Presidency Blue' },
+            { id: 'jnu-traditional', name: 'JNU Traditional Times Serif', desc: 'Crest-aligned research cover layout with clean serif.', badge: 'Classic JNU' },
+            { id: 'teal-bars', name: 'Professional Accent Bars', desc: 'Striking design with full-width teal color block fills.', badge: 'Teal Business' },
+            { id: 'cu-boxed-code', name: 'Chittagong Academic Frame Layout', desc: 'Elegant rectangular nested code frame enclosing.', badge: 'Chittagong Double-Frame' },
+            { id: 'asymmetrical-research', name: 'Asymmetrical Research Proposal', desc: 'Offset staggered submissions grid thesis format.', badge: 'Asymmetric Thesis' },
+            { id: 'top-header-asymmetric', name: 'Top-Header Asymmetrical Template', desc: 'Prestige layout featuring top header blocks.', badge: 'Asymmetric Header' }
+          ].find(t => t.id === hoveredTemplateId);
 
+          if (!matchedTmpl) return null;
+
+          return (
+            <motion.div
+              initial={{ opacity: 0, x: -14, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: -14, scale: 0.95 }}
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+              className={`absolute left-[102%] top-6 md:top-12 z-50 w-[184px] p-4 rounded-3xl shadow-2xl border backdrop-blur-md pointer-events-none flex flex-col items-center gap-3.5 transition-colors duration-300 ${
+                isDark 
+                  ? 'bg-[#090d18]/95 border-indigo-500/40 shadow-indigo-950/70' 
+                  : 'bg-white/95 border-indigo-200/85 shadow-slate-350'
+              }`}
+            >
+              <div className="w-full flex items-center justify-between border-b pb-2 border-indigo-500/10">
+                <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-[#fa3f5e] animate-pulse">
+                  Quick Preview
+                </span>
+                <span className="text-[8px] font-mono bg-indigo-500/10 text-indigo-400 px-1.5 py-0.5 rounded-full uppercase tracking-wider font-extrabold">
+                  {matchedTmpl.badge}
+                </span>
+              </div>
+              
+              <div className="p-1.5 rounded-2xl bg-indigo-500/5 border border-indigo-500/10 shadow-inner">
+                <TemplateThumbnail
+                  id={hoveredTemplateId as any}
+                  isSelected={coverDesign.templateId === hoveredTemplateId}
+                  isDark={isDark}
+                  large={true}
+                />
+              </div>
+
+              <div className="text-center space-y-1">
+                <h4 className={`text-xs font-bold leading-snug tracking-tight ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>
+                  {matchedTmpl.name}
+                </h4>
+                <p className={`text-[9px] leading-normal font-sans opacity-85 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                  {matchedTmpl.desc}
+                </p>
+              </div>
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
 
     </div>
   );
