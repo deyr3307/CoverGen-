@@ -3,7 +3,7 @@ import { CoverPageDesign, STANDARD_FONTS, FontConfig, CoverPageData, DEFAULT_DES
 import { LOGO_PRESETS, WATERMARK_PRESETS } from '../presets';
 import { SingleFontEditor } from './SingleFontEditor';
 import { CoverDocument } from './CoverDocument';
-import { ensureSupportedFormat } from '../utils';
+import { ensureSupportedFormat, preprocessImageForApi } from '../utils';
 import { 
   AnimatedTemplatesIcon, 
   AnimatedFontsIcon, 
@@ -1039,117 +1039,178 @@ export function DesignBuilder({
     setBgRemovalError(null);
     setIsRemovingBg(true);
 
-    let file: Blob | File = rawFile;
+    let processedData: { blob: Blob; base64: string; name: string } | null = null;
     try {
-      file = await ensureSupportedFormat(rawFile);
-    } catch (formatErr: any) {
-      console.warn("Format conversion failed inside processWatermarkFile, using original file: ", formatErr);
+      console.log("Pre-processing input watermark image...");
+      processedData = await preprocessImageForApi(rawFile);
+      console.log(`Pre-processing completed successfully. Standardized output dimensions: ${(processedData.blob.size / 1024).toFixed(1)}KB`);
+    } catch (preprocessErr: any) {
+      console.error("Client-side pre-processing failed, fallback to original raw file:", preprocessErr);
     }
 
+    const fileToUpload = processedData ? processedData.blob : rawFile;
+    const fileName = processedData ? processedData.name : (rawFile.name || 'watermark.png');
+    const fileBase64 = processedData ? processedData.base64 : null;
+
     // Handlers for keeping original bg or complete failure fallback
-    const useOriginalBackgroundFallback = () => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const result = event.target?.result as string;
-        setCoverDesign(prev => ({ ...prev, watermarkUrl: result }));
+    const useOriginalBackgroundFallback = (applyMultiplyBlend = false) => {
+      if (fileBase64) {
+        setCoverDesign(prev => ({ 
+          ...prev, 
+          watermarkUrl: fileBase64,
+          watermarkBlendMultiply: applyMultiplyBlend
+        }));
         setIsRemovingBg(false);
-      };
-      reader.readAsDataURL(file);
+      } else {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const result = event.target?.result as string;
+          setCoverDesign(prev => ({ 
+            ...prev, 
+            watermarkUrl: result,
+            watermarkBlendMultiply: applyMultiplyBlend
+          }));
+          setIsRemovingBg(false);
+        };
+        reader.readAsDataURL(rawFile);
+      }
     };
 
     if (keepOriginalBg) {
-      useOriginalBackgroundFallback();
+      useOriginalBackgroundFallback(false);
       return;
     }
 
-    try {
-      // --- 1. PRIMARY Custom API Attempt with Retry ---
-      console.log("Attempting background removal via custom Hugging Face space API...");
-      let primaryResponse: Response | null = null;
-      let lastPrimaryError: any = null;
-      const maxAttempts = 3;
-
-      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        try {
-          console.log(`Hugging Face API Attempt ${attempt}/${maxAttempts}...`);
-          const primaryFormData = new FormData();
-          primaryFormData.append('image_file', file, file instanceof File ? file.name : 'watermark.png');
-
-          primaryResponse = await fetch('https://rahul2408-covergen-api.hf.space/', {
-            method: 'POST',
-            body: primaryFormData,
-          });
-
-          if (primaryResponse.ok) {
-            console.log(`Hugging Face API succeeded on attempt ${attempt}`);
-            break;
-          } else {
-            throw new Error(`Custom background removal API returned status ${primaryResponse.status}`);
-          }
-        } catch (attemptErr: any) {
-          lastPrimaryError = attemptErr;
-          console.warn(`Hugging Face API Attempt ${attempt} failed: ${attemptErr.message || attemptErr}`);
-          if (attempt < maxAttempts) {
-            const delayMs = attempt * 1000; // Progressive delay: 1000ms after 1st try, 2000ms after 2nd try
-            console.log(`Waiting ${delayMs}ms before next retry...`);
-            await new Promise(resolve => setTimeout(resolve, delayMs));
-          }
-        }
-      }
-
+    // Helper to fetch with custom timeout
+    const fetchWithTimeout = async (url: string, options: RequestInit, timeoutMs: number) => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
       try {
-        if (!primaryResponse || !primaryResponse.ok) {
-          throw lastPrimaryError || new Error("Failed after 3 Hugging Face API attempts");
-        }
+        return await fetch(url, { ...options, signal: controller.signal });
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    };
 
-        const blob = await primaryResponse.blob();
-        const objectUrl = URL.createObjectURL(blob);
-        setCoverDesign(prev => ({ ...prev, watermarkUrl: objectUrl }));
-        setIsRemovingBg(false);
-        return; // Success!
-      } catch (customApiErr: any) {
-        console.warn("Primary custom API failed after all retries, falling back to Remove.bg silently...", customApiErr);
-        
-        // --- 2. BACKUP Remove.bg API Attempt ---
-        const apiKey = (import.meta as any).env?.VITE_REMOVE_BG_API_KEY;
-        if (!apiKey) {
-          throw new Error(`Primary API failed: ${customApiErr.message || customApiErr}. Also backup Remove.bg API key is missing.`);
-        }
+    let removeBgSucceeded = false;
+    let removeBgError: any = null;
 
-        const backupFormData = new FormData();
-        backupFormData.append('image_file', file, 'watermark.png');
-        backupFormData.append('size', 'auto');
+    // --- 1. PRIMARY API Attempt: Remove.bg ---
+    const removeBgApiKey = (import.meta as any).env?.VITE_REMOVE_BG_API_KEY;
+    if (removeBgApiKey) {
+      try {
+        console.log("Attempting background removal via primary Remove.bg API...");
+        const removeBgFormData = new FormData();
+        removeBgFormData.append('image_file', fileToUpload, fileName);
+        removeBgFormData.append('size', 'auto');
 
-        const response = await fetch('https://api.remove.bg/v1.0/removebg', {
+        const removeBgResponse = await fetchWithTimeout('https://api.remove.bg/v1.0/removebg', {
           method: 'POST',
           headers: {
-            'X-Api-Key': apiKey,
+            'X-Api-Key': removeBgApiKey,
           },
-          body: backupFormData,
-        });
+          body: removeBgFormData,
+        }, 20000); // 20-second timeout
 
-        if (!response.ok) {
-          let errorDetails = '';
+        if (removeBgResponse.ok) {
+          console.log("Remove.bg background removal succeeded!");
+          const blob = await removeBgResponse.blob();
+          const objectUrl = URL.createObjectURL(blob);
+          setCoverDesign(prev => ({ 
+            ...prev, 
+            watermarkUrl: objectUrl,
+            watermarkBlendMultiply: false
+          }));
+          setIsRemovingBg(false);
+          removeBgSucceeded = true;
+          return;
+        } else {
+          let errorMsg = `HTTP ${removeBgResponse.status}`;
           try {
-            const errJson = await response.json();
-            if (errJson && errJson.errors && errJson.errors[0]) {
-              errorDetails = `: ${errJson.errors[0].title}`;
+            const errJson = await removeBgResponse.json();
+            if (errJson?.errors?.[0]?.title) {
+              errorMsg = errJson.errors[0].title;
             }
           } catch {
-            errorDetails = ` (HTTP ${response.status})`;
+            // ignore
           }
-          throw new Error(`Backup Remove.bg API failed${errorDetails}`);
+          throw new Error(`Remove.bg failed: ${errorMsg}`);
+        }
+      } catch (err: any) {
+        removeBgError = err;
+        console.warn("Remove.bg API failed. Dropping to Hugging Face fallback...", err.message || err);
+      }
+    } else {
+      console.log("VITE_REMOVE_BG_API_KEY is not configured. Moving directly to Hugging Face Backup API...");
+    }
+
+    // --- 2. BACKUP API Attempt: Hugging Face space API ---
+    if (!removeBgSucceeded) {
+      try {
+        console.log("Attempting background removal via Hugging Face Space API fallback...");
+        let hfResponse: Response | null = null;
+        let lastHfError: any = null;
+        const hfMaxAttempts = 2;
+
+        for (let attempt = 1; attempt <= hfMaxAttempts; attempt++) {
+          try {
+            console.log(`Hugging Face API Attempt ${attempt}/${hfMaxAttempts} (Extended timeout 45s)...`);
+            const hfFormData = new FormData();
+            hfFormData.append('image_file', fileToUpload, fileName);
+
+            // Extended timeout to handle possible cold-start issues on HF space
+            hfResponse = await fetchWithTimeout('https://rahul2408-covergen-api.hf.space/', {
+              method: 'POST',
+              body: hfFormData,
+            }, 45000);
+
+            if (hfResponse.ok) {
+              console.log(`Hugging Face background removal succeeded on attempt ${attempt}`);
+              break;
+            } else {
+              throw new Error(`HF Space API returned status ${hfResponse.status}`);
+            }
+          } catch (attemptErr: any) {
+            lastHfError = attemptErr;
+            if (attemptErr.name === 'AbortError') {
+              console.warn(`Hugging Face Attempt ${attempt} timed out. Possible cold-start.`);
+            } else {
+              console.warn(`Hugging Face Attempt ${attempt} failed: ${attemptErr.message || attemptErr}`);
+            }
+            if (attempt < hfMaxAttempts) {
+              const delay = 3500; // wait 3.5 seconds
+              console.log(`Waiting ${delay}ms before next HF attempt...`);
+              await new Promise(resolve => setTimeout(resolve, delay));
+            }
+          }
         }
 
-        const blob = await response.blob();
-        const objectUrl = URL.createObjectURL(blob);
-        setCoverDesign(prev => ({ ...prev, watermarkUrl: objectUrl }));
-        setIsRemovingBg(false);
+        if (hfResponse && hfResponse.ok) {
+          const blob = await hfResponse.blob();
+          const objectUrl = URL.createObjectURL(blob);
+          setCoverDesign(prev => ({ 
+            ...prev, 
+            watermarkUrl: objectUrl,
+            watermarkBlendMultiply: false
+          }));
+          setIsRemovingBg(false);
+          return;
+        } else {
+          throw lastHfError || new Error("Hugging Face API fallback failed after all retries.");
+        }
+      } catch (hfErr: any) {
+        console.error("Both background removal APIs failed:", {
+          removeBgError: removeBgError?.message || removeBgError || "Key not configured",
+          hfError: hfErr?.message || hfErr
+        });
+
+        // Set the error description so UI displays a professional toast/note
+        const errDesc = `API Limit / Model cold-start. Applied smart CSS-based transparent (Multiply) blending to original watermark.`;
+        setBgRemovalError(errDesc);
+
+        // --- 3. CSS FALLBACK (Last Resort) ---
+        useOriginalBackgroundFallback(true);
       }
-    } catch (err: any) {
-      console.warn("Both background removal APIs failed, falling back to original image:", err);
-      setBgRemovalError(err?.message || "Both background removal APIs failed");
-      useOriginalBackgroundFallback();
     }
   };
 

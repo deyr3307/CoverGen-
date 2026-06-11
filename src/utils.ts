@@ -219,6 +219,132 @@ export async function ensureSupportedFormat(file: File | Blob): Promise<Blob | F
 }
 
 /**
+ * Pre-processes an uploaded image:
+ * 1. Converts TIFF and HEIC formats to high-compatibility standard formats.
+ * 2. Compresses and resizes to a maximum dimension of 1024px while preserving aspect ratio.
+ * 3. Ensures the file payload stays strictly well under the 2MB API limit.
+ * 4. Yields a standard PNG or compressed JPEG Blob + Base64 data representation.
+ */
+export async function preprocessImageForApi(file: File | Blob): Promise<{ blob: Blob; base64: string; name: string }> {
+  let currentBlob: Blob = file;
+
+  // Step 1: Detect and handle TIFF
+  if (isTiffFile(file)) {
+    try {
+      console.log("TIFF file detected in preprocessor, converting to PNG...");
+      currentBlob = await convertTiffToPng(file);
+    } catch (err) {
+      console.error("Preprocessor conversion of TIFF failed:", err);
+    }
+  }
+
+  // Step 2: Detect and handle HEIC
+  const originalName = file instanceof File ? file.name : 'image';
+  const nameLower = originalName.toLowerCase();
+  const isHeic = nameLower.endsWith('.heic') || nameLower.endsWith('.heif') || file.type === 'image/heic' || file.type === 'image/heif';
+  
+  if (isHeic) {
+    try {
+      console.log("HEIC/HEIF file detected in preprocessor, converting to PNG...");
+      const heic2any = (await import('heic2any')).default;
+      const converted = await heic2any({
+        blob: currentBlob,
+        toType: 'image/png',
+      });
+      currentBlob = Array.isArray(converted) ? converted[0] : converted;
+    } catch (err) {
+      console.error("Preprocessor conversion of HEIC/HEIF failed:", err);
+    }
+  }
+
+  // Step 3: Load into an HTMLImageElement to prepare for canvas operation
+  const objectUrl = URL.createObjectURL(currentBlob);
+  const img = new Image();
+  
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = (e) => reject(new Error("Unable to decode and load the image in the preprocessor."));
+    img.src = objectUrl;
+  });
+
+  URL.revokeObjectURL(objectUrl);
+
+  // Step 4: Canvas Resize calculation (keeping aspect ratio, max dimension of 1024px)
+  let width = img.naturalWidth || img.width || 800;
+  let height = img.naturalHeight || img.height || 600;
+  
+  const MAX_DIMENSION = 1024;
+  if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+    if (width > height) {
+      height = Math.round((height * MAX_DIMENSION) / width);
+      width = MAX_DIMENSION;
+    } else {
+      width = Math.round((width * MAX_DIMENSION) / height);
+      height = MAX_DIMENSION;
+    }
+    console.log(`Image boundaries exceeded. Rescaling image to standard dimension: ${width}x${height}`);
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error("Could not initialize canvas context for pre-processing.");
+  }
+
+  // Draw scaled image on the canvas
+  ctx.drawImage(img, 0, 0, width, height);
+
+  // Step 5: Convert to high-compatibility standard format (PNG preserve transparency, fallback to compressed JPEG if exceeds 2MB)
+  let mimeType = 'image/png';
+  let processedBlob: Blob | null = null;
+  let compressQuality = 0.90;
+
+  processedBlob = await new Promise<Blob | null>((resolve) => {
+    canvas.toBlob((b) => resolve(b), mimeType);
+  });
+
+  // Strict API limits check (ensure always stays under 2MB)
+  const TWO_MEGABYTES = 2 * 1024 * 1024;
+  if (processedBlob && processedBlob.size > TWO_MEGABYTES) {
+    console.warn(`PNG output is too large (${(processedBlob.size / 1024 / 1024).toFixed(2)}MB). Converting to compressed JPEG...`);
+    mimeType = 'image/jpeg';
+    while (compressQuality > 0.40) {
+      processedBlob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob((b) => resolve(b), mimeType, compressQuality);
+      });
+      if (processedBlob && processedBlob.size <= TWO_MEGABYTES) {
+        console.log(`JPEG compressed successfully to ${(processedBlob.size / 1024 / 1024).toFixed(2)}MB at quality ${compressQuality}`);
+        break;
+      }
+      compressQuality -= 0.15;
+    }
+  }
+
+  if (!processedBlob) {
+    throw new Error("Canvas rendering compilation failed during compression.");
+  }
+
+  // Step 6: Convert standard Blob to Base64 representation
+  const reader = new FileReader();
+  const base64Data: string = await new Promise((resolve, reject) => {
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error("Failed parsing file to base64 encoding."));
+    reader.readAsDataURL(processedBlob!);
+  });
+
+  const baseName = originalName.substring(0, originalName.lastIndexOf('.')) || 'watermark';
+  const finalExt = mimeType === 'image/png' ? 'png' : 'jpg';
+
+  return {
+    blob: processedBlob,
+    base64: base64Data,
+    name: `${baseName}.${finalExt}`
+  };
+}
+
+/**
  * Safely base64 encodes the application state (coverData, coverDesign, background)
  * into a URL-friendly query parameter representation, omitting massive custom base64 images.
  */

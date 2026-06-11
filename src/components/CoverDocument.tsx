@@ -453,6 +453,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   src={design.watermarkUrl} 
                   alt="Watermark" 
                   className="max-w-[450px] max-h-[450px] object-contain"
+                  style={design.watermarkBlendMultiply ? { mixBlendMode: 'multiply' } : undefined}
                   referrerPolicy="no-referrer"
                 />
               )}

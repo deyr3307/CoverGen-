@@ -80,6 +80,7 @@ export interface CoverPageDesign {
   watermarkXOffset?: number; // horizontal offset in pixels (can be negative)
   watermarkYOffset?: number; // vertical offset in pixels (can be negative)
   watermarkAnimate?: boolean; // toggle to animate the watermark with subtle smooth-panning effect
+  watermarkBlendMultiply?: boolean; // toggle CSS-based multiply blending for non-transparent backgrounds
   
   // Accents and layout
   borderColor: string;
@@ -368,6 +369,7 @@ export const DEFAULT_DESIGN: CoverPageDesign = {
   watermarkXOffset: 0,
   watermarkYOffset: 0,
   watermarkAnimate: false,
+  watermarkBlendMultiply: false,
   borderColor: '#ffa07a', // Light Salmon border
   borderStyle: 'double',
   borderWidth: 6,
