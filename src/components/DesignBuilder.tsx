@@ -1943,19 +1943,19 @@ export function DesignBuilder({
             {/* Template presets GRID */}
             <div className="grid grid-cols-1 gap-3.5">
               {[
-                { id: 'ku', name: 'Khulna University Preset', desc: 'Symmetric shield style with borderless canvas and clean serif layout.', badge: 'Royal Blue Accent' },
-                { id: 'ku-law-table', name: 'KU Law Split Table Layout', desc: 'Academic layout structured with dual submitted tables and bold Georgia law serif headings under the royal shield.', badge: 'Premium KU Law' },
-                { id: 'du-classic', name: 'Dhaka University Classic', desc: 'Formal Gothic-style headings, Classic inner lining border and centered details.', badge: 'Blue Gothic' },
-                { id: 'du-minimal', name: 'Dhaka University Minimal', desc: 'A borderless clean design with left/right column structure for student and teacher details.', badge: 'Simple Times' },
-                { id: 'jnu', name: 'Jagannath University Preset', desc: 'No-border elegant layout with decorative banner styling and gorgeous Amber details.', badge: 'Amber Highlight' },
-                { id: 'ruet', name: 'RUET Modern Preset', desc: 'Orange-themed high-tech engineering cover with elegant modern side column lines and custom watermark.', badge: 'Modern Accent' },
-                { id: 'jnu-finance', name: 'Finance / Academic Classic (Jagannath style)', desc: 'Beautiful dual-column layout mimicking standard JNU Department of Finance covers with crimson and green details.', badge: 'Academic Finance' },
-                { id: 'presidency', name: 'Presidency Classic Double Border', desc: 'Elegant double border frame, signature multi-colored assignment bullet lists, and beautiful bottom card enclosures.', badge: 'Presidency Blue' },
-                { id: 'jnu-traditional', name: 'JNU Traditional Times Serif', desc: 'Academic layout following traditional department research cover standard with clean serif typography.', badge: 'Classic JNU' },
-                { id: 'teal-bars', name: 'Professional Accent Bars (Teal Report Style)', desc: 'Striking modern layout with full-width top and bottom bar fills and clean high-contrast presentation for internship reviews.', badge: 'Teal Business' },
-                { id: 'cu-boxed-code', name: 'Chittagong Academic Frame Layout', desc: 'Elegant rectangular nested code frames enclosing course codes/titles, combined with clean classic times colons alignment.', badge: 'Chittagong Double-Frame' },
-                { id: 'asymmetrical-research', name: 'Asymmetrical Research Proposal Template', desc: 'Prestige layout with centered university branding, centered title content blocks, and an offset, staggered submissions grid from the Dhaka University Sociology thesis format.', badge: 'Asymmetric Thesis' },
-                { id: 'top-header-asymmetric', name: 'Top-Header Asymmetrical Template', desc: 'Prestige layout featuring absolute top header text blocks, centered logo, centered topics, and an asymmetrical, staggered submissions grid.', badge: 'Asymmetric Header' }
+                { id: 'ku', name: 'Template No 1', desc: 'Symmetric shield style with borderless canvas and clean serif layout.', badge: 'Royal Blue Accent' },
+                { id: 'ku-law-table', name: 'Template No 2', desc: 'Academic layout structured with dual submitted tables and bold Georgia law serif headings under the royal shield.', badge: 'Premium KU Law' },
+                { id: 'du-classic', name: 'Template No 3', desc: 'Formal Gothic-style headings, Classic inner lining border and centered details.', badge: 'Blue Gothic' },
+                { id: 'du-minimal', name: 'Template No 4', desc: 'A borderless clean design with left/right column structure for student and teacher details.', badge: 'Simple Times' },
+                { id: 'jnu', name: 'Template No 5', desc: 'No-border elegant layout with decorative banner styling and gorgeous Amber details.', badge: 'Amber Highlight' },
+                { id: 'ruet', name: 'Template No 6', desc: 'Orange-themed high-tech engineering cover with elegant modern side column lines and custom watermark.', badge: 'Modern Accent' },
+                { id: 'jnu-finance', name: 'Template No 7', desc: 'Beautiful dual-column layout mimicking standard JNU Department of Finance covers with crimson and green details.', badge: 'Academic Finance' },
+                { id: 'presidency', name: 'Template No 8', desc: 'Elegant double border frame, signature multi-colored assignment bullet lists, and beautiful bottom card enclosures.', badge: 'Presidency Blue' },
+                { id: 'jnu-traditional', name: 'Template No 9', desc: 'Academic layout following traditional department research cover standard with clean serif typography.', badge: 'Classic JNU' },
+                { id: 'teal-bars', name: 'Template No 10', desc: 'Striking modern layout with full-width top and bottom bar fills and clean high-contrast presentation for internship reviews.', badge: 'Teal Business' },
+                { id: 'cu-boxed-code', name: 'Template No 11', desc: 'Elegant rectangular nested code frames enclosing course codes/titles, combined with clean classic times colons alignment.', badge: 'Chittagong Double-Frame' },
+                { id: 'asymmetrical-research', name: 'Template No 12', desc: 'Prestige layout with centered university branding, centered title content blocks, and an offset, staggered submissions grid from the Dhaka University Sociology thesis format.', badge: 'Asymmetric Thesis' },
+                { id: 'top-header-asymmetric', name: 'Template No 13', desc: 'Prestige layout featuring absolute top header text blocks, centered logo, centered topics, and an asymmetrical, staggered submissions grid.', badge: 'Asymmetric Header' }
               ].map((tmpl) => {
                 const isSelected = coverDesign.templateId === tmpl.id;
                 return (
@@ -3121,19 +3121,19 @@ export function DesignBuilder({
       <AnimatePresence>
         {hoveredTemplateId && activeTab === 'templates' && (() => {
           const matchedTmpl = [
-            { id: 'ku', name: 'Khulna University Preset', desc: 'Symmetric shield style with borderless canvas and clean serif layout.', badge: 'Royal Blue Accent' },
-            { id: 'ku-law-table', name: 'KU Law Split Table Layout', desc: 'Academic layout structured with dual submitted tables.', badge: 'Premium KU Law' },
-            { id: 'du-classic', name: 'Dhaka University Classic', desc: 'Formal Gothic-style headings, Classic inner lining border.', badge: 'Blue Gothic' },
-            { id: 'du-minimal', name: 'Dhaka University Minimal', desc: 'Borderless clean design and dual details column layout.', badge: 'Simple Times' },
-            { id: 'jnu', name: 'Jagannath University Preset', desc: 'No-border elegant layout with decorative banner styling.', badge: 'Amber Highlight' },
-            { id: 'ruet', name: 'RUET Modern Preset', desc: 'Orange-themed cover with side lines and custom watermark.', badge: 'Modern Accent' },
-            { id: 'jnu-finance', name: 'Finance / Academic Classic (JNU Style)', desc: 'Dual-column layout with crimson and green details.', badge: 'Academic Finance' },
-            { id: 'presidency', name: 'Presidency Classic Double Border', desc: 'Double border frame and bottom card closures.', badge: 'Presidency Blue' },
-            { id: 'jnu-traditional', name: 'JNU Traditional Times Serif', desc: 'Crest-aligned research cover layout with clean serif.', badge: 'Classic JNU' },
-            { id: 'teal-bars', name: 'Professional Accent Bars', desc: 'Striking design with full-width teal color block fills.', badge: 'Teal Business' },
-            { id: 'cu-boxed-code', name: 'Chittagong Academic Frame Layout', desc: 'Elegant rectangular nested code frame enclosing.', badge: 'Chittagong Double-Frame' },
-            { id: 'asymmetrical-research', name: 'Asymmetrical Research Proposal', desc: 'Offset staggered submissions grid thesis format.', badge: 'Asymmetric Thesis' },
-            { id: 'top-header-asymmetric', name: 'Top-Header Asymmetrical Template', desc: 'Prestige layout featuring top header blocks.', badge: 'Asymmetric Header' }
+            { id: 'ku', name: 'Template No 1', desc: 'Symmetric shield style with borderless canvas and clean serif layout.', badge: 'Royal Blue Accent' },
+            { id: 'ku-law-table', name: 'Template No 2', desc: 'Academic layout structured with dual submitted tables.', badge: 'Premium KU Law' },
+            { id: 'du-classic', name: 'Template No 3', desc: 'Formal Gothic-style headings, Classic inner lining border.', badge: 'Blue Gothic' },
+            { id: 'du-minimal', name: 'Template No 4', desc: 'Borderless clean design and dual details column layout.', badge: 'Simple Times' },
+            { id: 'jnu', name: 'Template No 5', desc: 'No-border elegant layout with decorative banner styling.', badge: 'Amber Highlight' },
+            { id: 'ruet', name: 'Template No 6', desc: 'Orange-themed cover with side lines and custom watermark.', badge: 'Modern Accent' },
+            { id: 'jnu-finance', name: 'Template No 7', desc: 'Dual-column layout with crimson and green details.', badge: 'Academic Finance' },
+            { id: 'presidency', name: 'Template No 8', desc: 'Double border frame and bottom card closures.', badge: 'Presidency Blue' },
+            { id: 'jnu-traditional', name: 'Template No 9', desc: 'Crest-aligned research cover layout with clean serif.', badge: 'Classic JNU' },
+            { id: 'teal-bars', name: 'Template No 10', desc: 'Striking design with full-width teal color block fills.', badge: 'Teal Business' },
+            { id: 'cu-boxed-code', name: 'Template No 11', desc: 'Elegant rectangular nested code frame enclosing.', badge: 'Chittagong Double-Frame' },
+            { id: 'asymmetrical-research', name: 'Template No 12', desc: 'Offset staggered submissions grid thesis format.', badge: 'Asymmetric Thesis' },
+            { id: 'top-header-asymmetric', name: 'Template No 13', desc: 'Prestige layout featuring top header blocks.', badge: 'Asymmetric Header' }
           ].find(t => t.id === hoveredTemplateId);
 
           if (!matchedTmpl) return null;

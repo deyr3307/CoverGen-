@@ -631,10 +631,23 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                 }, { display: 'flex', alignItems: 'center' })}
               >
                 {(() => {
-                  const dateObj = new Date(data.submissionDate);
-                  const day = String(dateObj.getDate() || 27).padStart(2, '0');
-                  const month = String(dateObj.getMonth() + 1 || 5).padStart(2, '0');
-                  const year = String(dateObj.getFullYear() || 2026);
+                  let day = '25';
+                  let month = '5';
+                  let year = '2026';
+                  
+                  const dMatch = (data.submissionDate || '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+                  if (dMatch) {
+                    year = dMatch[1];
+                    month = String(parseInt(dMatch[2], 10));
+                    day = String(parseInt(dMatch[3], 10));
+                  } else if (data.submissionDate) {
+                    const dateObj = new Date(data.submissionDate);
+                    if (!isNaN(dateObj.getTime())) {
+                      day = String(dateObj.getDate());
+                      month = String(dateObj.getMonth() + 1);
+                      year = String(dateObj.getFullYear());
+                    }
+                  }
                   return (
                     <>
                       <span className="border border-black px-2 py-0.5 rounded-[1px] bg-white text-black shadow-sm" style={{ fontWeight: 'bold' }}>{day}</span>

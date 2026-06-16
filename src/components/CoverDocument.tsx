@@ -247,16 +247,25 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
     }
   };
 
-  // Format date nicely
+  // Format date nicely as day/month/year (e.g. 10/5/2026)
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
     try {
+      const dMatch = dateStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+      if (dMatch) {
+        const year = parseInt(dMatch[1], 10);
+        const month = parseInt(dMatch[2], 10);
+        const day = parseInt(dMatch[3], 10);
+        return `${day}/${month}/${year}`;
+      }
       const date = new Date(dateStr);
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
+      if (!isNaN(date.getTime())) {
+        const day = date.getDate();
+        const month = date.getMonth() + 1;
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      }
+      return dateStr;
     } catch {
       return dateStr;
     }
