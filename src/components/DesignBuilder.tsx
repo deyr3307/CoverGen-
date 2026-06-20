@@ -748,6 +748,7 @@ export function DesignBuilder({
   const [bgRemovalError, setBgRemovalError] = useState<string | null>(null);
 
   const isDark = theme === 'dark';
+  const isUploadedWatermark = coverDesign.watermarkUrl && coverDesign.watermarkUrl !== 'wm-none' && !WATERMARK_PRESETS.some(p => p.id === coverDesign.watermarkUrl);
 
   const [customPresets, setCustomPresets] = useState<any[]>(() => {
     try {
@@ -2783,18 +2784,36 @@ export function DesignBuilder({
               {coverDesign.watermarkUrl && coverDesign.watermarkUrl !== 'wm-none' && (
                 <div className="space-y-4 pt-1 animate-fadeIn">
                   <div>
-                    <label className={`block text-[10px] font-mono font-extrabold uppercase tracking-wider mb-2 ${labelClass}`}>Transparency Opacity ({coverDesign.watermarkOpacity})</label>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className={`block text-[10px] font-mono font-extrabold uppercase tracking-wider ${labelClass}`}>
+                        {isUploadedWatermark ? 'Watermark Image Opacity' : 'Transparency Opacity'} ({Math.round((coverDesign.watermarkOpacity !== undefined ? coverDesign.watermarkOpacity : 0.08) * 100)}%)
+                      </label>
+                      {isUploadedWatermark && (
+                        <button
+                          type="button"
+                          onClick={() => setCoverDesign(prev => ({ ...prev, watermarkUrl: 'wm-none' }))}
+                          className="text-[9px] font-mono font-extrabold uppercase text-rose-500 hover:text-rose-400 cursor-pointer transition-colors"
+                        >
+                          Clear Image
+                        </button>
+                      )}
+                    </div>
                     <div className={`flex items-center space-x-3 border rounded-xl px-3.5 py-2.5 ${isDark ? 'bg-[#070b13] border-[#1a233d]' : 'bg-slate-50 border-slate-200'}`}>
                       <input 
                         type="range" 
-                        min={0.02} 
-                        max={0.25} 
+                        min={0.01} 
+                        max={isUploadedWatermark ? 1.0 : 0.40} 
                         step={0.01}
-                        value={coverDesign.watermarkOpacity || 0.08}
+                        value={coverDesign.watermarkOpacity !== undefined ? coverDesign.watermarkOpacity : 0.08}
                         onChange={(e) => setCoverDesign(prev => ({ ...prev, watermarkOpacity: parseFloat(e.target.value) }))}
                         className="w-full h-1 bg-slate-200 dark:bg-slate-950 rounded-lg cursor-pointer accent-indigo-500"
                       />
                     </div>
+                    {isUploadedWatermark && (
+                      <span className="block text-[9px] mt-1 text-slate-550 font-mono">
+                        Slide to adjust transparency visibility of your uploaded custom watermark image from 1% to 100% in real-time.
+                      </span>
+                    )}
                   </div>
 
                   <div>
@@ -3048,7 +3067,7 @@ export function DesignBuilder({
                 <label className={`block text-[10px] font-mono font-extrabold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                   Academic Design Preset Swatches
                 </label>
-                <div className="grid grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                   {[
                     { name: 'Pure Cotton White', hex: '#ffffff' },
                     { name: 'Warm Light Salmon', hex: '#fff0eb' },
@@ -3060,7 +3079,20 @@ export function DesignBuilder({
                     { name: 'Linen Parchment', hex: '#faf0e6' },
                     { name: 'Mint Whisper', hex: '#f4f8f6' },
                     { name: 'Glacier Blue', hex: '#f1f5f9' },
-                    { name: 'Editorial Rose', hex: '#fdf5f5' }
+                    { name: 'Editorial Rose', hex: '#fdf5f5' },
+                    { name: 'Cambridge Celadon', hex: '#eff5f1' },
+                    { name: 'Oxford Imperial', hex: '#eff3f8' },
+                    { name: 'Harvard Pearl Crimson', hex: '#fff3f3' },
+                    { name: 'Vintage Sandstone', hex: '#faf5ef' },
+                    { name: 'Antique Parchment', hex: '#f4ece1' },
+                    { name: 'Royal Ivory Glow', hex: '#fffdf6' },
+                    { name: 'Rose Quartz Tint', hex: '#fff0f2' },
+                    { name: 'Lilac Mist Satin', hex: '#faf5ff' },
+                    { name: 'Sage Leaf Whisper', hex: '#f5f7f2' },
+                    { name: 'Sand Castle Silk', hex: '#fffbf7' },
+                    { name: 'Peach Breeze Cream', hex: '#fff4ee' },
+                    { name: 'Seafoam Glow Wave', hex: '#f0fdf9' },
+                    { name: 'Cool Nordic Chalk', hex: '#f9f9fb' }
                   ].map((preset) => {
                     const isSelected = pageBackgroundColor.toLowerCase() === preset.hex.toLowerCase();
                     return (

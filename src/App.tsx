@@ -1140,6 +1140,8 @@ export default function App() {
               <DataInputPage 
                 coverData={coverData}
                 setCoverData={setCoverData}
+                coverDesign={coverDesign}
+                setCoverDesign={setCoverDesign}
                 applyPresetDataset={applyPresetDataset}
                 onNext={() => {
                   navigateTo('builder', 'designer');
@@ -1317,6 +1319,8 @@ export default function App() {
                 <InformationForm 
                   coverData={coverData}
                   setCoverData={setCoverData}
+                  coverDesign={coverDesign}
+                  setCoverDesign={setCoverDesign}
                   applyPresetDataset={applyPresetDataset}
                   theme={theme}
                   onNext={() => navigateTab('designer')}

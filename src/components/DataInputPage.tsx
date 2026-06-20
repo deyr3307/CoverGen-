@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { CoverPageData } from "../types";
+import { CoverPageData, CoverPageDesign } from "../types";
 import { 
   Sparkles, 
   ChevronRight, 
@@ -20,12 +20,22 @@ import {
 interface DataInputPageProps {
   coverData: CoverPageData;
   setCoverData: React.Dispatch<React.SetStateAction<CoverPageData>>;
+  coverDesign?: CoverPageDesign;
+  setCoverDesign?: React.Dispatch<React.SetStateAction<CoverPageDesign>>;
   applyPresetDataset: (type: 'physics' | 'env' | 'cse') => void;
   onNext: () => void;
   theme?: 'dark' | 'light';
 }
 
-export function DataInputPage({ coverData, setCoverData, applyPresetDataset, onNext, theme = 'dark' }: DataInputPageProps) {
+export function DataInputPage({ 
+  coverData, 
+  setCoverData, 
+  coverDesign,
+  setCoverDesign,
+  applyPresetDataset, 
+  onNext, 
+  theme = 'dark' 
+}: DataInputPageProps) {
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
@@ -485,12 +495,53 @@ export function DataInputPage({ coverData, setCoverData, applyPresetDataset, onN
                 Date Value (Content Link)
               </label>
               <input
-                type="date"
+                type="text"
                 value={coverData.submissionDate}
                 onChange={(e) => updateField("submissionDate", e.target.value)}
+                placeholder="e.g., 10/5/2026 or 10 May 2026"
                 className={`px-3.5 py-3 text-[12px] font-bold ${inputClass}`}
               />
             </div>
+
+            {setCoverDesign && coverDesign && (
+              <div className="space-y-2 pt-1">
+                <label className={`block text-[9px] font-mono font-extrabold uppercase tracking-widest leading-none ${isDark ? "text-orange-500" : "text-orange-600"}`}>
+                  Date Format Pattern
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCoverDesign(prev => ({ ...prev, dateFormat: 'UK' }))}
+                    className={`py-2.5 px-3 text-[11px] rounded-xl font-bold border transition-all cursor-pointer ${
+                      coverDesign.dateFormat !== 'USA'
+                        ? isDark 
+                          ? 'bg-orange-500/20 border-orange-500/40 text-orange-400 font-extrabold'
+                          : 'bg-orange-50 border-orange-300 text-orange-700 font-extrabold shadow-sm'
+                        : isDark
+                          ? 'bg-slate-900/40 border-slate-800 text-slate-400 hover:text-white'
+                          : 'bg-white border-slate-200 text-slate-600 hover:text-slate-800'
+                    }`}
+                  >
+                    UK/EU (DD/MM/YYYY)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCoverDesign(prev => ({ ...prev, dateFormat: 'USA' }))}
+                    className={`py-2.5 px-3 text-[11px] rounded-xl font-bold border transition-all cursor-pointer ${
+                      coverDesign.dateFormat === 'USA'
+                        ? isDark 
+                          ? 'bg-orange-500/20 border-orange-500/40 text-orange-400 font-extrabold'
+                          : 'bg-orange-50 border-orange-300 text-orange-700 font-extrabold shadow-sm'
+                        : isDark
+                          ? 'bg-slate-900/40 border-slate-800 text-slate-400 hover:text-white'
+                          : 'bg-white border-slate-200 text-slate-600 hover:text-slate-800'
+                    }`}
+                  >
+                    USA Style (MM/DD/YYYY)
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

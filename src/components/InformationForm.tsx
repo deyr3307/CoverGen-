@@ -1,16 +1,26 @@
 import React from 'react';
-import { CoverPageData } from '../types';
+import { CoverPageData, CoverPageDesign } from '../types';
 import { BookOpen, GraduationCap, FileText, Sliders, Calendar, Sparkles, ArrowRight } from 'lucide-react';
 
 interface InformationFormProps {
   coverData: CoverPageData;
   setCoverData: React.Dispatch<React.SetStateAction<CoverPageData>>;
+  coverDesign?: CoverPageDesign;
+  setCoverDesign?: React.Dispatch<React.SetStateAction<CoverPageDesign>>;
   applyPresetDataset: (type: 'physics' | 'env' | 'cse') => void;
   theme?: 'dark' | 'light';
   onNext?: () => void;
 }
 
-export function InformationForm({ coverData, setCoverData, applyPresetDataset, theme = 'dark', onNext }: InformationFormProps) {
+export function InformationForm({ 
+  coverData, 
+  setCoverData, 
+  coverDesign,
+  setCoverDesign,
+  applyPresetDataset, 
+  theme = 'dark', 
+  onNext 
+}: InformationFormProps) {
   const isDark = theme === "dark";
 
   // Dynamic values
@@ -249,13 +259,52 @@ export function InformationForm({ coverData, setCoverData, applyPresetDataset, t
             <div>
               <label className={`block text-[10px] font-mono font-extrabold mb-1.5 uppercase ${labelClass}`}>Submission Date</label>
               <input 
-                type="date" 
+                type="text" 
                 value={coverData.submissionDate}
                 onChange={(e) => setCoverData(prev => ({ ...prev, submissionDate: e.target.value }))}
+                placeholder="e.g., 10/5/2026 or 10 May 2026"
                 className={`w-full border text-xs rounded-xl px-3.5 py-2.5 outline-none transition-all font-mono ${inputClass}`}
               />
             </div>
           </div>
+
+          {setCoverDesign && coverDesign && (
+            <div className="space-y-1.5 pt-1">
+              <label className={`block text-[10px] font-mono font-bold uppercase ${labelClass}`}>Date Pattern / Display Style</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCoverDesign(prev => ({ ...prev, dateFormat: 'UK' }))}
+                  className={`py-2 px-3 text-[11px] rounded-xl font-bold border transition-all cursor-pointer ${
+                    coverDesign.dateFormat !== 'USA'
+                      ? isDark 
+                        ? 'bg-amber-600/20 border-amber-500/40 text-amber-400 font-extrabold'
+                        : 'bg-amber-50 border-amber-300 text-amber-700 font-extrabold shadow-sm'
+                      : isDark
+                        ? 'bg-slate-900/40 border-slate-800 text-slate-400 hover:text-white'
+                        : 'bg-white border-slate-200 text-slate-600 hover:text-slate-800'
+                  }`}
+                >
+                  UK/EU Pattern (DD/MM/YYYY)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCoverDesign(prev => ({ ...prev, dateFormat: 'USA' }))}
+                  className={`py-2 px-3 text-[11px] rounded-xl font-bold border transition-all cursor-pointer ${
+                    coverDesign.dateFormat === 'USA'
+                      ? isDark 
+                        ? 'bg-amber-600/20 border-amber-500/40 text-amber-400 font-extrabold'
+                        : 'bg-amber-50 border-amber-300 text-amber-700 font-extrabold shadow-sm'
+                      : isDark
+                        ? 'bg-slate-900/40 border-slate-800 text-slate-400 hover:text-white'
+                        : 'bg-white border-slate-200 text-slate-600 hover:text-slate-800'
+                  }`}
+                >
+                  USA Pattern (MM/DD/YYYY)
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* SECTION 3: TEACHER / EVALUATOR DETAILS */}

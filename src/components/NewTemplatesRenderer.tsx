@@ -635,24 +635,44 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                   let month = '5';
                   let year = '2026';
                   
-                  const dMatch = (data.submissionDate || '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+                  const cleanDate = (data.submissionDate || '').trim();
+                  const dMatch = cleanDate.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+                  const slashMatch = cleanDate.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})$/);
+                  
                   if (dMatch) {
                     year = dMatch[1];
                     month = String(parseInt(dMatch[2], 10));
                     day = String(parseInt(dMatch[3], 10));
-                  } else if (data.submissionDate) {
-                    const dateObj = new Date(data.submissionDate);
+                  } else if (slashMatch) {
+                    const isUsa = design.dateFormat === 'USA';
+                    if (isUsa) {
+                      month = String(parseInt(slashMatch[1], 10));
+                      day = String(parseInt(slashMatch[2], 10));
+                    } else {
+                      day = String(parseInt(slashMatch[1], 10));
+                      month = String(parseInt(slashMatch[2], 10));
+                    }
+                    year = slashMatch[3];
+                  } else if (cleanDate) {
+                    const dateObj = new Date(cleanDate);
                     if (!isNaN(dateObj.getTime())) {
                       day = String(dateObj.getDate());
                       month = String(dateObj.getMonth() + 1);
                       year = String(dateObj.getFullYear());
+                    } else {
+                      // Fallback for completely custom non-date texts: render in a single clean box
+                      return (
+                        <span className="border border-black px-2.5 py-0.5 rounded-[1px] bg-white text-black shadow-sm font-bold">{cleanDate}</span>
+                      );
                     }
                   }
+                  
+                  const isUsa = design.dateFormat === 'USA';
                   return (
                     <>
-                      <span className="border border-black px-2 py-0.5 rounded-[1px] bg-white text-black shadow-sm" style={{ fontWeight: 'bold' }}>{day}</span>
+                      <span className="border border-black px-2 py-0.5 rounded-[1px] bg-white text-black shadow-sm" style={{ fontWeight: 'bold' }}>{isUsa ? month : day}</span>
                       <span className="text-slate-500 font-bold">-</span>
-                      <span className="border border-black px-2 py-0.5 rounded-[1px] bg-white text-black shadow-sm" style={{ fontWeight: 'bold' }}>{month}</span>
+                      <span className="border border-black px-2 py-0.5 rounded-[1px] bg-white text-black shadow-sm" style={{ fontWeight: 'bold' }}>{isUsa ? day : month}</span>
                       <span className="text-slate-500 font-bold">-</span>
                       <span className="border border-black px-2 py-0.5 rounded-[1px] bg-white text-black shadow-sm" style={{ fontWeight: 'bold' }}>{year}</span>
                     </>

@@ -247,23 +247,30 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
     }
   };
 
-  // Format date nicely as day/month/year (e.g. 10/5/2026)
+  // Format date nicely as day/month/year or month/day/year depending on design.dateFormat (UK vs USA)
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
     try {
+      const isUsa = design.dateFormat === 'USA';
+      
+      // If user typed slashes (like 10/5/2026), commas, or text (like May), return exactly what they typed
+      if (dateStr.includes('/') || dateStr.includes(',') || /[a-zA-Z]/.test(dateStr)) {
+        return dateStr;
+      }
+
       const dMatch = dateStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
       if (dMatch) {
         const year = parseInt(dMatch[1], 10);
         const month = parseInt(dMatch[2], 10);
         const day = parseInt(dMatch[3], 10);
-        return `${day}/${month}/${year}`;
+        return isUsa ? `${month}/${day}/${year}` : `${day}/${month}/${year}`;
       }
       const date = new Date(dateStr);
       if (!isNaN(date.getTime())) {
         const day = date.getDate();
         const month = date.getMonth() + 1;
         const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
+        return isUsa ? `${month}/${day}/${year}` : `${day}/${month}/${year}`;
       }
       return dateStr;
     } catch {

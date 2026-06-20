@@ -2,9 +2,9 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Kaushan Script", "Playball", "Satisfy", "Dancing Script", "Caveat", cursive, sans-serif;
+  --font-sans: "Caveat", "Kaushan Script", "Playball", "Satisfy", "Dancing Script", cursive, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-  --font-cursive: "Playball", "Satisfy", "Dancing Script", "Caveat", "Kaushan Script", cursive;
+  --font-cursive: "Caveat", "Playball", "Satisfy", "Dancing Script", "Kaushan Script", cursive;
   --font-serif: "EB Garamond", "Playfair Display", Georgia, serif;
   --font-display: "Space Grotesk", "Outfit", "Inter", sans-serif;
   --font-clean: "Inter", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
@@ -72,9 +72,9 @@ body:not(.dark) .studio-workspace-container .text-slate-500 {
 }
 
 /* Apply dark text in light mode only to sidebars, inputs, wizards and control interfaces, while leaving LandingPage features and printable A4 Cover Document fully untouched */
-body:not(.dark) .studio-workspace-container h1:not(#academic-cover-page, #academic-cover-page *),
+body:not(.dark) .studio-workspace-container h1:not(.bg-clip-text):not(.text-transparent):not(#academic-cover-page, #academic-cover-page *),
 body:not(.dark) .studio-workspace-container h2:not(#academic-cover-page, #academic-cover-page *),
-body:not(.dark) .studio-workspace-container h3:not(#academic-cover-page, #academic-cover-page *),
+body:not(.dark) .studio-workspace-container h3:not([class*="text-green-"]):not([class*="text-blue-"]):not([class*="text-rose-"]):not([class*="text-amber-"]):not([class*="text-indigo-"]):not([class*="text-cyan-"]):not([class*="text-emerald-"]):not([class*="text-sky-"]):not([class*="text-purple-"]):not([class*="text-pink-"]):not([class*="text-violet-"]):not([class*="text-fuchsia-"]):not([class*="text-[#"]):not(#academic-cover-page, #academic-cover-page *),
 body:not(.dark) .studio-workspace-container h4:not(#academic-cover-page, #academic-cover-page *),
 body:not(.dark) .studio-workspace-container .text-white:not(button *, .bg-indigo-600 *, .hover\:text-white, #academic-cover-page, #academic-cover-page *) {
   color: #0f172a !important;
@@ -123,5 +123,42 @@ body:not(.dark) .studio-workspace-container .bg-\[\#121932\] {
 
 .animate-pulse-glow {
   animation: subtle-pulse-glow 3s ease-in-out infinite !important;
+}
+
+/* Precise font weight optimization to make text exactly 1.5x (0.5x more) bold for rich readability */
+/* This excludes the hero title "perfect cover pages in seconds" (styled with .font-image1) and header logo "CoverGen" (styled with .font-image2) */
+*:not(.font-image1):not(.font-image1 *):not(.font-image2):not(.font-image2 *) {
+  /* Elevate font-sans (which is Caveat / cursive) weights for high contrast */
+  &.font-sans, &[class*="font-sans"], &.font-cursive, &[class*="font-cursive"] {
+    --font-weight-bold: 800 !important;
+    --font-weight-extrabold: 900 !important;
+  }
+}
+
+/* Elevate default font weights to make them 0.5x more bold across all components (excluding landmarks) */
+*:not(.font-image1):not(.font-image1 *):not(.font-image2):not(.font-image2 *) {
+  &.font-normal, &.font-light {
+    font-weight: 600 !important; /* Standout base readability */
+    text-shadow: 0.15px 0px 0px currentColor;
+  }
+  &.font-medium, &.font-semibold {
+    font-weight: 750 !important;
+    text-shadow: 0.25px 0px 0px currentColor;
+  }
+  &.font-bold, &.font-extrabold, &.font-black {
+    font-weight: 900 !important;
+    text-shadow: 0.45px 0px 0px currentColor; /* Solid bold ink presence */
+  }
+}
+
+/* Heading/B/Strong tag weight projection for outstanding legibility */
+h1:not(.font-image1):not(.font-image1 *):not(.font-image2):not(.font-image2 *),
+h2:not(.font-image1):not(.font-image1 *):not(.font-image2):not(.font-image2 *),
+h3:not(.font-image1):not(.font-image1 *):not(.font-image2):not(.font-image2 *),
+h4:not(.font-image1):not(.font-image1 *):not(.font-image2):not(.font-image2 *),
+strong:not(.font-image1):not(.font-image1 *):not(.font-image2):not(.font-image2 *),
+b:not(.font-image1):not(.font-image1 *):not(.font-image2):not(.font-image2 *) {
+  font-weight: 850 !important;
+  text-shadow: 0.35px 0px 0px currentColor;
 }
 

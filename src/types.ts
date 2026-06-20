@@ -105,6 +105,9 @@ export interface CoverPageDesign {
   // Discipline vs Department label toggle
   disciplineLabel?: 'Discipline' | 'Department';
 
+  // Date format toggle: 'UK' (DD/MM/YYYY e.g., 10/5/2026) vs 'USA' (MM/DD/YYYY e.g., 5/10/2026)
+  dateFormat?: 'UK' | 'USA';
+
   // Drag and drop custom element positions
   positions?: Record<string, { x: number; y: number }>;
   customizedProperties?: Record<string, string[]>;
@@ -383,6 +386,7 @@ export const DEFAULT_DESIGN: CoverPageDesign = {
   qrCodePosition: 'bottom-right',
   templateId: 'top-header-asymmetric', // Use the stunning, highly personalized asymmetric template by default now!
   disciplineLabel: 'Discipline',
+  dateFormat: 'UK',
   positions: {},
   customizedProperties: {}
 };
