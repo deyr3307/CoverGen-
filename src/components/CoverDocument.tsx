@@ -479,7 +479,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
         )}
 
         {/* ===================== LAYOUT ROUTER BASED ON TEMPLATE ID ===================== */}
-        {['ku-law-table', 'cu-boxed-code', 'asymmetrical-research', 'top-header-asymmetric'].includes(design.templateId) ? (
+        {['ku-law-table', 'cu-boxed-code', 'top-header-asymmetric'].includes(design.templateId) ? (
           <NewTemplatesRenderer
             id={design.templateId}
             data={data}

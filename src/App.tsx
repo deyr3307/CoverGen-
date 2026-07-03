@@ -588,6 +588,22 @@ export default function App() {
       }
     }
 
+    // Ensure all SVGs/images are fully loaded before initializing the capture as requested in Requirement 2
+    try {
+      const imgs = Array.from(document.querySelectorAll('img'));
+      await Promise.all(
+        imgs.map((img) => {
+          if (img.complete) return Promise.resolve();
+          return new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve;
+          });
+        })
+      );
+    } catch (imgErr) {
+      console.warn("Error waiting for images to load:", imgErr);
+    }
+
     // Smooth timing delay for clean renders
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -610,6 +626,20 @@ export default function App() {
     const originalGPWidth = grandParent ? grandParent.style.width : '';
     const originalGPHeight = grandParent ? grandParent.style.height : '';
 
+    const originalElementWidth = element?.style.width || '';
+    const originalElementHeight = element?.style.height || '';
+    const originalElementMinWidth = element?.style.minWidth || '';
+    const originalElementMinHeight = element?.style.minHeight || '';
+    const originalElementMaxWidth = element?.style.maxWidth || '';
+    const originalElementMaxHeight = element?.style.maxHeight || '';
+
+    const originalBackWidth = backElement?.style?.width || '';
+    const originalBackHeight = backElement?.style?.height || '';
+    const originalBackMinWidth = backElement?.style?.minWidth || '';
+    const originalBackMinHeight = backElement?.style?.minHeight || '';
+    const originalBackMaxWidth = backElement?.style?.maxWidth || '';
+    const originalBackMaxHeight = backElement?.style?.maxHeight || '';
+
     if (parent) {
       parent.style.transform = 'none';
       parent.style.position = 'relative';
@@ -619,6 +649,24 @@ export default function App() {
     if (grandParent) {
       grandParent.style.width = `${targetWidth}px`;
       grandParent.style.height = `${targetHeight}px`;
+    }
+
+    // A4 Dimension Locking During Export: Force strict, absolute pixel dimensions to prevent reflow/shifting
+    if (element) {
+      element.style.width = `${targetWidth}px`;
+      element.style.height = `${targetHeight}px`;
+      element.style.minWidth = `${targetWidth}px`;
+      element.style.minHeight = `${targetHeight}px`;
+      element.style.maxWidth = `${targetWidth}px`;
+      element.style.maxHeight = `${targetHeight}px`;
+    }
+    if (backElement) {
+      backElement.style.width = `${targetWidth}px`;
+      backElement.style.height = `${targetHeight}px`;
+      backElement.style.minWidth = `${targetWidth}px`;
+      backElement.style.minHeight = `${targetHeight}px`;
+      backElement.style.maxWidth = `${targetWidth}px`;
+      backElement.style.maxHeight = `${targetHeight}px`;
     }
 
     // Modern Tailwind v4 oklch & oklab parser bug hotpatch with robust parenthesis matching
@@ -847,12 +895,14 @@ export default function App() {
       // Apply stylesheet patch to bypass oklch/oklab parsing failure
       stylePatcher = await patchStylesheets();
 
-      // Configure scale according to quality tier (Low: 1.2x, Med: 2.2x, High: 3.5x)
-      let scaleValue = 3.5;
+      // Configure scale according to quality tier (Low: 1.2x, Med: 2.2x, High: 2.0x (optimal high-fidelity setting as requested))
+      let scaleValue = 2.0;
       if (quality === 'low') {
         scaleValue = 1.2;
       } else if (quality === 'medium') {
         scaleValue = 2.2;
+      } else if (quality === 'high') {
+        scaleValue = 2.0;
       }
 
       let canvas = null;
@@ -863,9 +913,10 @@ export default function App() {
           height: targetHeight,
           useCORS: true,
           allowTaint: true,
-          logging: true,
+          logging: false,
           scrollX: 0,
           scrollY: 0,
+          windowWidth: document.documentElement.offsetWidth,
           backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
           onclone: (clonedDoc) => {
             const clonedEl = clonedDoc.getElementById('academic-cover-page');
@@ -910,9 +961,10 @@ export default function App() {
               height: targetHeight,
               useCORS: true,
               allowTaint: true,
-              logging: true,
+              logging: false,
               scrollX: 0,
               scrollY: 0,
+              windowWidth: document.documentElement.offsetWidth,
               backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
               onclone: (clonedDoc) => {
                 const clonedEl = clonedDoc.getElementById('academic-back-page');
@@ -956,6 +1008,7 @@ export default function App() {
               logging: false,
               scrollX: 0,
               scrollY: 0,
+              windowWidth: document.documentElement.offsetWidth,
               backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
               onclone: (clonedDoc) => {
                 const clonedEl = clonedDoc.getElementById('academic-back-page');
@@ -1030,6 +1083,7 @@ export default function App() {
             logging: false,
             scrollX: 0,
             scrollY: 0,
+            windowWidth: document.documentElement.offsetWidth,
             backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
             onclone: (clonedDoc) => {
               const clonedEl = clonedDoc.getElementById('academic-cover-page');
@@ -1076,6 +1130,7 @@ export default function App() {
               logging: false,
               scrollX: 0,
               scrollY: 0,
+              windowWidth: document.documentElement.offsetWidth,
               backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
               onclone: (clonedDoc) => {
                 const clonedEl = clonedDoc.getElementById('academic-back-page');
@@ -1262,6 +1317,24 @@ export default function App() {
       if (grandParent) {
         grandParent.style.width = originalGPWidth;
         grandParent.style.height = originalGPHeight;
+      }
+
+      // Restore Front and Back Page absolute pixel dimension styles cleanly to return to normal responsive state
+      if (element) {
+        element.style.width = originalElementWidth;
+        element.style.height = originalElementHeight;
+        element.style.minWidth = originalElementMinWidth;
+        element.style.minHeight = originalElementMinHeight;
+        element.style.maxWidth = originalElementMaxWidth;
+        element.style.maxHeight = originalElementMaxHeight;
+      }
+      if (backElement) {
+        backElement.style.width = originalBackWidth;
+        backElement.style.height = originalBackHeight;
+        backElement.style.minWidth = originalBackMinWidth;
+        backElement.style.minHeight = originalBackMinHeight;
+        backElement.style.maxWidth = originalBackMaxWidth;
+        backElement.style.maxHeight = originalBackMaxHeight;
       }
       setIsExporting(null);
     }
@@ -1654,7 +1727,7 @@ export default function App() {
               theme === 'dark' ? 'bg-[#030407]' : 'bg-slate-50'
             }`}>
                          {/* Top toolbar header with zoom and download buttons */}
-              <div className={`shrink-0 z-20 flex flex-row flex-wrap gap-3 items-center justify-between p-3.5 border-b transition-colors duration-300 ${
+              <div className={`shrink-0 z-[30] flex flex-row flex-wrap gap-3 items-center justify-between p-3.5 border-b transition-colors duration-300 ${
                 theme === 'dark' ? 'bg-[#040508] border-slate-850' : 'bg-slate-50 border-slate-200/60'
               }`}>
                 <div className={`flex items-center space-x-1 px-2.5 py-1.5 backdrop-blur border rounded-lg shadow-sm select-none transition-colors duration-300 ${
@@ -1693,7 +1766,7 @@ export default function App() {
                 }`}>
                   
                   <div 
-                    className="dropdown relative"
+                    className="dropdown relative z-[45]"
                     onMouseLeave={() => setIsDownloadOpen(false)}
                   >
                     <button 
@@ -1733,8 +1806,8 @@ export default function App() {
                         </span>
                       </div>
                     </button>
-                    <div className={`absolute right-0 top-full mt-2 w-72 rounded-2xl shadow-2xl py-3 animate-fadeIn z-20 ${
-                      isDownloadOpen ? 'opacity-100 pointer-events-auto scale-100 translate-y-0' : 'opacity-0 pointer-events-none scale-95 -translate-y-2 origin-top-right'
+                    <div className={`absolute left-0 top-full mt-2 w-72 rounded-2xl shadow-2xl py-3 animate-fadeIn z-[9999] ${
+                      isDownloadOpen ? 'opacity-100 pointer-events-auto scale-100 translate-y-0' : 'opacity-0 pointer-events-none scale-95 -translate-y-2 origin-top-left'
                     } ${
                       theme === 'dark' ? 'bg-[#090b11] border border-slate-850 shadow-[0_12px_40px_rgba(0,0,0,0.6)]' : 'bg-white border border-slate-200/80 shadow-[0_12px_40px_rgba(0,0,0,0.1)]'
                     }`}>
@@ -1909,7 +1982,7 @@ export default function App() {
 
                   {coverDesign.backPageEnabled && (
                     <div 
-                      className="dropdown relative"
+                      className="dropdown relative z-[45]"
                       onMouseLeave={() => setIsBackDownloadOpen(false)}
                     >
                       <button 
@@ -1943,7 +2016,7 @@ export default function App() {
                           </span>
                         </div>
                       </button>
-                      <div className={`absolute right-0 top-full mt-2 w-72 rounded-2xl shadow-2xl py-3 animate-fadeIn z-20 ${
+                      <div className={`absolute right-0 top-full mt-2 w-72 rounded-2xl shadow-2xl py-3 animate-fadeIn z-[9999] ${
                         isBackDownloadOpen ? 'opacity-100 pointer-events-auto scale-100 translate-y-0' : 'opacity-0 pointer-events-none scale-95 -translate-y-2 origin-top-right'
                       } ${
                         theme === 'dark' ? 'bg-[#090b11] border border-slate-850 shadow-[0_12px_40px_rgba(0,0,0,0.6)]' : 'bg-white border border-slate-200/80 shadow-[0_12px_40px_rgba(0,0,0,0.1)]'

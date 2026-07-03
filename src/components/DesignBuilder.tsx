@@ -134,7 +134,7 @@ export function FontSelectorDropdown({ value, onChange, isDark, inputClass }: Fo
 }
 
 interface TemplateThumbnailProps {
-  id: 'ku' | 'du-classic' | 'du-minimal' | 'jnu' | 'ruet' | 'jnu-finance' | 'presidency' | 'jnu-traditional' | 'teal-bars' | 'ku-law-table' | 'cu-boxed-code' | 'asymmetrical-research' | 'top-header-asymmetric';
+  id: 'ku' | 'du-classic' | 'du-minimal' | 'jnu' | 'ruet' | 'jnu-finance' | 'presidency' | 'jnu-traditional' | 'teal-bars' | 'ku-law-table' | 'cu-boxed-code' | 'top-header-asymmetric';
   isSelected: boolean;
   isDark: boolean;
   large?: boolean;
@@ -207,11 +207,6 @@ export function TemplateThumbnail({ id, isSelected, isDark, large = false }: Tem
     borderStyles = { borderStyle: 'solid', borderWidth: '1px' };
     accentBarColor = '#000000';
     logoColor = '#1e293b';
-  } else if (id === 'asymmetrical-research') {
-    borderClass = isSelected ? 'border-slate-700 ring-1 ring-slate-800/20' : 'border-slate-250 dark:border-slate-800';
-    borderStyles = { borderStyle: 'solid', borderWidth: '1px' };
-    accentBarColor = '#000000';
-    logoColor = '#000000';
   } else if (id === 'top-header-asymmetric') {
     borderClass = isSelected ? 'border-red-600 ring-1 ring-red-500/20' : 'border-slate-250 dark:border-slate-800';
     borderStyles = { borderStyle: 'solid', borderWidth: '1px' };
@@ -320,7 +315,7 @@ export function TemplateThumbnail({ id, isSelected, isDark, large = false }: Tem
               <div className={`bg-slate-400 ${large ? 'w-[30px] h-[1px]' : 'w-[12px] h-[0.5px]'}`} />
             </div>
           </div>
-        ) : id === 'asymmetrical-research' || id === 'top-header-asymmetric' ? (
+        ) : id === 'top-header-asymmetric' ? (
           /* Staggered asymmetric mini representation */
           <div className={`flex flex-col w-full px-0.5 relative ${large ? 'space-y-[6px]' : 'space-y-[3px]'}`}>
             {/* Left/teacher element */}
@@ -1263,7 +1258,7 @@ export function DesignBuilder({
   };
 
   // Preset university styles binder
-  const applyTemplatePresetId = (id: 'ku' | 'du-classic' | 'du-minimal' | 'jnu' | 'ruet' | 'jnu-finance' | 'presidency' | 'jnu-traditional' | 'teal-bars' | 'ku-law-table' | 'cu-boxed-code' | 'asymmetrical-research' | 'top-header-asymmetric') => {
+  const applyTemplatePresetId = (id: 'ku' | 'du-classic' | 'du-minimal' | 'jnu' | 'ruet' | 'jnu-finance' | 'presidency' | 'jnu-traditional' | 'teal-bars' | 'ku-law-table' | 'cu-boxed-code' | 'top-header-asymmetric') => {
     setCoverDesign(prev => {
       const getPreset = (): CoverPageDesign => {
         const base = { ...prev, templateId: id };
@@ -1273,7 +1268,7 @@ export function DesignBuilder({
         let defaultLogo = '';
         if (!currentLogo.startsWith('data:')) {
           if (id === 'ku') defaultLogo = 'preset-science';
-          else if (id === 'du-classic' || id === 'du-minimal' || id === 'asymmetrical-research') defaultLogo = 'preset-du';
+          else if (id === 'du-classic' || id === 'du-minimal') defaultLogo = 'preset-du';
           else if (id === 'jnu' || id === 'jnu-finance' || id === 'jnu-traditional' || id === 'teal-bars' || id === 'top-header-asymmetric') defaultLogo = 'preset-jnu';
           else if (id === 'ruet') defaultLogo = 'preset-ruet';
           else if (id === 'presidency') defaultLogo = 'preset-presidency';
@@ -1543,32 +1538,6 @@ export function DesignBuilder({
             fontSubmittedByContent: { fontFamily: '"Times New Roman", Times, serif', color: '#0f172a', fontSize: 11.5, bold: false, uppercase: false, italic: false, align: 'left' },
             fontSubmissionDateHeading: { fontFamily: '"Times New Roman", Times, serif', color: '#475569', fontSize: 12, bold: true, uppercase: true, italic: false, align: 'center' },
             fontSubmissionDateContent: { fontFamily: '"Times New Roman", Times, serif', color: '#0f172a', fontSize: 12.5, bold: true, uppercase: false, italic: false, align: 'center' },
-          };
-        case 'asymmetrical-research':
-          return {
-            ...base,
-            logoUrl: defaultLogo,
-            watermarkUrl: '',
-            borderStyle: 'none',
-            borderColor: '#000000',
-            accentColor: '#000000',
-            fontTitle: { fontFamily: 'Georgia, serif', color: '#000000', fontSize: 16, bold: true, uppercase: true, italic: false, align: 'center' },
-            fontCourse: { fontFamily: 'Georgia, serif', color: '#000000', fontSize: 12.5, bold: false, uppercase: false, italic: false, align: 'center' },
-            fontSubSection: { fontFamily: 'Georgia, serif', color: '#000000', fontSize: 11, bold: true, uppercase: true, italic: false, align: 'center' },
-            fontDate: { fontFamily: 'Georgia, serif', color: '#000000', fontSize: 12, bold: true, uppercase: false, italic: false, align: 'center' },
-
-            fontAssignmentTopic: { fontFamily: 'Georgia, serif', color: '#000000', fontSize: 12.5, bold: false, uppercase: false, italic: false, align: 'center' },
-            fontTopicTitle: { fontFamily: 'Georgia, serif', color: '#000000', fontSize: 18, bold: true, uppercase: false, italic: false, align: 'center' },
-            fontCourseNoHeading: { fontFamily: 'Georgia, serif', color: '#000000', fontSize: 12.5, bold: true, uppercase: false, italic: false, align: 'center' },
-            fontCourseNoContent: { fontFamily: 'Georgia, serif', color: '#111827', fontSize: 12.5, bold: true, uppercase: false, italic: false, align: 'center' },
-            fontCourseTitleHeading: { fontFamily: 'Georgia, serif', color: '#000000', fontSize: 12.5, bold: true, uppercase: false, italic: false, align: 'center' },
-            fontCourseTitleContent: { fontFamily: 'Georgia, serif', color: '#111827', fontSize: 12.5, bold: true, uppercase: false, italic: false, align: 'center' },
-            fontSubmittedToHeading: { fontFamily: 'Georgia, serif', color: '#000000', fontSize: 12.5, bold: true, uppercase: false, italic: false, align: 'left' },
-            fontSubmittedToContent: { fontFamily: 'Georgia, serif', color: '#111827', fontSize: 11, bold: false, uppercase: false, italic: false, align: 'left' },
-            fontSubmittedByHeading: { fontFamily: 'Georgia, serif', color: '#000000', fontSize: 12.5, bold: true, uppercase: false, italic: false, align: 'right' },
-            fontSubmittedByContent: { fontFamily: 'Georgia, serif', color: '#111827', fontSize: 11, bold: false, uppercase: false, italic: false, align: 'right' },
-            fontSubmissionDateHeading: { fontFamily: 'Georgia, serif', color: '#111827', fontSize: 11.5, bold: false, uppercase: false, italic: true, align: 'center' },
-            fontSubmissionDateContent: { fontFamily: 'Georgia, serif', color: '#111827', fontSize: 11.5, bold: true, uppercase: false, italic: true, align: 'center' },
           };
         case 'top-header-asymmetric':
           return {
@@ -1962,8 +1931,7 @@ export function DesignBuilder({
                 { id: 'jnu-traditional', name: 'Template No 9', desc: 'Academic layout following traditional department research cover standard with clean serif typography.', badge: 'Classic JNU' },
                 { id: 'teal-bars', name: 'Template No 10', desc: 'Striking modern layout with full-width top and bottom bar fills and clean high-contrast presentation for internship reviews.', badge: 'Teal Business' },
                 { id: 'cu-boxed-code', name: 'Template No 11', desc: 'Elegant rectangular nested code frames enclosing course codes/titles, combined with clean classic times colons alignment.', badge: 'Chittagong Double-Frame' },
-                { id: 'asymmetrical-research', name: 'Template No 12', desc: 'Prestige layout with centered university branding, centered title content blocks, and an offset, staggered submissions grid from the Dhaka University Sociology thesis format.', badge: 'Asymmetric Thesis' },
-                { id: 'top-header-asymmetric', name: 'Template No 13', desc: 'Prestige layout featuring absolute top header text blocks, centered logo, centered topics, and an asymmetrical, staggered submissions grid.', badge: 'Asymmetric Header' }
+                { id: 'top-header-asymmetric', name: 'Template No 12', desc: 'Prestige layout featuring absolute top header text blocks, centered logo, centered topics, and an asymmetrical, staggered submissions grid.', badge: 'Asymmetric Header' }
               ].map((tmpl) => {
                 const isSelected = coverDesign.templateId === tmpl.id;
                 return (
@@ -3274,8 +3242,7 @@ export function DesignBuilder({
             { id: 'jnu-traditional', name: 'Template No 9', desc: 'Crest-aligned research cover layout with clean serif.', badge: 'Classic JNU' },
             { id: 'teal-bars', name: 'Template No 10', desc: 'Striking design with full-width teal color block fills.', badge: 'Teal Business' },
             { id: 'cu-boxed-code', name: 'Template No 11', desc: 'Elegant rectangular nested code frame enclosing.', badge: 'Chittagong Double-Frame' },
-            { id: 'asymmetrical-research', name: 'Template No 12', desc: 'Offset staggered submissions grid thesis format.', badge: 'Asymmetric Thesis' },
-            { id: 'top-header-asymmetric', name: 'Template No 13', desc: 'Prestige layout featuring top header blocks.', badge: 'Asymmetric Header' }
+            { id: 'top-header-asymmetric', name: 'Template No 12', desc: 'Prestige layout featuring top header blocks.', badge: 'Asymmetric Header' }
           ].find(t => t.id === hoveredTemplateId);
 
           if (!matchedTmpl) return null;

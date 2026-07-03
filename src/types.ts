@@ -102,7 +102,7 @@ export interface CoverPageDesign {
   qrCodePosition: 'top-right' | 'bottom-right' | 'bottom-left' | 'top-left';
 
   // Selected Template Style
-  templateId?: 'ku' | 'du-classic' | 'du-minimal' | 'jnu' | 'ruet' | 'jnu-finance' | 'presidency' | 'jnu-traditional' | 'teal-bars' | 'ku-law-table' | 'cu-boxed-code' | 'asymmetrical-research' | 'top-header-asymmetric';
+  templateId?: 'ku' | 'du-classic' | 'du-minimal' | 'jnu' | 'ruet' | 'jnu-finance' | 'presidency' | 'jnu-traditional' | 'teal-bars' | 'ku-law-table' | 'cu-boxed-code' | 'top-header-asymmetric';
 
   // Discipline vs Department label toggle
   disciplineLabel?: 'Discipline' | 'Department';
