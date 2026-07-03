@@ -877,8 +877,8 @@ export function DesignBuilder({
           fontCourseTitleContent: { fontFamily: '"Times New Roman", Times, serif', color: '#334155', fontSize: 14, bold: true, uppercase: false, italic: false, align: 'center' },
           fontSubmittedToHeading: { fontFamily: '"Times New Roman", Times, serif', color: '#1e3a8a', fontSize: 12.5, bold: true, uppercase: true, italic: false, align: 'left' },
           fontSubmittedToContent: { fontFamily: '"Times New Roman", Times, serif', color: '#334155', fontSize: 12, bold: false, uppercase: false, italic: false, align: 'left' },
-          fontSubmittedByHeading: { fontFamily: '"Times New Roman", Times, serif', color: '#1e3a8a', fontSize: 12.5, bold: true, uppercase: true, italic: false, align: 'right' },
-          fontSubmittedByContent: { fontFamily: '"Times New Roman", Times, serif', color: '#334155', fontSize: 12, bold: false, uppercase: false, italic: false, align: 'right' },
+          fontSubmittedByHeading: { fontFamily: '"Times New Roman", Times, serif', color: '#1e3a8a', fontSize: 12.5, bold: true, uppercase: true, italic: false, align: 'left' },
+          fontSubmittedByContent: { fontFamily: '"Times New Roman", Times, serif', color: '#334155', fontSize: 12, bold: false, uppercase: false, italic: false, align: 'left' },
           fontSubmissionDateHeading: { fontFamily: '"Times New Roman", Times, serif', color: '#1e3a8a', fontSize: 12, bold: true, uppercase: true, italic: false, align: 'center' },
           fontSubmissionDateContent: { fontFamily: '"Times New Roman", Times, serif', color: '#334155', fontSize: 12, bold: true, uppercase: false, italic: false, align: 'center' },
         };
@@ -912,7 +912,7 @@ export function DesignBuilder({
         return {
           ...base,
           logoUrl: 'preset-ruet',
-          watermarkUrl: 'preset-ruet',
+          watermarkUrl: '',
           borderStyle: 'modern',
           borderColor: '#ea580c',
           accentColor: '#0284c7',
@@ -1409,8 +1409,8 @@ export function DesignBuilder({
             fontCourseTitleContent: { fontFamily: '"Times New Roman", Times, serif', color: '#334155', fontSize: 14, bold: true, uppercase: false, italic: false, align: 'center' },
             fontSubmittedToHeading: { fontFamily: '"Times New Roman", Times, serif', color: '#1e3a8a', fontSize: 12.5, bold: true, uppercase: true, italic: false, align: 'left' },
             fontSubmittedToContent: { fontFamily: '"Times New Roman", Times, serif', color: '#334155', fontSize: 12, bold: false, uppercase: false, italic: false, align: 'left' },
-            fontSubmittedByHeading: { fontFamily: '"Times New Roman", Times, serif', color: '#1e3a8a', fontSize: 12.5, bold: true, uppercase: true, italic: false, align: 'right' },
-            fontSubmittedByContent: { fontFamily: '"Times New Roman", Times, serif', color: '#334155', fontSize: 12, bold: false, uppercase: false, italic: false, align: 'right' },
+            fontSubmittedByHeading: { fontFamily: '"Times New Roman", Times, serif', color: '#1e3a8a', fontSize: 12.5, bold: true, uppercase: true, italic: false, align: 'left' },
+            fontSubmittedByContent: { fontFamily: '"Times New Roman", Times, serif', color: '#334155', fontSize: 12, bold: false, uppercase: false, italic: false, align: 'left' },
             fontSubmissionDateHeading: { fontFamily: '"Times New Roman", Times, serif', color: '#1e3a8a', fontSize: 12, bold: true, uppercase: true, italic: false, align: 'center' },
             fontSubmissionDateContent: { fontFamily: '"Times New Roman", Times, serif', color: '#334155', fontSize: 12, bold: true, uppercase: false, italic: false, align: 'center' },
           };
@@ -1470,7 +1470,7 @@ export function DesignBuilder({
           return {
             ...base,
             logoUrl: defaultLogo,
-            watermarkUrl: 'preset-ruet',
+            watermarkUrl: '',
             borderStyle: 'modern',
             borderColor: '#ea580c',
             accentColor: '#0284c7',
@@ -1879,10 +1879,17 @@ export function DesignBuilder({
 
       {/* Sub-panels container */}
       <div className="flex-1 overflow-y-auto p-5 pt-1 space-y-4 relative z-10">
-        
-        {/* TAB 0: TEMPLATES SELECTION */}
-        {activeTab === 'templates' && (
-          <div className="space-y-4 font-sans animate-fadeIn text-left">
+        <AnimatePresence mode="wait">
+          {/* TAB 0: TEMPLATES SELECTION */}
+          {activeTab === 'templates' && (
+            <motion.div
+              key="templates"
+              initial={{ opacity: 0, y: 12, scale: 0.99 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -12, scale: 0.99 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+              className="space-y-4 font-sans text-left"
+            >
             {/* Header description */}
             <div className="flex flex-col space-y-1.5 px-0.5">
               <div className="flex items-center space-x-2">
@@ -2013,12 +2020,19 @@ export function DesignBuilder({
                 );
               })}
             </div>
-          </div>
+          </motion.div>
         )}
         
         {/* TAB 1: FONTS (UNIFIED PAGE COHESIVE SYSTEM) */}
         {activeTab === 'text' && (
-          <div className="space-y-4 font-sans animate-fadeIn text-left">
+          <motion.div
+            key="text"
+            initial={{ opacity: 0, y: 12, scale: 0.99 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.99 }}
+            transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+            className="space-y-4 font-sans text-left"
+          >
             {/* Header description */}
             <div className="flex flex-col space-y-1.5 px-0.5">
               <div className="flex items-center space-x-2">
@@ -2295,12 +2309,19 @@ export function DesignBuilder({
                 );
               })}
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* TAB 2: BORDERS & COLORS */}
         {activeTab === 'borders' && (
-          <div className="space-y-4 font-sans animate-fadeIn">
+          <motion.div
+            key="borders"
+            initial={{ opacity: 0, y: 12, scale: 0.99 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.99 }}
+            transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+            className="space-y-4 font-sans"
+          >
             {/* Color controls */}
             <div className={`${cardClass} p-4 rounded-2xl space-y-4`}>
               <div className="flex items-center space-x-2">
@@ -2535,12 +2556,19 @@ export function DesignBuilder({
                 <span className={`text-xs font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Bottom Academic Footer Line</span>
               </label>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* TAB 3: BRANDING & QR */}
         {activeTab === 'watermark' && (
-          <div className="space-y-4 font-sans animate-fadeIn">
+          <motion.div
+            key="watermark"
+            initial={{ opacity: 0, y: 12, scale: 0.99 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.99 }}
+            transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+            className="space-y-4 font-sans"
+          >
             
             {/* LOGO */}
             <div className={`${cardClass} p-4 rounded-2xl space-y-4`}>
@@ -3004,11 +3032,18 @@ export function DesignBuilder({
               )}
             </div>
 
-          </div>
+          </motion.div>
         )}
 
         {activeTab === 'background' && (
-          <div className="space-y-4 font-sans animate-fadeIn text-left">
+          <motion.div
+            key="background"
+            initial={{ opacity: 0, y: 12, scale: 0.99 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.99 }}
+            transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+            className="space-y-4 font-sans text-left"
+          >
             
             {/* Header description */}
             <div className="flex flex-col space-y-1.5 px-0.5">
@@ -3145,8 +3180,83 @@ export function DesignBuilder({
 
             </div>
 
-          </div>
+            {/* Back Cover / Last Page Settings Section */}
+            <div className={`${isDark ? 'bg-[#0b0f19] border-[#1f2942]/60' : 'bg-white border-slate-200/80'} p-5 border rounded-2xl shadow-sm space-y-4`}>
+              <h3 className="text-[10px] font-mono font-extrabold text-indigo-400 uppercase tracking-widest flex items-center">
+                <span className="inline-block w-2.5 h-2.5 bg-indigo-500 rounded-full mr-2" />
+                Back Cover / Last Page
+              </h3>
+              
+              <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
+                Enable a clean second page that syncs with your front cover design. Perfect for end-of-document presentation.
+              </p>
+
+              <label className="flex items-center space-x-3 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  checked={coverDesign.backPageEnabled || false}
+                  onChange={(e) => setCoverDesign(prev => ({ ...prev, backPageEnabled: e.target.checked }))}
+                  className="w-4 h-4 rounded border-[#1a233d] bg-[#070b13] text-indigo-500 focus:ring-0 cursor-pointer"
+                />
+                <span className={`text-xs font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Enable Back Cover Page</span>
+              </label>
+
+              {coverDesign.backPageEnabled && (
+                <div className="space-y-2 animate-fadeIn pt-1">
+                  <label className={`block text-[10px] font-mono font-extrabold uppercase tracking-wide ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                    Optional Custom Text (Vertically & Horizontally Centered)
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={coverDesign.backPageText || ''}
+                    onChange={(e) => setCoverDesign(prev => ({ ...prev, backPageText: e.target.value }))}
+                    placeholder="e.g. THANK YOU&#10;Presented by Group B&#10;Department of Environmental Science"
+                    className={`w-full text-xs p-3 rounded-xl border focus:outline-none focus:ring-1 focus:ring-indigo-500/40 ${
+                      isDark ? 'bg-[#060810] border-[#1e2a47] text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-850'
+                    }`}
+                  />
+                  <p className="text-[9px] text-slate-500 font-mono">Use line breaks to format lines. Text will match cover's default font family & typography colors.</p>
+                </div>
+              )}
+            </div>
+
+            {/* Submission Details Styling Section */}
+            <div className={`${isDark ? 'bg-[#0b0f19] border-[#1f2942]/60' : 'bg-white border-slate-200/80'} p-5 border rounded-2xl shadow-sm space-y-4`}>
+              <h3 className="text-[10px] font-mono font-extrabold text-indigo-400 uppercase tracking-widest flex items-center">
+                <span className="inline-block w-2.5 h-2.5 bg-indigo-500 rounded-full mr-2" />
+                Submission Details Styling
+              </h3>
+              
+              <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
+                Control the typography emphasis and layout structure uniformly across all templates.
+              </p>
+
+              <div className="space-y-3">
+                <label className="flex items-center space-x-3 cursor-pointer select-none">
+                  <input 
+                    type="checkbox" 
+                    checked={coverDesign.boldSubmissionDetails || false}
+                    onChange={(e) => setCoverDesign(prev => ({ ...prev, boldSubmissionDetails: e.target.checked }))}
+                    className="w-4 h-4 rounded border-[#1a233d] bg-[#070b13] text-indigo-500 focus:ring-0 cursor-pointer"
+                  />
+                  <span className={`text-xs font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Bold Submission Details</span>
+                </label>
+
+                <label className="flex items-center space-x-3 cursor-pointer select-none">
+                  <input 
+                    type="checkbox" 
+                    checked={coverDesign.showTopHeader !== false}
+                    onChange={(e) => setCoverDesign(prev => ({ ...prev, showTopHeader: e.target.checked }))}
+                    className="w-4 h-4 rounded border-[#1a233d] bg-[#070b13] text-indigo-500 focus:ring-0 cursor-pointer"
+                  />
+                  <span className={`text-xs font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Show Top Header</span>
+                </label>
+              </div>
+            </div>
+
+          </motion.div>
         )}
+        </AnimatePresence>
 
       </div>
 

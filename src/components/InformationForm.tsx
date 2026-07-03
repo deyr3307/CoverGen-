@@ -185,6 +185,52 @@ export function InformationForm({
               className={`w-full border text-xs rounded-xl px-3.5 py-2.5 outline-none transition-all font-mono ${inputClass}`}
             />
           </div>
+
+          <div className="border-t border-dashed pt-4 mt-4 space-y-3">
+            <div className="flex items-center space-x-1.5 pl-0.5">
+              <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-indigo-500">
+                Top Header Details
+              </span>
+            </div>
+            <div className="grid grid-cols-1 gap-3">
+              <div>
+                <label className={`block text-[10px] font-mono font-extrabold mb-1.5 uppercase ${labelClass}`}>University Name (Top Header)</label>
+                <input 
+                  type="text" 
+                  value={coverData.universityName || ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCoverData(prev => ({ 
+                      ...prev, 
+                      universityName: val,
+                      teacherUniversity: val || prev.teacherUniversity,
+                      studentUniversity: val || prev.studentUniversity,
+                    }));
+                  }}
+                  placeholder="e.g. Khulna University"
+                  className={`w-full border text-xs rounded-xl px-3.5 py-2.5 outline-none transition-all font-sans ${inputClass}`}
+                />
+              </div>
+              <div>
+                <label className={`block text-[10px] font-mono font-extrabold mb-1.5 uppercase ${labelClass}`}>Discipline / Department (Top Header)</label>
+                <input 
+                  type="text" 
+                  value={coverData.departmentName || ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCoverData(prev => ({ 
+                      ...prev, 
+                      departmentName: val,
+                      teacherDiscipline: val || prev.teacherDiscipline,
+                      studentDiscipline: val || prev.studentDiscipline,
+                    }));
+                  }}
+                  placeholder="e.g. Environmental Science Discipline"
+                  className={`w-full border text-xs rounded-xl px-3.5 py-2.5 outline-none transition-all font-sans ${inputClass}`}
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* SECTION 2: COURSE DETAILS */}

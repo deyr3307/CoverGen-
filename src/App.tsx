@@ -228,6 +228,7 @@ export default function App() {
   const [zoomLevel, setZoomLevel] = useState<number>(60); // standard nice scale on typical desktop screens
   const [isExporting, setIsExporting] = useState<string | null>(null);
   const [isDownloadOpen, setIsDownloadOpen] = useState<boolean>(false);
+  const [isBackDownloadOpen, setIsBackDownloadOpen] = useState<boolean>(false);
   const [isShareOpen, setIsShareOpen] = useState<boolean>(false);
   const [isShareCopied, setIsShareCopied] = useState<boolean>(false);
 
@@ -367,6 +368,8 @@ export default function App() {
           studentUniversity: 'Khulna University',
           studentLocation: 'Khulna',
           submissionDate: '2026-05-10',
+          universityName: 'Khulna University',
+          departmentName: 'Environmental Science Discipline',
         });
         setCoverDesign(prev => ({
           ...prev,
@@ -395,6 +398,8 @@ export default function App() {
           studentUniversity: 'Khulna University',
           studentLocation: 'Khulna',
           submissionDate: '2026-05-25',
+          universityName: 'Khulna University',
+          departmentName: 'Environmental Science Discipline',
         });
         setCoverDesign(prev => ({
           ...prev,
@@ -423,6 +428,8 @@ export default function App() {
           studentUniversity: 'Khulna University',
           studentLocation: 'Khulna',
           submissionDate: '2026-06-15',
+          universityName: 'Khulna Science University',
+          departmentName: 'Computer Science and Engineering',
         });
         setCoverDesign(prev => ({
           ...prev,
@@ -545,11 +552,17 @@ export default function App() {
       includePageNumbers?: boolean;
       printBackgroundGraphics?: boolean;
       paperSize?: 'a4' | 'letter';
+      onlyBackPage?: boolean;
     }
   ) => {
     const element = document.getElementById('academic-cover-page');
+    const backElement = document.getElementById('academic-back-page');
     if (!element) {
       alert("Error: Canvas structure is missing.");
+      return;
+    }
+    if (options?.onlyBackPage && !backElement) {
+      alert("Error: Back Page is not enabled or missing.");
       return;
     }
 
@@ -566,11 +579,27 @@ export default function App() {
 
     setIsExporting(`Generating ${quality.toUpperCase()} Quality ${format.toUpperCase()}...`);
     
+    // Ensure all web fonts are fully loaded before rendering the canvas to achieve 100% visual fidelity
+    if (document.fonts && document.fonts.ready) {
+      try {
+        await document.fonts.ready;
+      } catch (fontErr) {
+        console.warn("Error waiting for document fonts to load:", fontErr);
+      }
+    }
+
     // Smooth timing delay for clean renders
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    const targetElement = options?.onlyBackPage ? backElement : element;
+    if (!targetElement) {
+      alert("Error: Target element is missing.");
+      setIsExporting(null);
+      return;
+    }
 
     // Stabilize DOM transforms on parent to prevent html2canvas clipping/misalignment
-    const parent = element.parentElement;
+    const parent = targetElement.parentElement;
     const grandParent = parent ? parent.parentElement : null;
     
     const originalTransform = parent ? parent.style.transform : '';
@@ -791,18 +820,27 @@ export default function App() {
             display: none !important;
           }
           /* Remove background patterns, grids, lines or frame gradients */
-          #academic-cover-page {
+          #academic-cover-page, #academic-back-page {
             background-image: none !important;
             background-color: #ffffff !important;
             background: #ffffff !important;
           }
         `;
         document.head.appendChild(noBgStyle);
-        if (element) {
-          originalPageBg = element.style.background;
-          element.style.background = '#ffffff';
-          element.style.backgroundColor = '#ffffff';
-          element.style.backgroundImage = 'none';
+        if (options?.onlyBackPage) {
+          if (backElement) {
+            originalPageBg = backElement.style.background;
+            backElement.style.background = '#ffffff';
+            backElement.style.backgroundColor = '#ffffff';
+            backElement.style.backgroundImage = 'none';
+          }
+        } else {
+          if (element) {
+            originalPageBg = element.style.background;
+            element.style.background = '#ffffff';
+            element.style.backgroundColor = '#ffffff';
+            element.style.backgroundImage = 'none';
+          }
         }
       }
 
@@ -817,48 +855,277 @@ export default function App() {
         scaleValue = 2.2;
       }
 
-      const canvas = await html2canvas(element, {
-        scale: scaleValue,
-        width: targetWidth,
-        height: targetHeight,
-        useCORS: true,
-        allowTaint: true,
-        logging: true,
-        backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
-      });
+      let canvas = null;
+      if (!options?.onlyBackPage) {
+        canvas = await html2canvas(element, {
+          scale: scaleValue,
+          width: targetWidth,
+          height: targetHeight,
+          useCORS: true,
+          allowTaint: true,
+          logging: true,
+          scrollX: 0,
+          scrollY: 0,
+          backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
+          onclone: (clonedDoc) => {
+            const clonedEl = clonedDoc.getElementById('academic-cover-page');
+            if (clonedEl) {
+              clonedEl.style.width = `${targetWidth}px`;
+              clonedEl.style.height = `${targetHeight}px`;
+              clonedEl.style.transform = 'none';
+              clonedEl.style.scale = '1';
+              
+              const p = clonedEl.parentElement;
+              if (p) {
+                p.style.width = `${targetWidth}px`;
+                p.style.height = `${targetHeight}px`;
+                p.style.transform = 'none';
+                p.style.scale = '1';
+                p.style.transformOrigin = 'top left';
+                p.style.position = 'absolute';
+                p.style.top = '0';
+                p.style.left = '0';
+                p.style.zoom = '1';
+                
+                const gp = p.parentElement;
+                if (gp) {
+                  gp.style.width = `${targetWidth}px`;
+                  gp.style.height = `${targetHeight}px`;
+                  gp.style.transform = 'none';
+                  gp.style.scale = '1';
+                }
+              }
+            }
+          }
+        });
+      }
+
+      let backCanvas = null;
+      if (options?.onlyBackPage) {
+        if (backElement) {
+          try {
+            backCanvas = await html2canvas(backElement, {
+              scale: scaleValue,
+              width: targetWidth,
+              height: targetHeight,
+              useCORS: true,
+              allowTaint: true,
+              logging: true,
+              scrollX: 0,
+              scrollY: 0,
+              backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
+              onclone: (clonedDoc) => {
+                const clonedEl = clonedDoc.getElementById('academic-back-page');
+                if (clonedEl) {
+                  clonedEl.style.width = `${targetWidth}px`;
+                  clonedEl.style.height = `${targetHeight}px`;
+                  clonedEl.style.transform = 'none';
+                  clonedEl.style.scale = '1';
+                  
+                  const p = clonedEl.parentElement;
+                  if (p) {
+                    p.style.width = `${targetWidth}px`;
+                    p.style.height = `${targetHeight}px`;
+                    p.style.transform = 'none';
+                    p.style.scale = '1';
+                    p.style.transformOrigin = 'top left';
+                    p.style.position = 'absolute';
+                    p.style.top = '0';
+                    p.style.left = '0';
+                    p.style.zoom = '1';
+                    
+                    const gp = p.parentElement;
+                    if (gp) {
+                      gp.style.width = `${targetWidth}px`;
+                      gp.style.height = `${targetHeight}px`;
+                      gp.style.transform = 'none';
+                      gp.style.scale = '1';
+                    }
+                  }
+                }
+              }
+            });
+          } catch (backErr) {
+            console.warn("Back cover canvas failed with CORS. Retrying with safe fallback...", backErr);
+            backCanvas = await html2canvas(backElement, {
+              scale: scaleValue,
+              width: targetWidth,
+              height: targetHeight,
+              useCORS: false,
+              allowTaint: false,
+              logging: false,
+              scrollX: 0,
+              scrollY: 0,
+              backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
+              onclone: (clonedDoc) => {
+                const clonedEl = clonedDoc.getElementById('academic-back-page');
+                if (clonedEl) {
+                  clonedEl.style.width = `${targetWidth}px`;
+                  clonedEl.style.height = `${targetHeight}px`;
+                  clonedEl.style.transform = 'none';
+                  clonedEl.style.scale = '1';
+                  
+                  const p = clonedEl.parentElement;
+                  if (p) {
+                    p.style.width = `${targetWidth}px`;
+                    p.style.height = `${targetHeight}px`;
+                    p.style.transform = 'none';
+                    p.style.scale = '1';
+                    p.style.transformOrigin = 'top left';
+                    p.style.position = 'absolute';
+                    p.style.top = '0';
+                    p.style.left = '0';
+                    p.style.zoom = '1';
+                    
+                    const gp = p.parentElement;
+                    if (gp) {
+                      gp.style.width = `${targetWidth}px`;
+                      gp.style.height = `${targetHeight}px`;
+                      gp.style.transform = 'none';
+                      gp.style.scale = '1';
+                    }
+                  }
+                }
+              }
+            });
+          }
+        }
+      }
 
       const cleanFileName = `${coverData?.courseNo || 'cover'}_${(coverData?.documentType || '').toLowerCase().replace(/[^a-z0-9]+/g, '_')}`
         .substring(0, 45);
 
       let imgData;
+      let backImgData;
+      const jpegQual = quality === 'low' ? 0.6 : quality === 'medium' ? 0.85 : 0.98;
+
       try {
         if (format === 'pdf') {
-          const jpegQual = quality === 'low' ? 0.6 : quality === 'medium' ? 0.85 : 0.98;
-          imgData = canvas.toDataURL('image/jpeg', jpegQual);
+          if (canvas) imgData = canvas.toDataURL('image/jpeg', jpegQual);
+          if (backCanvas) {
+            backImgData = backCanvas.toDataURL('image/jpeg', jpegQual);
+          }
         } else if (format === 'png') {
-          imgData = canvas.toDataURL('image/png');
+          if (canvas) imgData = canvas.toDataURL('image/png');
+          if (backCanvas) {
+            backImgData = backCanvas.toDataURL('image/png');
+          }
         } else {
-          const jpegQual = quality === 'low' ? 0.55 : quality === 'medium' ? 0.82 : 0.98;
-          imgData = canvas.toDataURL('image/jpeg', jpegQual);
+          if (canvas) imgData = canvas.toDataURL('image/jpeg', jpegQual);
+          if (backCanvas) {
+            backImgData = backCanvas.toDataURL('image/jpeg', jpegQual);
+          }
         }
       } catch (taintErr) {
-        console.warn("Canvas may be tainted by cross-origin images (e.g. custom logo/watermark). Re-rendering html2canvas safely to guarantee download completes...", taintErr);
-        // Fallback: Re-render without tainted useCORS/taint requirements
-        const fallbackCanvas = await html2canvas(element, {
-          scale: scaleValue,
-          width: targetWidth,
-          height: targetHeight,
-          useCORS: false,
-          allowTaint: false,
-          logging: false,
-          backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
-        });
+        console.warn("Canvas may be tainted by cross-origin images. Re-rendering html2canvas safely...", taintErr);
+        // Fallback: Re-render without CORS
+        let fallbackCanvas = null;
+        if (!options?.onlyBackPage) {
+          fallbackCanvas = await html2canvas(element, {
+            scale: scaleValue,
+            width: targetWidth,
+            height: targetHeight,
+            useCORS: false,
+            allowTaint: false,
+            logging: false,
+            scrollX: 0,
+            scrollY: 0,
+            backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
+            onclone: (clonedDoc) => {
+              const clonedEl = clonedDoc.getElementById('academic-cover-page');
+              if (clonedEl) {
+                clonedEl.style.width = `${targetWidth}px`;
+                clonedEl.style.height = `${targetHeight}px`;
+                clonedEl.style.transform = 'none';
+                clonedEl.style.scale = '1';
+                
+                const p = clonedEl.parentElement;
+                if (p) {
+                  p.style.width = `${targetWidth}px`;
+                  p.style.height = `${targetHeight}px`;
+                  p.style.transform = 'none';
+                  p.style.scale = '1';
+                  p.style.transformOrigin = 'top left';
+                  p.style.position = 'absolute';
+                  p.style.top = '0';
+                  p.style.left = '0';
+                  p.style.zoom = '1';
+                  
+                  const gp = p.parentElement;
+                  if (gp) {
+                    gp.style.width = `${targetWidth}px`;
+                    gp.style.height = `${targetHeight}px`;
+                    gp.style.transform = 'none';
+                    gp.style.scale = '1';
+                  }
+                }
+              }
+            }
+          });
+        }
+        
+        let fallbackBackCanvas = null;
+        if (options?.onlyBackPage) {
+          if (backElement) {
+            fallbackBackCanvas = await html2canvas(backElement, {
+              scale: scaleValue,
+              width: targetWidth,
+              height: targetHeight,
+              useCORS: false,
+              allowTaint: false,
+              logging: false,
+              scrollX: 0,
+              scrollY: 0,
+              backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
+              onclone: (clonedDoc) => {
+                const clonedEl = clonedDoc.getElementById('academic-back-page');
+                if (clonedEl) {
+                  clonedEl.style.width = `${targetWidth}px`;
+                  clonedEl.style.height = `${targetHeight}px`;
+                  clonedEl.style.transform = 'none';
+                  clonedEl.style.scale = '1';
+                  
+                  const p = clonedEl.parentElement;
+                  if (p) {
+                    p.style.width = `${targetWidth}px`;
+                    p.style.height = `${targetHeight}px`;
+                    p.style.transform = 'none';
+                    p.style.scale = '1';
+                    p.style.transformOrigin = 'top left';
+                    p.style.position = 'absolute';
+                    p.style.top = '0';
+                    p.style.left = '0';
+                    p.style.zoom = '1';
+                    
+                    const gp = p.parentElement;
+                    if (gp) {
+                      gp.style.width = `${targetWidth}px`;
+                      gp.style.height = `${targetHeight}px`;
+                      gp.style.transform = 'none';
+                      gp.style.scale = '1';
+                    }
+                  }
+                }
+              }
+            });
+          }
+        }
+
         if (format === 'pdf') {
-          imgData = fallbackCanvas.toDataURL('image/jpeg', 0.82);
+          if (fallbackCanvas) imgData = fallbackCanvas.toDataURL('image/jpeg', 0.82);
+          if (fallbackBackCanvas) {
+            backImgData = fallbackBackCanvas.toDataURL('image/jpeg', 0.82);
+          }
         } else if (format === 'png') {
-          imgData = fallbackCanvas.toDataURL('image/png');
+          if (fallbackCanvas) imgData = fallbackCanvas.toDataURL('image/png');
+          if (fallbackBackCanvas) {
+            backImgData = fallbackBackCanvas.toDataURL('image/png');
+          }
         } else {
-          imgData = fallbackCanvas.toDataURL('image/jpeg', 0.82);
+          if (fallbackCanvas) imgData = fallbackCanvas.toDataURL('image/jpeg', 0.82);
+          if (fallbackBackCanvas) {
+            backImgData = fallbackBackCanvas.toDataURL('image/jpeg', 0.82);
+          }
         }
       }
 
@@ -878,33 +1145,65 @@ export default function App() {
 
         // Set PDF metadata properties
         doc.setProperties({
-          title: coverData.topicTitle || 'Academic Cover Page',
+          title: (options?.onlyBackPage ? 'Back Cover ' : '') + (coverData.topicTitle || 'Academic Cover Page'),
           subject: coverData.courseName ? `${coverData.courseName} (${coverData.courseNo || ''})` : coverData.documentType || 'Cover Page',
           author: coverData.studentName || 'Student',
           creator: coverData.studentUniversity || 'Academic Cover Page Designer',
           keywords: `academic, coverpage, ${coverData.documentType.toLowerCase()}, ${coverData.courseNo?.toLowerCase()}`
         });
 
-        doc.addImage(imgData, 'JPEG', 0, 0, docWidth, docHeight, undefined, 'FAST');
+        if (options?.onlyBackPage) {
+          if (backImgData) {
+            doc.addImage(backImgData, 'JPEG', 0, 0, docWidth, docHeight, undefined, 'FAST');
+            if (includePageNumbers) {
+              doc.setFontSize(9);
+              doc.setTextColor(148, 163, 184); // slate-400
+              doc.text("Page 1", docWidth / 2, docHeight - 12, { align: 'center' });
+            }
+          }
+          doc.save(`${cleanFileName}_back_cover.pdf`);
+        } else {
+          if (imgData) {
+            doc.addImage(imgData, 'JPEG', 0, 0, docWidth, docHeight, undefined, 'FAST');
+          }
 
-        // Draw elegant page numbering if requested
-        if (includePageNumbers) {
-          doc.setFontSize(9);
-          doc.setTextColor(148, 163, 184); // slate-400
-          doc.text("Page 1", docWidth / 2, docHeight - 12, { align: 'center' });
+          // Draw elegant page numbering if requested
+          if (includePageNumbers) {
+            doc.setFontSize(9);
+            doc.setTextColor(148, 163, 184); // slate-400
+            doc.text("Page 1", docWidth / 2, docHeight - 12, { align: 'center' });
+          }
+
+          doc.save(`${cleanFileName}_cover.pdf`);
         }
-
-        doc.save(`${cleanFileName}_cover.pdf`);
       } else if (format === 'png') {
-        const trigger = document.createElement('a');
-        trigger.href = imgData;
-        trigger.download = `${cleanFileName}_${quality}_cover.png`;
-        trigger.click();
+        if (options?.onlyBackPage) {
+          if (backImgData) {
+            const trigger = document.createElement('a');
+            trigger.href = backImgData;
+            trigger.download = `${cleanFileName}_${quality}_back_cover.png`;
+            trigger.click();
+          }
+        } else {
+          const trigger = document.createElement('a');
+          if (imgData) trigger.href = imgData;
+          trigger.download = `${cleanFileName}_${quality}_front_cover.png`;
+          trigger.click();
+        }
       } else if (format === 'jpg') {
-        const trigger = document.createElement('a');
-        trigger.href = imgData;
-        trigger.download = `${cleanFileName}_${quality}_cover.jpg`;
-        trigger.click();
+        if (options?.onlyBackPage) {
+          if (backImgData) {
+            const trigger = document.createElement('a');
+            trigger.href = backImgData;
+            trigger.download = `${cleanFileName}_${quality}_back_cover.jpg`;
+            trigger.click();
+          }
+        } else {
+          const trigger = document.createElement('a');
+          if (imgData) trigger.href = imgData;
+          trigger.download = `${cleanFileName}_${quality}_front_cover.jpg`;
+          trigger.click();
+        }
       }
     } catch (err: any) {
       console.error("Compilation / rendering layout failed: ", err);
@@ -926,8 +1225,16 @@ export default function App() {
       }
 
       // Restore page background style
-      if (!printBackgroundGraphics && element) {
-        element.style.background = originalPageBg;
+      if (!printBackgroundGraphics) {
+        if (options?.onlyBackPage) {
+          if (backElement) {
+            backElement.style.background = originalPageBg;
+          }
+        } else {
+          if (element) {
+            element.style.background = originalPageBg;
+          }
+        }
       }
 
       // Cleanup background suppression style
@@ -967,17 +1274,18 @@ export default function App() {
       includePageNumbers?: boolean;
       printBackgroundGraphics?: boolean;
       paperSize?: 'a4' | 'letter';
+      onlyBackPage?: boolean;
     }
   ) => {
     await executeExport('pdf', quality, options);
   };
 
-  const handleDownloadJPG = async (quality: 'low' | 'medium' | 'high' = 'high') => {
-    await executeExport('jpg', quality);
+  const handleDownloadJPG = async (quality: 'low' | 'medium' | 'high' = 'high', options?: { onlyBackPage?: boolean }) => {
+    await executeExport('jpg', quality, options);
   };
 
-  const handleDownloadPNG = async (quality: 'low' | 'medium' | 'high' = 'high') => {
-    await executeExport('png', quality);
+  const handleDownloadPNG = async (quality: 'low' | 'medium' | 'high' = 'high', options?: { onlyBackPage?: boolean }) => {
+    await executeExport('png', quality, options);
   };
 
 
@@ -1345,11 +1653,12 @@ export default function App() {
             } ${
               theme === 'dark' ? 'bg-[#030407]' : 'bg-slate-50'
             }`}>
-              
-              {/* Floating controls */}
-              <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between pointer-events-none">
-                <div className={`flex items-center space-x-1 px-2.5 py-1.5 backdrop-blur border rounded-lg pointer-events-auto shadow-xl select-none transition-colors duration-300 ${
-                  theme === 'dark' ? 'bg-[#090b12]/90 border-slate-800' : 'bg-white/95 border-slate-200/90'
+                         {/* Top toolbar header with zoom and download buttons */}
+              <div className={`shrink-0 z-20 flex flex-row flex-wrap gap-3 items-center justify-between p-3.5 border-b transition-colors duration-300 ${
+                theme === 'dark' ? 'bg-[#040508] border-slate-850' : 'bg-slate-50 border-slate-200/60'
+              }`}>
+                <div className={`flex items-center space-x-1 px-2.5 py-1.5 backdrop-blur border rounded-lg shadow-sm select-none transition-colors duration-300 ${
+                  theme === 'dark' ? 'bg-[#090b12]/95 border-slate-800' : 'bg-white border-slate-200/90'
                 }`}>
                   <button 
                     onClick={() => setZoomLevel(prev => Math.max(35, prev - 5))}
@@ -1379,202 +1688,23 @@ export default function App() {
                   </button>
                 </div>
 
-                <div className={`flex items-center space-x-1.5 backdrop-blur border p-1 rounded-lg pointer-events-auto shadow-xl transition-colors duration-300 ${
-                  theme === 'dark' ? 'bg-[#090b12]/90 border-slate-800' : 'bg-white/95 border-slate-200/90'
+                <div className={`flex flex-row items-center gap-1.5 sm:gap-2 backdrop-blur border p-1 rounded-lg shadow-sm transition-colors duration-300 w-full sm:w-auto justify-between sm:justify-end ${
+                  theme === 'dark' ? 'bg-[#090b12]/95 border-slate-800' : 'bg-white border-slate-200/90'
                 }`}>
                   
-                  {/* Elegant Share to Social Media Dropdown */}
-                  <div 
-                    className="dropdown relative"
-                    onMouseLeave={() => {
-                      setIsShareOpen(false);
-                      setIsShareCopied(false);
-                    }}
-                  >
-                    <button 
-                      onClick={() => setIsShareOpen(p => !p)}
-                      className={`relative px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center transition-all cursor-pointer ${
-                        theme === 'dark' 
-                          ? 'bg-transparent text-slate-300 hover:text-white hover:bg-slate-800/60' 
-                          : 'bg-transparent text-slate-700 hover:text-slate-900 hover:bg-slate-50'
-                      }`}
-                    >
-                      <Share2 className={`w-3.5 h-3.5 mr-2 ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-600'}`} />
-                      <span>Share</span>
-                    </button>
-
-                    <div className={`absolute right-[-40px] md:right-0 top-full mt-2 w-72 rounded-2xl shadow-2xl py-3 animate-fadeIn z-20 ${
-                      isShareOpen ? 'opacity-100 pointer-events-auto scale-100 translate-y-0' : 'opacity-0 pointer-events-none scale-95 -translate-y-2'
-                    } ${
-                      theme === 'dark' ? 'bg-[#090b11] border border-slate-850 shadow-[0_12px_40px_rgba(0,0,0,0.6)]' : 'bg-white border border-slate-200/80 shadow-[0_12px_40px_rgba(0,0,0,0.1)]'
-                    }`} style={{ transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}>
-                      <div className="px-3.5 pb-2.5 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between">
-                        <span className="text-[10px] font-mono font-black uppercase text-slate-400">Share design</span>
-                        <span className="px-1.5 py-0.5 rounded text-[8px] font-mono bg-indigo-500/10 text-indigo-500 font-extrabold uppercase">Live URL</span>
-                      </div>
-
-                      {/* --- COPY DIRECT URL STATE --- */}
-                      <div className="p-3.5 border-b border-slate-100 dark:border-slate-800/60 text-left">
-                        <span className="text-[9px] uppercase font-mono tracking-wider text-slate-400 block mb-2">Direct Shared Link</span>
-                        <div className="flex space-x-2">
-                          <input 
-                            type="text"
-                            readOnly
-                            value={(() => {
-                              const b64Str = encodeSharedState(coverData, coverDesign, pageBackgroundColor);
-                              return b64Str ? `${window.location.origin}${window.location.pathname}?share=${b64Str}` : window.location.href;
-                            })()}
-                            className={`flex-1 text-[10px] font-mono p-1.5 px-2.5 rounded-lg border focus:outline-none select-all ${
-                              theme === 'dark' ? 'bg-[#05070a] border-slate-800 text-slate-350' : 'bg-slate-50 border-slate-200 text-slate-600'
-                            }`}
-                          />
-                          <button
-                            onClick={() => {
-                              const b64Str = encodeSharedState(coverData, coverDesign, pageBackgroundColor);
-                              const fullUrl = b64Str ? `${window.location.origin}${window.location.pathname}?share=${b64Str}` : window.location.href;
-                              navigator.clipboard.writeText(fullUrl);
-                              setIsShareCopied(true);
-                              setTimeout(() => setIsShareCopied(false), 2000);
-                            }}
-                            className={`p-2 rounded-lg transition-transform hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center shrink-0 ${
-                              isShareCopied 
-                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
-                                : theme === 'dark' ? 'bg-indigo-650 hover:bg-indigo-600 text-white' : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                            }`}
-                            title="Copy link to clipboard"
-                          >
-                            {isShareCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* --- SOCIAL MEDIA ROW --- */}
-                      <div className="p-3 px-3.5 grid grid-cols-4 gap-2">
-                        
-                        {/* Twitter/X */}
-                        <button
-                          onClick={() => {
-                            const b64Str = encodeSharedState(coverData, coverDesign, pageBackgroundColor);
-                            const fullUrl = b64Str ? `${window.location.origin}${window.location.pathname}?share=${b64Str}` : window.location.href;
-                            const text = `Take a look at the assignment cover page I designed for "${coverData.topicTitle || 'my course'}"! Built on CoverGen:`;
-                            window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(fullUrl)}&text=${encodeURIComponent(text)}`, '_blank');
-                          }}
-                          className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all hover:scale-105 cursor-pointer border ${
-                            theme === 'dark' 
-                              ? 'bg-slate-900/60 border-slate-850 hover:bg-slate-850 hover:border-slate-800 text-slate-300 hover:text-white' 
-                              : 'bg-slate-50 border-slate-150 hover:bg-slate-100/80 text-slate-650 hover:text-slate-900'
-                          }`}
-                        >
-                          {/* Sleek Minimalist X Icon svg */}
-                          <svg className="w-4 h-4 mb-1 fill-current" viewBox="0 0 24 24">
-                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                          </svg>
-                          <span className="text-[8px] font-bold tracking-wide">X (Twitter)</span>
-                        </button>
-
-                        {/* LinkedIn */}
-                        <button
-                          onClick={() => {
-                            const b64Str = encodeSharedState(coverData, coverDesign, pageBackgroundColor);
-                            const fullUrl = b64Str ? `${window.location.origin}${window.location.pathname}?share=${b64Str}` : window.location.href;
-                            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(fullUrl)}`, '_blank');
-                          }}
-                          className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all hover:scale-105 cursor-pointer border ${
-                            theme === 'dark' 
-                              ? 'bg-slate-900/60 border-slate-850 hover:bg-slate-850 hover:border-slate-800 text-slate-300 hover:text-white' 
-                              : 'bg-slate-50 border-slate-150 hover:bg-slate-100/80 text-slate-650 hover:text-slate-900'
-                          }`}
-                        >
-                          <svg className="w-4 h-4 mb-1 fill-current text-[#0077b5]" viewBox="0 0 24 24">
-                            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-                          </svg>
-                          <span className="text-[8px] font-bold tracking-wide">LinkedIn</span>
-                        </button>
-
-                        {/* Facebook */}
-                        <button
-                          onClick={() => {
-                            const b64Str = encodeSharedState(coverData, coverDesign, pageBackgroundColor);
-                            const fullUrl = b64Str ? `${window.location.origin}${window.location.pathname}?share=${b64Str}` : window.location.href;
-                            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fullUrl)}`, '_blank');
-                          }}
-                          className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all hover:scale-105 cursor-pointer border ${
-                            theme === 'dark' 
-                              ? 'bg-slate-900/60 border-slate-850 hover:bg-slate-850 hover:border-slate-800 text-slate-300 hover:text-white' 
-                              : 'bg-slate-50 border-slate-150 hover:bg-slate-100/80 text-slate-650 hover:text-slate-900'
-                          }`}
-                        >
-                          <svg className="w-4 h-4 mb-1 fill-current text-[#1877f2]" viewBox="0 0 24 24">
-                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                          </svg>
-                          <span className="text-[8px] font-bold tracking-wide">Facebook</span>
-                        </button>
-
-                        {/* WhatsApp */}
-                        <button
-                          onClick={() => {
-                            const b64Str = encodeSharedState(coverData, coverDesign, pageBackgroundColor);
-                            const fullUrl = b64Str ? `${window.location.origin}${window.location.pathname}?share=${b64Str}` : window.location.href;
-                            const text = `Hey, look at my cover page design: "${coverData.topicTitle || 'My Cover Page'}" on CoverGen!`;
-                            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}%20${encodeURIComponent(fullUrl)}`, '_blank');
-                          }}
-                          className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all hover:scale-105 cursor-pointer border ${
-                            theme === 'dark' 
-                              ? 'bg-slate-900/60 border-slate-850 hover:bg-slate-850 hover:border-slate-800 text-slate-300 hover:text-white' 
-                              : 'bg-slate-50 border-slate-150 hover:bg-slate-100/80 text-slate-650 hover:text-slate-900'
-                          }`}
-                        >
-                          <svg className="w-4 h-4 mb-1 fill-current text-[#25d366]" viewBox="0 0 24 24">
-                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.717-1.455L0 24zm6.49-4.23c1.61.957 3.197 1.48 4.903 1.481 5.4 0 9.791-4.385 9.794-9.789.002-2.589-1.002-5.023-2.827-6.849-1.826-1.825-4.262-2.828-6.852-2.829-5.395 0-9.786 4.386-9.79 9.79-.001 1.77.469 3.493 1.365 5.011l-.999 3.648 3.733-.949z"/>
-                          </svg>
-                          <span className="text-[8px] font-bold tracking-wide">WhatsApp</span>
-                        </button>
-
-                      </div>
-
-                      {/* Web Share API integration if supported */}
-                      {typeof navigator !== 'undefined' && navigator.share && (
-                        <div className="pt-1.5 px-3.5 border-t border-slate-105 dark:border-slate-800/40">
-                          <button
-                            onClick={async () => {
-                              const b64Str = encodeSharedState(coverData, coverDesign, pageBackgroundColor);
-                              const fullUrl = b64Str ? `${window.location.origin}${window.location.pathname}?share=${b64Str}` : window.location.href;
-                              try {
-                                await navigator.share({
-                                  title: 'Assignment Cover Page Generator',
-                                  text: `Check out my cover page design: "${coverData.topicTitle || 'Academic Report'}"!`,
-                                  url: fullUrl
-                                });
-                              } catch (e) {
-                                console.log("User cancelled Web Share", e);
-                              }
-                            }}
-                            className="w-full py-1.5 rounded-lg text-[9px] font-mono font-black uppercase bg-indigo-500/10 text-indigo-500 hover:bg-slate-50 hover:text-indigo-600 dark:hover:bg-slate-900 transition-colors cursor-pointer text-center"
-                          >
-                            Use System Share Menu
-                          </button>
-                        </div>
-                      )}
-
-                    </div>
-                  </div>
-
-                  {/* Clean vertical divider inside controlling panel */}
-                  <div className={`h-6 w-[1.5px] shrink-0 self-center ${theme === 'dark' ? 'bg-[#182033]' : 'bg-slate-205'}`} />
-
                   <div 
                     className="dropdown relative"
                     onMouseLeave={() => setIsDownloadOpen(false)}
                   >
                     <button 
                       onClick={() => setIsDownloadOpen(p => !p)}
-                      className="relative p-[1.5px] rounded-lg overflow-hidden flex items-center justify-center bg-transparent cursor-pointer transition-all active:scale-[0.98] group/btn"
+                      className="relative p-[1.5px] rounded-lg overflow-hidden flex items-center justify-center bg-transparent cursor-pointer transition-all active:scale-[0.98] group/btn w-full sm:w-auto"
                     >
                       {/* Animated rotating high fidelity neon border outline */}
                       <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-emerald-500 via-[#a7f3d0] to-teal-600 opacity-100 animate-[spin_3.5s_linear_infinite]" />
                       
                       {/* Button content face mask */}
-                      <div className={`relative px-4 py-2 hover:bg-[#030406] rounded-[7px] text-xs font-bold flex items-center transition-all ${
+                      <div className={`relative px-2.5 sm:px-4 py-1.5 sm:py-2 hover:bg-[#030406] rounded-[7px] text-[10px] sm:text-xs font-bold flex items-center transition-all w-full justify-center ${
                         theme === 'dark' ? 'bg-[#090b12] text-slate-200 hover:text-white' : 'bg-slate-900 text-white hover:text-slate-100'
                       }`}>
                         {/* Interactive jumping/rising micro-animation */}
@@ -1587,11 +1717,20 @@ export default function App() {
                             repeat: Infinity,
                             ease: "easeInOut"
                           }}
-                          className="mr-2 text-emerald-400"
+                          className="mr-1.5 sm:mr-2 text-emerald-400 shrink-0"
                         >
                           <Download className="w-3.5 h-3.5" />
                         </motion.div>
-                        <span className="bg-gradient-to-r from-emerald-400 to-teal-200 bg-clip-text text-transparent font-black tracking-wide">Download Copy</span>
+                        <span className="bg-gradient-to-r from-emerald-400 to-teal-200 bg-clip-text text-transparent font-black tracking-wide shrink-0">
+                          {coverDesign.backPageEnabled ? (
+                            <>
+                              <span className="inline sm:hidden">Download Front</span>
+                              <span className="hidden sm:inline">Download Front Cover</span>
+                            </>
+                          ) : (
+                            "Download Copy"
+                          )}
+                        </span>
                       </div>
                     </button>
                     <div className={`absolute right-0 top-full mt-2 w-72 rounded-2xl shadow-2xl py-3 animate-fadeIn z-20 ${
@@ -1767,6 +1906,208 @@ export default function App() {
                       </div>
                     </div>
                   </div>
+
+                  {coverDesign.backPageEnabled && (
+                    <div 
+                      className="dropdown relative"
+                      onMouseLeave={() => setIsBackDownloadOpen(false)}
+                    >
+                      <button 
+                        onClick={() => setIsBackDownloadOpen(p => !p)}
+                        className="relative p-[1.5px] rounded-lg overflow-hidden flex items-center justify-center bg-transparent cursor-pointer transition-all active:scale-[0.98] group/btn w-full sm:w-auto"
+                      >
+                        {/* Animated rotating high fidelity neon border outline (distinct color scheme for Back Page) */}
+                        <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-500 via-[#93c5fd] to-indigo-600 opacity-100 animate-[spin_3.5s_linear_infinite]" />
+                        
+                        {/* Button content face mask */}
+                        <div className={`relative px-2.5 sm:px-4 py-1.5 sm:py-2 hover:bg-[#030406] rounded-[7px] text-[10px] sm:text-xs font-bold flex items-center transition-all w-full justify-center ${
+                          theme === 'dark' ? 'bg-[#090b12] text-slate-200 hover:text-white' : 'bg-slate-900 text-white hover:text-slate-100'
+                        }`}>
+                          {/* Interactive jumping/rising micro-animation */}
+                          <motion.div
+                            animate={{
+                              y: [0, -4, 1, 0]
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                            className="mr-1.5 sm:mr-2 text-blue-400 shrink-0"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                          </motion.div>
+                          <span className="bg-gradient-to-r from-blue-400 to-indigo-200 bg-clip-text text-transparent font-black tracking-wide font-sans shrink-0">
+                            <span className="inline sm:hidden">Download Back</span>
+                            <span className="hidden sm:inline">Download Back Page</span>
+                          </span>
+                        </div>
+                      </button>
+                      <div className={`absolute right-0 top-full mt-2 w-72 rounded-2xl shadow-2xl py-3 animate-fadeIn z-20 ${
+                        isBackDownloadOpen ? 'opacity-100 pointer-events-auto scale-100 translate-y-0' : 'opacity-0 pointer-events-none scale-95 -translate-y-2 origin-top-right'
+                      } ${
+                        theme === 'dark' ? 'bg-[#090b11] border border-slate-850 shadow-[0_12px_40px_rgba(0,0,0,0.6)]' : 'bg-white border border-slate-200/80 shadow-[0_12px_40px_rgba(0,0,0,0.1)]'
+                      }`}>
+                        <div className="px-3.5 pb-2.5 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between">
+                          <span className="text-[10px] font-mono font-black uppercase text-slate-400">Export Back Page</span>
+                          <span className="px-1.5 py-0.5 rounded text-[8px] font-mono bg-blue-500/10 text-blue-500 font-extrabold uppercase">Back Only</span>
+                        </div>
+
+                        {/* --- VECTOR PDF SECTION FOR BACK PAGE --- */}
+                        <div className="p-3.5 border-b border-slate-100 dark:border-slate-800/60 text-left">
+                          <div className="flex items-center space-x-2.5 mb-2.5">
+                            <div className="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center shrink-0">
+                              <FileText className="w-3.5 h-3.5" />
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-[11px] font-extrabold tracking-wide uppercase">Vector PDF Back Page</span>
+                              <span className="text-[9px] text-slate-500 dark:text-slate-400">Page size & single-page layout</span>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-3 gap-1.5">
+                            <button
+                              onClick={async () => {
+                                setIsBackDownloadOpen(false);
+                                await handleDownloadPDF('low', {
+                                  includePageNumbers: pdfIncludePageNumbers,
+                                  printBackgroundGraphics: pdfPrintBackground,
+                                  paperSize: pdfPaperSize,
+                                  onlyBackPage: true
+                                });
+                              }}
+                              className={`py-1 rounded text-[9px] font-mono font-bold uppercase transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer ${
+                                theme === 'dark' ? 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-400' : 'bg-rose-50 hover:bg-rose-100 text-rose-600'
+                              }`}
+                            >
+                              Low
+                            </button>
+                            <button
+                              onClick={async () => {
+                                setIsBackDownloadOpen(false);
+                                await handleDownloadPDF('medium', {
+                                  includePageNumbers: pdfIncludePageNumbers,
+                                  printBackgroundGraphics: pdfPrintBackground,
+                                  paperSize: pdfPaperSize,
+                                  onlyBackPage: true
+                                });
+                              }}
+                              className={`py-1 rounded text-[9px] font-mono font-bold uppercase transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer ${
+                                theme === 'dark' ? 'bg-rose-500/20 hover:bg-rose-500/35 text-rose-300' : 'bg-rose-100 hover:bg-rose-200 text-rose-700'
+                              }`}
+                            >
+                              Med
+                            </button>
+                            <button
+                              onClick={async () => {
+                                setIsBackDownloadOpen(false);
+                                await handleDownloadPDF('high', {
+                                  includePageNumbers: pdfIncludePageNumbers,
+                                  printBackgroundGraphics: pdfPrintBackground,
+                                  paperSize: pdfPaperSize,
+                                  onlyBackPage: true
+                                });
+                              }}
+                              className="py-1 rounded text-[9px] font-mono font-extrabold uppercase bg-rose-600 hover:bg-rose-550 text-white transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer"
+                            >
+                              High
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* --- PNG SECTION FOR BACK PAGE --- */}
+                        <div className="p-3.5 border-b border-slate-100 dark:border-slate-800/60">
+                          <div className="flex items-center space-x-2.5 mb-2.5">
+                            <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0">
+                              <Image className="w-3.5 h-3.5" />
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-[11px] font-extrabold tracking-wide uppercase">Lossless PNG Back Page</span>
+                              <span className="text-[9px] text-slate-500 dark:text-slate-400">Crisp, single back cover image</span>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-3 gap-1.5">
+                            <button
+                              onClick={() => {
+                                setIsBackDownloadOpen(false);
+                                handleDownloadPNG('low', { onlyBackPage: true });
+                              }}
+                              className={`py-1 rounded text-[9px] font-mono font-bold uppercase transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer ${
+                                theme === 'dark' ? 'bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400' : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-600'
+                              }`}
+                            >
+                              Low
+                            </button>
+                            <button
+                              onClick={() => {
+                                setIsBackDownloadOpen(false);
+                                handleDownloadPNG('medium', { onlyBackPage: true });
+                              }}
+                              className={`py-1 rounded text-[9px] font-mono font-bold uppercase transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer ${
+                                theme === 'dark' ? 'bg-indigo-500/20 hover:bg-indigo-500/35 text-indigo-300' : 'bg-indigo-100 hover:bg-indigo-200 text-indigo-700'
+                              }`}
+                            >
+                              Med
+                            </button>
+                            <button
+                              onClick={() => {
+                                setIsBackDownloadOpen(false);
+                                handleDownloadPNG('high', { onlyBackPage: true });
+                              }}
+                              className="py-1 rounded text-[9px] font-mono font-extrabold uppercase bg-indigo-600 hover:bg-indigo-550 text-white transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer"
+                            >
+                              High
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* --- JPG SECTION FOR BACK PAGE --- */}
+                        <div className="p-3.5">
+                          <div className="flex items-center space-x-2.5 mb-2.5">
+                            <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                              <FileImage className="w-3.5 h-3.5" />
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-[11px] font-extrabold tracking-wide uppercase">Compressed JPG Back Page</span>
+                              <span className="text-[9px] text-slate-500 dark:text-slate-400">Efficient, single back cover layout</span>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-3 gap-1.5">
+                            <button
+                              onClick={() => {
+                                setIsBackDownloadOpen(false);
+                                handleDownloadJPG('low', { onlyBackPage: true });
+                              }}
+                              className={`py-1 rounded text-[9px] font-mono font-bold uppercase transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer ${
+                                theme === 'dark' ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600'
+                              }`}
+                            >
+                              Low
+                            </button>
+                            <button
+                              onClick={() => {
+                                setIsBackDownloadOpen(false);
+                                handleDownloadJPG('medium', { onlyBackPage: true });
+                              }}
+                              className={`py-1 rounded text-[9px] font-mono font-bold uppercase transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer ${
+                                theme === 'dark' ? 'bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-300' : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-700'
+                              }`}
+                            >
+                              Med
+                            </button>
+                            <button
+                              onClick={() => {
+                                setIsBackDownloadOpen(false);
+                                handleDownloadJPG('high', { onlyBackPage: true });
+                              }}
+                              className="py-1 rounded text-[9px] font-mono font-extrabold uppercase bg-emerald-650 hover:bg-emerald-600 text-white transition-all hover:scale-[1.03] active:scale-[0.97] cursor-pointer"
+                            >
+                              High
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 

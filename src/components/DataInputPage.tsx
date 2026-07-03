@@ -289,6 +289,59 @@ export function DataInputPage({
           </div>
         </div>
 
+        {/* CARD UNINDEXED 2.5: UNIVERSITY & DISCIPLINE (TOP HEADER) */}
+        <div className={`p-5 md:p-6 rounded-2xl space-y-4 ${cardClass}`}>
+          <div className="flex items-center space-x-2">
+            <span className="inline-block w-2.5 h-2.5 bg-violet-500 rounded-full shadow-[0_0_8px_rgba(139,92,246,0.6)] animate-pulse" />
+            <span className="text-[10px] font-mono font-extrabold text-[#8b5cf6] dark:text-violet-400 uppercase tracking-widest">
+              Top Header Details
+            </span>
+          </div>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label className={`block text-[9px] font-mono font-extrabold uppercase tracking-widest leading-none ${isDark ? "text-violet-400" : "text-violet-600"}`}>
+                University Name
+              </label>
+              <input
+                type="text"
+                value={coverData.universityName || ''}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setCoverData(prev => ({
+                    ...prev,
+                    universityName: val,
+                    teacherUniversity: val || prev.teacherUniversity,
+                    studentUniversity: val || prev.studentUniversity,
+                  }));
+                }}
+                placeholder="e.g. Khulna University"
+                className={`px-3.5 py-3 text-[12px] font-semibold ${inputClass}`}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className={`block text-[9px] font-mono font-extrabold uppercase tracking-widest leading-none ${isDark ? "text-violet-400" : "text-violet-600"}`}>
+                Discipline / Department
+              </label>
+              <input
+                type="text"
+                value={coverData.departmentName || ''}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setCoverData(prev => ({
+                    ...prev,
+                    departmentName: val,
+                    teacherDiscipline: val || prev.teacherDiscipline,
+                    studentDiscipline: val || prev.studentDiscipline,
+                  }));
+                }}
+                placeholder="e.g. Environmental Science Discipline"
+                className={`px-3.5 py-3 text-[12px] font-semibold ${inputClass}`}
+              />
+            </div>
+          </div>
+        </div>
+
         {/* STEP CARD 1: COURSE DETAILS */}
         <div className={`p-5 md:p-6 rounded-2xl space-y-5 ${cardClass}`}>
           <div className="flex items-center space-x-2.5">

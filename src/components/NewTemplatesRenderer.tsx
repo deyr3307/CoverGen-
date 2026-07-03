@@ -68,6 +68,7 @@ const resolveStyle = (
   const italic = fontConfig?.italic !== undefined ? fontConfig.italic : (parentConfig?.italic !== undefined ? parentConfig.italic : fallbackBase.italic);
   const uppercase = fontConfig?.uppercase !== undefined ? fontConfig.uppercase : (parentConfig?.uppercase !== undefined ? parentConfig.uppercase : fallbackBase.uppercase);
   const align = fontConfig?.align || parentConfig?.align || fallbackBase.align || 'center';
+  const lineHeight = fontConfig?.lineHeight || parentConfig?.lineHeight || '1.45';
 
   return {
     fontFamily: family,
@@ -77,6 +78,7 @@ const resolveStyle = (
     fontStyle: italic ? 'italic' : 'normal',
     textTransform: uppercase ? 'uppercase' : 'none',
     textAlign: align as any,
+    lineHeight: lineHeight,
     ...extraStyles
   };
 };
@@ -109,42 +111,46 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
               />
             </div>
           )}
-          <DraggableBlock elementId="universityHeader" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full">
-            <div className="flex flex-col items-center">
-              <span 
-                className="pb-1 px-4 text-center block"
-                style={resolveStyle(design.fontUniversity, {
-                  fontFamily: fontFamily || 'Georgia, serif',
-                  fontSize: 22,
-                  color: fontColor || '#1e3a8a',
-                  bold: true,
-                  italic: false,
-                  uppercase: true,
-                  align: 'center'
-                }, {
-                  borderBottom: `2px solid ${design.fontUniversity?.color || design.fontTitle?.color || '#f59e0b'}`
-                })}
-              >
-                {data.universityName || data.teacherUniversity || 'KHULNA UNIVERSITY'}
-              </span>
-              {data.departmentName && (
-                <span 
-                  className="mt-2 text-center block"
-                  style={resolveStyle(design.fontDiscipline || design.fontSubSection, {
-                    fontFamily: fontFamily || 'Georgia, serif',
-                    fontSize: 11,
-                    color: fontColor || '#1e3a8a',
-                    bold: false,
-                    italic: true,
-                    uppercase: false,
-                    align: 'center'
-                  }, { opacity: 0.85 })}
-                >
-                  {data.departmentName}
-                </span>
-              )}
-            </div>
-          </DraggableBlock>
+          {design.showTopHeader !== false && (
+            <DraggableBlock elementId="universityHeader" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full">
+              <div className="flex flex-col items-center">
+                {data.universityName && (
+                  <span 
+                    className="pb-1 px-4 text-center block"
+                    style={resolveStyle(design.fontUniversity, {
+                      fontFamily: fontFamily || 'Georgia, serif',
+                      fontSize: 22,
+                      color: fontColor || '#1e3a8a',
+                      bold: true,
+                      italic: false,
+                      uppercase: true,
+                      align: 'center'
+                    }, {
+                      borderBottom: `2px solid ${design.fontUniversity?.color || design.fontTitle?.color || '#f59e0b'}`
+                    })}
+                  >
+                    {data.universityName}
+                  </span>
+                )}
+                {data.departmentName && (
+                  <span 
+                    className="mt-2 text-center block"
+                    style={resolveStyle(design.fontDiscipline || design.fontSubSection, {
+                      fontFamily: fontFamily || 'Georgia, serif',
+                      fontSize: 11,
+                      color: fontColor || '#1e3a8a',
+                      bold: false,
+                      italic: true,
+                      uppercase: false,
+                      align: 'center'
+                    }, { opacity: 0.85 })}
+                  >
+                    {data.departmentName}
+                  </span>
+                )}
+              </div>
+            </DraggableBlock>
+          )}
         </div>
 
         {/* Course Title and Code */}
@@ -242,9 +248,9 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
           <DraggableBlock elementId="submissionsBlock" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full">
             <div className="grid grid-cols-2 gap-8 w-full text-left">
               {/* Left Column: Submitted To */}
-              <div className="border border-slate-300 rounded-lg overflow-hidden bg-slate-50/20 shadow-sm flex flex-col text-left">
+              <div className="border border-slate-300 rounded-lg bg-slate-50/20 shadow-sm flex flex-col text-left h-auto gap-1">
                 <div 
-                  className="px-4 py-2.5 tracking-wider text-white w-full text-left"
+                  className="px-4 py-2.5 tracking-wider text-white w-full text-left rounded-t-md"
                   style={resolveStyle(design.fontSubmittedToHeading, { 
                     fontFamily: fontFamily || 'Georgia, serif',
                     fontSize: 12,
@@ -258,28 +264,48 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                   {data.submittedToLabel || 'SUBMITTED TO'}
                 </div>
                 <div 
-                  className="p-4 space-y-2 leading-relaxed text-left w-full"
-                  style={resolveStyle(design.fontSubmittedToContent, {
-                    fontFamily: fontFamily || 'Georgia, serif',
-                    fontSize: 11.5,
-                    color: fontColor || '#000000',
-                    bold: false,
-                    italic: false,
-                    uppercase: false,
-                    align: 'left'
-                  }, {}, design.fontSubSection)}
+                  className="p-4 space-y-1.5 text-left w-full h-auto flex flex-col gap-1"
+                  style={{
+                    ...resolveStyle(design.fontSubmittedToContent, {
+                      fontFamily: fontFamily || 'Georgia, serif',
+                      fontSize: 11.5,
+                      color: fontColor || '#000000',
+                      bold: false,
+                      italic: false,
+                      uppercase: false,
+                      align: 'left'
+                    }, {}, design.fontSubSection),
+                    fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                  }}
                 >
-                  <div className="text-left" style={{ fontWeight: (design.fontSubmittedToContent?.bold !== undefined ? design.fontSubmittedToContent.bold : true) ? 'bold' : 'normal' }}>{data.teacherName}</div>
-                  <div className="text-left text-[0.9em] opacity-80">{data.teacherDesignation}</div>
-                  <div className="text-left text-[0.9em] opacity-80">{data.teacherDepartment || data.departmentName}</div>
-                  <div className="text-left text-[0.85em] opacity-80" style={{ fontWeight: (design.fontSubmittedToContent?.bold !== undefined ? design.fontSubmittedToContent.bold : true) ? 'semibold' : 'normal' }}>{data.universityName || 'Khulna University'}</div>
+                  {data.teacherDetails ? (
+                    <div className="whitespace-pre-line text-left">{data.teacherDetails.trim()}</div>
+                  ) : (
+                    <>
+                      <div className="text-left">{data.teacherName}</div>
+                      {data.teacherDesignation && <div className="text-left opacity-80">{data.teacherDesignation}</div>}
+                      <div className="text-left opacity-80">{data.teacherDiscipline || data.teacherDepartment || data.departmentName || (design.disciplineLabel === 'Department' ? 'Department' : 'Discipline')}</div>
+                      <div className="text-left opacity-80">{data.teacherUniversity || data.universityName || 'Khulna University'}</div>
+                      {data.teacherLocation && <div className="text-left opacity-75">{data.teacherLocation}</div>}
+                      {data.teacher2Name && (
+                        <div className="mt-2 border-t border-dashed border-gray-300 pt-1 w-full text-left">
+                          <div className="text-[0.8em] tracking-wider opacity-60 uppercase">Joint Supervisor</div>
+                          <div className="text-left">{data.teacher2Name}</div>
+                          {data.teacher2Designation && <div className="text-left opacity-80">{data.teacher2Designation}</div>}
+                          {data.teacher2Discipline && <div className="text-left opacity-80">{data.teacher2Discipline}</div>}
+                          {data.teacher2University && <div className="text-left opacity-80">{data.teacher2University}</div>}
+                          {data.teacher2Location && <div className="text-left opacity-75">{data.teacher2Location}</div>}
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
 
               {/* Right Column: Submitted By */}
-              <div className="border border-slate-300 rounded-lg overflow-hidden bg-slate-50/20 shadow-sm flex flex-col text-left">
+              <div className="border border-slate-300 rounded-lg bg-slate-50/20 shadow-sm flex flex-col text-left h-auto gap-1">
                 <div 
-                  className="px-4 py-2.5 tracking-wider text-white w-full text-left"
+                  className="px-4 py-2.5 tracking-wider text-white w-full text-left rounded-t-md"
                   style={resolveStyle(design.fontSubmittedByHeading, { 
                     fontFamily: fontFamily || 'Georgia, serif',
                     fontSize: 12,
@@ -293,22 +319,34 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                   {data.submittedByLabel || 'SUBMITTED BY'}
                 </div>
                 <div 
-                  className="p-4 space-y-2 leading-relaxed text-left w-full"
-                  style={resolveStyle(design.fontSubmittedByContent, {
-                    fontFamily: fontFamily || 'Georgia, serif',
-                    fontSize: 11.5,
-                    color: fontColor || '#000000',
-                    bold: false,
-                    italic: false,
-                    uppercase: false,
-                    align: 'left'
-                  }, {}, design.fontSubSection)}
+                  className="p-4 space-y-1.5 text-left w-full h-auto flex flex-col gap-1"
+                  style={{
+                    ...resolveStyle(design.fontSubmittedByContent, {
+                      fontFamily: fontFamily || 'Georgia, serif',
+                      fontSize: 11.5,
+                      color: fontColor || '#000000',
+                      bold: false,
+                      italic: false,
+                      uppercase: false,
+                      align: 'left'
+                    }, {}, design.fontSubSection),
+                    fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                  }}
                 >
-                  <div className="text-left" style={{ fontWeight: (design.fontSubmittedByContent?.bold !== undefined ? design.fontSubmittedByContent.bold : true) ? 'bold' : 'normal' }}>{data.studentName}</div>
-                  <div className="text-left text-[0.9em] opacity-80">ID: {data.studentId}</div>
-                  {data.studentRoll && <div className="text-left text-[0.9em] opacity-80">Roll: {data.studentRoll}</div>}
-                  {data.studentRegNo && <div className="text-left text-[0.9em] opacity-80">Reg: {data.studentRegNo}</div>}
-                  <div className="text-left text-[0.85em] opacity-80" style={{ fontWeight: (design.fontSubmittedByContent?.bold !== undefined ? design.fontSubmittedByContent.bold : true) ? 'semibold' : 'normal' }}>{data.studentDepartment || data.departmentName}</div>
+                  {data.studentDetails ? (
+                    <div className="whitespace-pre-line text-left">{data.studentDetails.trim()}</div>
+                  ) : (
+                    <>
+                      <div className="text-left">{data.studentName}</div>
+                      <div className="text-left opacity-80">ID: {data.studentId}</div>
+                      {data.studentRoll && <div className="text-left opacity-80">Roll No: {data.studentRoll}</div>}
+                      {data.studentRegNo && <div className="text-left opacity-80">Reg No: {data.studentRegNo}</div>}
+                      {data.studentYearTerm && <div className="text-left opacity-80">{data.studentYearTerm}</div>}
+                      <div className="text-left opacity-80">{data.studentDiscipline || data.studentDepartment || data.departmentName || (design.disciplineLabel === 'Department' ? 'Department' : 'Discipline')}</div>
+                      <div className="text-left opacity-80">{data.studentUniversity || data.universityName || 'Khulna University'}</div>
+                      {data.studentLocation && <div className="text-left opacity-75">{data.studentLocation}</div>}
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -360,40 +398,44 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
               />
             </div>
           )}
-          <DraggableBlock elementId="universityHeader" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full text-center animate-pulse-slow">
-            <div className="flex flex-col items-center text-center">
-              <span 
-                className="text-center block w-full font-bold"
-                style={resolveStyle(design.fontUniversity, {
-                  fontFamily: fontFamily || '"Times New Roman", Times, serif',
-                  fontSize: 24,
-                  color: fontColor || '#1e3a8a',
-                  bold: true,
-                  italic: false,
-                  uppercase: true,
-                  align: 'center'
-                })}
-              >
-                {data.universityName || data.teacherUniversity || 'UNIVERSITY OF CHITTAGONG'}
-              </span>
-              {data.departmentName && (
-                <span 
-                  className="mt-1 tracking-wider uppercase text-center block font-semibold opacity-80"
-                  style={resolveStyle(design.fontDiscipline || design.fontSubSection, {
-                    fontFamily: fontFamily || '"Times New Roman", Times, serif',
-                    fontSize: 11,
-                    color: fontColor || '#1e3a8a',
-                    bold: true,
-                    italic: false,
-                    uppercase: true,
-                    align: 'center'
-                  })}
-                >
-                  {data.departmentName}
-                </span>
-              )}
-            </div>
-          </DraggableBlock>
+          {design.showTopHeader !== false && (
+            <DraggableBlock elementId="universityHeader" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full text-center animate-pulse-slow">
+              <div className="flex flex-col items-center text-center">
+                {data.universityName && (
+                  <span 
+                    className="text-center block w-full font-bold"
+                    style={resolveStyle(design.fontUniversity, {
+                      fontFamily: fontFamily || '"Times New Roman", Times, serif',
+                      fontSize: 24,
+                      color: fontColor || '#1e3a8a',
+                      bold: true,
+                      italic: false,
+                      uppercase: true,
+                      align: 'center'
+                    })}
+                  >
+                    {data.universityName}
+                  </span>
+                )}
+                {data.departmentName && (
+                  <span 
+                    className="mt-1 tracking-wider uppercase text-center block font-semibold opacity-80"
+                    style={resolveStyle(design.fontDiscipline || design.fontSubSection, {
+                      fontFamily: fontFamily || '"Times New Roman", Times, serif',
+                      fontSize: 11,
+                      color: fontColor || '#1e3a8a',
+                      bold: true,
+                      italic: false,
+                      uppercase: true,
+                      align: 'center'
+                    })}
+                  >
+                    {data.departmentName}
+                  </span>
+                )}
+              </div>
+            </DraggableBlock>
+          )}
         </div>
 
         {/* Nested boxed code structures */}
@@ -510,32 +552,91 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                 </h4>
                 <table 
                   className="w-full text-left"
-                  style={resolveStyle(design.fontSubmittedToContent, {
-                    fontFamily: fontFamily || '"Times New Roman", Times, serif',
-                    fontSize: 11.5,
-                    color: fontColor || '#000000',
-                    bold: false,
-                    italic: false,
-                    uppercase: false,
-                    align: 'left'
-                  }, {}, design.fontSubSection)}
+                  style={{
+                    ...resolveStyle(design.fontSubmittedToContent, {
+                      fontFamily: fontFamily || '"Times New Roman", Times, serif',
+                      fontSize: 11.5,
+                      color: fontColor || '#000000',
+                      bold: false,
+                      italic: false,
+                      uppercase: false,
+                      align: 'left'
+                    }, {}, design.fontSubSection),
+                    fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                  }}
                 >
                   <tbody>
                     <tr className="text-left">
-                      <td className="pr-2 py-1 w-1/3 text-left" style={{ fontWeight: (design.fontSubmittedToContent?.bold !== undefined ? design.fontSubmittedToContent.bold : false) ? 'bold' : 'normal' }}>Name</td>
+                      <td className="pr-2 py-1 w-1/3 text-left font-semibold">Name</td>
                       <td className="py-1 w-[5%] px-1 text-left">:</td>
-                      <td className="py-1 text-left inline-block" style={{ fontWeight: (design.fontSubmittedToContent?.bold !== undefined ? design.fontSubmittedToContent.bold : false) ? 'bold' : 'normal' }}>{data.teacherName}</td>
+                      <td className="py-1 text-left inline-block">{data.teacherName}</td>
                     </tr>
+                    {data.teacherDesignation && (
+                      <tr className="text-left">
+                        <td className="pr-2 py-1 text-left font-semibold">Designation</td>
+                        <td className="py-1 px-1 text-left">:</td>
+                        <td className="py-1 text-left">{data.teacherDesignation}</td>
+                      </tr>
+                    )}
                     <tr className="text-left">
-                      <td className="pr-2 py-1 text-left" style={{ fontWeight: (design.fontSubmittedToContent?.bold !== undefined ? design.fontSubmittedToContent.bold : false) ? 'bold' : 'normal' }}>Designation</td>
+                      <td className="pr-2 py-1 text-left font-semibold">Department</td>
                       <td className="py-1 px-1 text-left">:</td>
-                      <td className="py-1 text-left">{data.teacherDesignation}</td>
+                      <td className="py-1 text-left">{data.teacherDiscipline || data.teacherDepartment || data.departmentName || (design.disciplineLabel === 'Department' ? 'Department' : 'Discipline')}</td>
                     </tr>
-                    <tr className="text-left">
-                      <td className="pr-2 py-1 text-left" style={{ fontWeight: (design.fontSubmittedToContent?.bold !== undefined ? design.fontSubmittedToContent.bold : false) ? 'bold' : 'normal' }}>Department</td>
-                      <td className="py-1 px-1 text-left">:</td>
-                      <td className="py-1 text-left">{data.teacherDepartment || data.departmentName}</td>
-                    </tr>
+                    {data.teacherUniversity && (
+                      <tr className="text-left">
+                        <td className="pr-2 py-1 text-left font-semibold">University</td>
+                        <td className="py-1 px-1 text-left">:</td>
+                        <td className="py-1 text-left">{data.teacherUniversity}</td>
+                      </tr>
+                    )}
+                    {data.teacherLocation && (
+                      <tr className="text-left">
+                        <td className="pr-2 py-1 text-left font-semibold">Location</td>
+                        <td className="py-1 px-1 text-left">:</td>
+                        <td className="py-1 text-left">{data.teacherLocation}</td>
+                      </tr>
+                    )}
+                    {data.teacher2Name && (
+                      <>
+                        <tr className="text-left">
+                          <td colSpan={3} className="pt-2 font-mono text-[10px] uppercase opacity-60 tracking-wider">Joint Supervisor</td>
+                        </tr>
+                        <tr className="text-left">
+                          <td className="pr-2 py-1 text-left font-semibold">Name</td>
+                          <td className="py-1 px-1 text-left">:</td>
+                          <td className="py-1 text-left">{data.teacher2Name}</td>
+                        </tr>
+                        {data.teacher2Designation && (
+                          <tr className="text-left">
+                            <td className="pr-2 py-1 text-left font-semibold">Designation</td>
+                            <td className="py-1 px-1 text-left">:</td>
+                            <td className="py-1 text-left">{data.teacher2Designation}</td>
+                          </tr>
+                        )}
+                        {data.teacher2Discipline && (
+                          <tr className="text-left">
+                            <td className="pr-2 py-1 text-left font-semibold">Department</td>
+                            <td className="py-1 px-1 text-left">:</td>
+                            <td className="py-1 text-left">{data.teacher2Discipline}</td>
+                          </tr>
+                        )}
+                        {data.teacher2University && (
+                          <tr className="text-left">
+                            <td className="pr-2 py-1 text-left font-semibold">University</td>
+                            <td className="py-1 px-1 text-left">:</td>
+                            <td className="py-1 text-left">{data.teacher2University}</td>
+                          </tr>
+                        )}
+                        {data.teacher2Location && (
+                          <tr className="text-left">
+                            <td className="pr-2 py-1 text-left font-semibold">Location</td>
+                            <td className="py-1 px-1 text-left">:</td>
+                            <td className="py-1 text-left">{data.teacher2Location}</td>
+                          </tr>
+                        )}
+                      </>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -558,39 +659,70 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                 </h4>
                 <table 
                   className="w-full text-left"
-                  style={resolveStyle(design.fontSubmittedByContent, {
-                    fontFamily: fontFamily || '"Times New Roman", Times, serif',
-                    fontSize: 11.5,
-                    color: fontColor || '#000000',
-                    bold: false,
-                    italic: false,
-                    uppercase: false,
-                    align: 'left'
-                  }, {}, design.fontSubSection)}
+                  style={{
+                    ...resolveStyle(design.fontSubmittedByContent, {
+                      fontFamily: fontFamily || '"Times New Roman", Times, serif',
+                      fontSize: 11.5,
+                      color: fontColor || '#000000',
+                      bold: false,
+                      italic: false,
+                      uppercase: false,
+                      align: 'left'
+                    }, {}, design.fontSubSection),
+                    fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                  }}
                 >
                   <tbody>
                     <tr className="text-left">
-                      <td className="pr-2 py-1 w-2/5 text-left" style={{ fontWeight: (design.fontSubmittedByContent?.bold !== undefined ? design.fontSubmittedByContent.bold : false) ? 'bold' : 'normal' }}>Name</td>
+                      <td className="pr-2 py-1 w-2/5 text-left font-semibold">Name</td>
                       <td className="py-1 w-[5%] px-1 text-left">:</td>
-                      <td className="py-1 text-left inline-block" style={{ fontWeight: (design.fontSubmittedByContent?.bold !== undefined ? design.fontSubmittedByContent.bold : false) ? 'bold' : 'normal' }}>{data.studentName}</td>
+                      <td className="py-1 text-left inline-block">{data.studentName}</td>
                     </tr>
                     <tr className="text-left">
-                      <td className="pr-2 py-1 text-left" style={{ fontWeight: (design.fontSubmittedByContent?.bold !== undefined ? design.fontSubmittedByContent.bold : false) ? 'bold' : 'normal' }}>Student ID</td>
+                      <td className="pr-2 py-1 text-left font-semibold">Student ID</td>
                       <td className="py-1 px-1 text-left">:</td>
                       <td className="py-1 text-left">{data.studentId}</td>
                     </tr>
                     {data.studentRoll && (
                       <tr className="text-left">
-                        <td className="pr-2 py-1 text-left" style={{ fontWeight: (design.fontSubmittedByContent?.bold !== undefined ? design.fontSubmittedByContent.bold : false) ? 'bold' : 'normal' }}>Roll No</td>
+                        <td className="pr-2 py-1 text-left font-semibold">Roll No</td>
                         <td className="py-1 px-1 text-left">:</td>
                         <td className="py-1 text-left">{data.studentRoll}</td>
                       </tr>
                     )}
+                    {data.studentRegNo && (
+                      <tr className="text-left">
+                        <td className="pr-2 py-1 text-left font-semibold">Reg No</td>
+                        <td className="py-1 px-1 text-left">:</td>
+                        <td className="py-1 text-left">{data.studentRegNo}</td>
+                      </tr>
+                    )}
+                    {data.studentYearTerm && (
+                      <tr className="text-left">
+                        <td className="pr-2 py-1 text-left font-semibold">Year/Term</td>
+                        <td className="py-1 px-1 text-left">:</td>
+                        <td className="py-1 text-left">{data.studentYearTerm}</td>
+                      </tr>
+                    )}
                     <tr className="text-left">
-                      <td className="pr-2 py-1 text-left" style={{ fontWeight: (design.fontSubmittedByContent?.bold !== undefined ? design.fontSubmittedByContent.bold : false) ? 'bold' : 'normal' }}>Department</td>
+                      <td className="pr-2 py-1 text-left font-semibold">Department</td>
                       <td className="py-1 px-1 text-left">:</td>
-                      <td className="py-1 text-left">{data.studentDepartment || data.departmentName}</td>
+                      <td className="py-1 text-left">{data.studentDiscipline || data.studentDepartment || data.departmentName || (design.disciplineLabel === 'Department' ? 'Department' : 'Discipline')}</td>
                     </tr>
+                    {data.studentUniversity && (
+                      <tr className="text-left">
+                        <td className="pr-2 py-1 text-left font-semibold">University</td>
+                        <td className="py-1 px-1 text-left">:</td>
+                        <td className="py-1 text-left">{data.studentUniversity}</td>
+                      </tr>
+                    )}
+                    {data.studentLocation && (
+                      <tr className="text-left">
+                        <td className="pr-2 py-1 text-left font-semibold">Location</td>
+                        <td className="py-1 px-1 text-left">:</td>
+                        <td className="py-1 text-left">{data.studentLocation}</td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -701,40 +833,44 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
             </div>
           )}
           
-          <DraggableBlock elementId="universityHeader" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full text-center">
-            <div className="flex flex-col items-center space-y-1 text-center w-full">
-              <span 
-                className="text-center block w-full font-bold"
-                style={resolveStyle(design.fontUniversity, {
-                  fontFamily: fontFamily || 'Georgia, serif',
-                  fontSize: 16,
-                  color: fontColor || '#000000',
-                  bold: true,
-                  italic: false,
-                  uppercase: true,
-                  align: 'center'
-                })}
-              >
-                {data.universityName || data.teacherUniversity || 'UNIVERSITY OF DHAKA'}
-              </span>
-              {data.departmentName && (
-                <span 
-                  className="tracking-wider uppercase text-center block font-semibold"
-                  style={resolveStyle(design.fontDiscipline || design.fontSubSection, {
-                    fontFamily: fontFamily || 'Georgia, serif',
-                    fontSize: 10.5,
-                    color: fontColor || '#000000',
-                    bold: true,
-                    italic: false,
-                    uppercase: true,
-                    align: 'center'
-                  }, { opacity: 0.85 })}
-                >
-                  {data.departmentName}
-                </span>
-              )}
-            </div>
-          </DraggableBlock>
+          {design.showTopHeader !== false && (
+            <DraggableBlock elementId="universityHeader" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full text-center">
+              <div className="flex flex-col items-center space-y-1 text-center w-full">
+                {data.universityName && (
+                  <span 
+                    className="text-center block w-full font-bold"
+                    style={resolveStyle(design.fontUniversity, {
+                      fontFamily: fontFamily || 'Georgia, serif',
+                      fontSize: 16,
+                      color: fontColor || '#000000',
+                      bold: true,
+                      italic: false,
+                      uppercase: true,
+                      align: 'center'
+                    })}
+                  >
+                    {data.universityName}
+                  </span>
+                )}
+                {data.departmentName && (
+                  <span 
+                    className="tracking-wider uppercase text-center block font-semibold"
+                    style={resolveStyle(design.fontDiscipline || design.fontSubSection, {
+                      fontFamily: fontFamily || 'Georgia, serif',
+                      fontSize: 10.5,
+                      color: fontColor || '#000000',
+                      bold: true,
+                      italic: false,
+                      uppercase: true,
+                      align: 'center'
+                    }, { opacity: 0.85 })}
+                  >
+                    {data.departmentName}
+                  </span>
+                )}
+              </div>
+            </DraggableBlock>
+          )}
         </div>
 
         {/* Upper Middle Section: Centered text block */}
@@ -852,10 +988,10 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
         <div className="w-full px-12 md:px-14 my-4">
           <DraggableBlock elementId="submissionsBlock" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full">
             <div className="flex flex-col w-full relative">
-              {/* Submitted to (Teacher block) - left-aligned, higher up */}
+               {/* Submitted to (Teacher block) - left-aligned, higher up */}
               <div className="w-[58%] text-left self-start flex flex-col space-y-[3px]">
                 <div 
-                  className="font-bold underline mb-1 block text-left"
+                  className="underline mb-1 block text-left"
                   style={resolveStyle(design.fontSubmittedToHeading, {
                     fontFamily: fontFamily || 'Georgia, serif',
                     fontSize: 12.5,
@@ -870,36 +1006,53 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                 </div>
                 {data.teacherDetails ? (
                   <div 
-                    className="whitespace-pre-line leading-relaxed text-left"
-                    style={resolveStyle(design.fontSubmittedToContent, {
-                      fontFamily: fontFamily || 'Georgia, serif',
-                      fontSize: 11,
-                      color: fontColor || '#000000',
-                      bold: false,
-                      italic: false,
-                      uppercase: false,
-                      align: 'left'
-                    }, {}, design.fontSubSection)}
+                    className="whitespace-pre-line text-left"
+                    style={{
+                      ...resolveStyle(design.fontSubmittedToContent, {
+                        fontFamily: fontFamily || 'Georgia, serif',
+                        fontSize: 11,
+                        color: fontColor || '#000000',
+                        bold: false,
+                        italic: false,
+                        uppercase: false,
+                        align: 'left'
+                      }, {}, design.fontSubSection),
+                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                    }}
                   >
                     {data.teacherDetails}
                   </div>
                 ) : (
                   <div 
-                    className="leading-relaxed flex flex-col space-y-[2px] text-left"
-                    style={resolveStyle(design.fontSubmittedToContent, {
-                      fontFamily: fontFamily || 'Georgia, serif',
-                      fontSize: 11,
-                      color: fontColor || '#000000',
-                      bold: false,
-                      italic: false,
-                      uppercase: false,
-                      align: 'left'
-                    }, {}, design.fontSubSection)}
+                    className="flex flex-col space-y-[2px] text-left"
+                    style={{
+                      ...resolveStyle(design.fontSubmittedToContent, {
+                        fontFamily: fontFamily || 'Georgia, serif',
+                        fontSize: 11,
+                        color: fontColor || '#000000',
+                        bold: false,
+                        italic: false,
+                        uppercase: false,
+                        align: 'left'
+                      }, {}, design.fontSubSection),
+                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                    }}
                   >
-                    <div style={{ fontWeight: (design.fontSubmittedToContent?.bold !== undefined ? design.fontSubmittedToContent.bold : true) ? 'semibold' : 'normal' }}>{data.teacherName || 'Dr. Abul Kashem Mohammad Jamal Uddin'}</div>
-                    <div className="opacity-80">{data.teacherDesignation || 'Professor'}</div>
+                    <div>{data.teacherName || 'Dr. Abul Kashem Mohammad Jamal Uddin'}</div>
+                    {data.teacherDesignation && <div className="opacity-80">{data.teacherDesignation}</div>}
                     <div className="opacity-80">{data.teacherDiscipline || (design.disciplineLabel === 'Discipline' ? 'Sociology Discipline' : 'Department of Sociology')}</div>
-                    {data.studentUniversity && <div className="opacity-80">{data.studentUniversity || 'University of Dhaka'}</div>}
+                    <div>{data.teacherUniversity || 'University of Dhaka'}</div>
+                    {data.teacherLocation && <div className="opacity-75">{data.teacherLocation}</div>}
+                    {data.teacher2Name && (
+                      <div className="mt-2 border-t border-dashed border-gray-300 pt-1 w-full text-left">
+                        <div className="text-[0.8em] tracking-wider opacity-60 uppercase">Joint Supervisor</div>
+                        <div>{data.teacher2Name}</div>
+                        {data.teacher2Designation && <div className="opacity-80">{data.teacher2Designation}</div>}
+                        {data.teacher2Discipline && <div className="opacity-80">{data.teacher2Discipline}</div>}
+                        {data.teacher2University && <div className="opacity-80">{data.teacher2University}</div>}
+                        {data.teacher2Location && <div className="opacity-75">{data.teacher2Location}</div>}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -907,7 +1060,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
               {/* Submitted by (Student block) - right-aligned, pushed downwards with significant margin */}
               <div className="w-[58%] text-right self-end flex flex-col space-y-[3px] mt-16 md:mt-20">
                 <div 
-                  className="font-bold underline mb-1 block text-right w-full"
+                  className="underline mb-1 block text-right w-full"
                   style={resolveStyle(design.fontSubmittedByHeading, {
                     fontFamily: fontFamily || 'Georgia, serif',
                     fontSize: 12.5,
@@ -922,37 +1075,46 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                 </div>
                 {data.studentDetails ? (
                   <div 
-                    className="whitespace-pre-line leading-relaxed text-right w-full"
-                    style={resolveStyle(design.fontSubmittedByContent, {
-                      fontFamily: fontFamily || 'Georgia, serif',
-                      fontSize: 11,
-                      color: fontColor || '#000000',
-                      bold: false,
-                      italic: false,
-                      uppercase: false,
-                      align: 'right'
-                    }, {}, design.fontSubSection)}
+                    className="whitespace-pre-line text-right w-full"
+                    style={{
+                      ...resolveStyle(design.fontSubmittedByContent, {
+                        fontFamily: fontFamily || 'Georgia, serif',
+                        fontSize: 11,
+                        color: fontColor || '#000000',
+                        bold: false,
+                        italic: false,
+                        uppercase: false,
+                        align: 'right'
+                      }, {}, design.fontSubSection),
+                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                    }}
                   >
                     {data.studentDetails}
                   </div>
                 ) : (
                   <div 
-                    className="leading-relaxed flex flex-col space-y-[2px] text-right items-end w-full"
-                    style={resolveStyle(design.fontSubmittedByContent, {
-                      fontFamily: fontFamily || 'Georgia, serif',
-                      fontSize: 11,
-                      color: fontColor || '#000000',
-                      bold: false,
-                      italic: false,
-                      uppercase: false,
-                      align: 'right'
-                    }, {}, design.fontSubSection)}
+                    className="flex flex-col space-y-[2px] text-right items-end w-full"
+                    style={{
+                      ...resolveStyle(design.fontSubmittedByContent, {
+                        fontFamily: fontFamily || 'Georgia, serif',
+                        fontSize: 11,
+                        color: fontColor || '#000000',
+                        bold: false,
+                        italic: false,
+                        uppercase: false,
+                        align: 'right'
+                      }, {}, design.fontSubSection),
+                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                    }}
                   >
-                    <div style={{ fontWeight: (design.fontSubmittedByContent?.bold !== undefined ? design.fontSubmittedByContent.bold : true) ? 'semibold' : 'normal' }}>{data.studentName || 'Tahmid Ul Islam'}</div>
-                    {data.studentYearTerm && <div className="opacity-80">{data.studentYearTerm || 'Session: 2017-18'}</div>}
-                    {data.studentId && <div className="opacity-80">Class Roll: {data.studentId || '155'}</div>}
-                    <div className="opacity-80">{data.studentDiscipline || (design.disciplineLabel === 'Discipline' ? 'Sociology Discipline' : 'Department of Sociology')}</div>
-                    {data.studentUniversity && <div className="opacity-80">{data.studentUniversity || 'University of Dhaka'}</div>}
+                    <div>{data.studentName || 'Tahmid Ul Islam'}</div>
+                    {data.studentId && <div className="opacity-90">ID: {data.studentId}</div>}
+                    {data.studentRoll && <div className="opacity-85">Roll: {data.studentRoll}</div>}
+                    {data.studentRegNo && <div className="opacity-85">Reg No: {data.studentRegNo}</div>}
+                    {data.studentYearTerm && <div className="opacity-85">{data.studentYearTerm}</div>}
+                    <div className="opacity-85">{data.studentDiscipline || (design.disciplineLabel === 'Discipline' ? 'Sociology Discipline' : 'Department of Sociology')}</div>
+                    {data.studentUniversity && <div className="opacity-85">{data.studentUniversity}</div>}
+                    {data.studentLocation && <div className="opacity-75">{data.studentLocation}</div>}
                   </div>
                 )}
               </div>
@@ -999,38 +1161,44 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
       >
         {/* Item 1: Absolute Top Section (Above Logo) */}
         <div className="flex flex-col items-center justify-center text-center mt-3 w-full">
-          <DraggableBlock elementId="universityHeader" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full px-4 text-center">
-            <div className="flex flex-col items-center space-y-1 text-center w-full">
-              <span 
-                className="text-center block w-full font-bold"
-                style={resolveStyle(design.fontUniversity, {
-                  fontFamily: fontFamily || '"Times New Roman", Times, serif',
-                  fontSize: 19,
-                  color: fontColor || '#8b0000',
-                  bold: true,
-                  italic: false,
-                  uppercase: false,
-                  align: 'center'
-                })}
-              >
-                {data.universityName || data.teacherUniversity || 'Jagannath University'}
-              </span>
-              <span 
-                className="text-center block w-full font-bold"
-                style={resolveStyle(design.fontDiscipline || design.fontSubSection, {
-                  fontFamily: fontFamily || '"Times New Roman", Times, serif',
-                  fontSize: 12,
-                  color: fontColor || '#1e3a8a',
-                  bold: true,
-                  italic: false,
-                  uppercase: false,
-                  align: 'center'
-                })}
-              >
-                {data.teacherDiscipline || data.studentDiscipline || 'Department of Physics'}
-              </span>
-            </div>
-          </DraggableBlock>
+          {design.showTopHeader !== false && (
+            <DraggableBlock elementId="universityHeader" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full px-4 text-center">
+              <div className="flex flex-col items-center space-y-1 text-center w-full">
+                {data.universityName && (
+                  <span 
+                    className="text-center block w-full font-bold"
+                    style={resolveStyle(design.fontUniversity, {
+                      fontFamily: fontFamily || '"Times New Roman", Times, serif',
+                      fontSize: 19,
+                      color: fontColor || '#8b0000',
+                      bold: true,
+                      italic: false,
+                      uppercase: false,
+                      align: 'center'
+                    })}
+                  >
+                    {data.universityName}
+                  </span>
+                )}
+                {data.departmentName && (
+                  <span 
+                    className="text-center block w-full font-bold"
+                    style={resolveStyle(design.fontDiscipline || design.fontSubSection, {
+                      fontFamily: fontFamily || '"Times New Roman", Times, serif',
+                      fontSize: 12,
+                      color: fontColor || '#1e3a8a',
+                      bold: true,
+                      italic: false,
+                      uppercase: false,
+                      align: 'center'
+                    })}
+                  >
+                    {data.departmentName}
+                  </span>
+                )}
+              </div>
+            </DraggableBlock>
+          )}
         </div>
 
         {/* Item 2: Logo Section: Centered University Logo below the top text */}
@@ -1149,10 +1317,10 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
           <DraggableBlock elementId="submissionsBlock" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full">
             <div className="flex flex-col w-full relative">
               
-              {/* "Submitted To" Block (Left): Aligned text-left */}
+               {/* "Submitted To" Block (Left): Aligned text-left */}
               <div className="w-[52%] text-left self-start flex flex-col space-y-1">
                 <div 
-                  className="font-bold underline mb-1 block text-left"
+                  className="underline mb-1 block text-left"
                   style={resolveStyle(design.fontSubmittedToHeading, {
                     fontFamily: fontFamily || '"Times New Roman", Times, serif',
                     fontSize: 12.5,
@@ -1167,36 +1335,53 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                 </div>
                 {data.teacherDetails ? (
                   <div 
-                    className="whitespace-pre-line leading-relaxed text-left"
-                    style={resolveStyle(design.fontSubmittedToContent, {
-                      fontFamily: fontFamily || '"Times New Roman", Times, serif',
-                      fontSize: 11.5,
-                      color: fontColor || '#000000',
-                      bold: false,
-                      italic: false,
-                      uppercase: false,
-                      align: 'left'
-                    }, {}, design.fontSubSection)}
+                    className="whitespace-pre-line text-left"
+                    style={{
+                      ...resolveStyle(design.fontSubmittedToContent, {
+                        fontFamily: fontFamily || '"Times New Roman", Times, serif',
+                        fontSize: 11.5,
+                        color: fontColor || '#000000',
+                        bold: false,
+                        italic: false,
+                        uppercase: false,
+                        align: 'left'
+                      }, {}, design.fontSubSection),
+                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                    }}
                   >
                     {data.teacherDetails}
                   </div>
                 ) : (
                   <div 
-                    className="leading-relaxed flex flex-col space-y-[2px] text-left w-full"
-                    style={resolveStyle(design.fontSubmittedToContent, {
-                      fontFamily: fontFamily || '"Times New Roman", Times, serif',
-                      fontSize: 11.5,
-                      color: fontColor || '#000000',
-                      bold: false,
-                      italic: false,
-                      uppercase: false,
-                      align: 'left'
-                    }, {}, design.fontSubSection)}
+                    className="flex flex-col space-y-[2px] text-left w-full"
+                    style={{
+                      ...resolveStyle(design.fontSubmittedToContent, {
+                        fontFamily: fontFamily || '"Times New Roman", Times, serif',
+                        fontSize: 11.5,
+                        color: fontColor || '#000000',
+                        bold: false,
+                        italic: false,
+                        uppercase: false,
+                        align: 'left'
+                      }, {}, design.fontSubSection),
+                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                    }}
                   >
-                    <div style={{ fontWeight: (design.fontSubmittedToContent?.bold !== undefined ? design.fontSubmittedToContent.bold : true) ? 'bold' : 'normal' }}>{data.teacherName || 'Arpon Chakraborty'}</div>
-                    <div className="opacity-90">{data.teacherDesignation || 'Assistant Professor'}</div>
+                    <div>{data.teacherName || 'Arpon Chakraborty'}</div>
+                    {data.teacherDesignation && <div className="opacity-90">{data.teacherDesignation}</div>}
                     <div className="opacity-90">{data.teacherDiscipline || (design.disciplineLabel === 'Discipline' ? 'Physics Discipline' : 'Department of Physics')}</div>
                     <div className="opacity-90">{data.teacherUniversity || 'Jagannath University, Dhaka'}</div>
+                    {data.teacherLocation && <div className="opacity-75">{data.teacherLocation}</div>}
+                    {data.teacher2Name && (
+                      <div className="mt-2 border-t border-dashed border-gray-300 pt-1 w-full text-left">
+                        <div className="text-[0.8em] tracking-wider opacity-60 uppercase">Joint Supervisor</div>
+                        <div>{data.teacher2Name}</div>
+                        {data.teacher2Designation && <div className="opacity-90">{data.teacher2Designation}</div>}
+                        {data.teacher2Discipline && <div className="opacity-90">{data.teacher2Discipline}</div>}
+                        {data.teacher2University && <div className="opacity-90">{data.teacher2University}</div>}
+                        {data.teacher2Location && <div className="opacity-75">{data.teacher2Location}</div>}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -1204,7 +1389,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
               {/* "Submitted By" Block (Right): Pushed right ml-auto, mt-14, text-left internally */}
               <div className="w-[52%] ml-auto text-left self-end flex flex-col items-start space-y-1 mt-14 md:mt-16">
                 <div 
-                  className="font-bold underline mb-1 block text-left w-full"
+                  className="underline mb-1 block text-left w-full"
                   style={resolveStyle(design.fontSubmittedByHeading, {
                     fontFamily: fontFamily || '"Times New Roman", Times, serif',
                     fontSize: 12.5,
@@ -1219,37 +1404,46 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                 </div>
                 {data.studentDetails ? (
                   <div 
-                    className="whitespace-pre-line leading-relaxed text-left w-full"
-                    style={resolveStyle(design.fontSubmittedByContent, {
-                      fontFamily: fontFamily || '"Times New Roman", Times, serif',
-                      fontSize: 11.5,
-                      color: fontColor || '#000000',
-                      bold: false,
-                      italic: false,
-                      uppercase: false,
-                      align: 'left'
-                    }, {}, design.fontSubSection)}
+                    className="whitespace-pre-line text-left w-full"
+                    style={{
+                      ...resolveStyle(design.fontSubmittedByContent, {
+                        fontFamily: fontFamily || '"Times New Roman", Times, serif',
+                        fontSize: 11.5,
+                        color: fontColor || '#000000',
+                        bold: false,
+                        italic: false,
+                        uppercase: false,
+                        align: 'left'
+                      }, {}, design.fontSubSection),
+                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                    }}
                   >
                     {data.studentDetails}
                   </div>
                 ) : (
                   <div 
-                    className="leading-relaxed flex flex-col space-y-[2px] text-left items-start w-full"
-                    style={resolveStyle(design.fontSubmittedByContent, {
-                      fontFamily: fontFamily || '"Times New Roman", Times, serif',
-                      fontSize: 11.5,
-                      color: fontColor || '#000000',
-                      bold: false,
-                      italic: false,
-                      uppercase: false,
-                      align: 'left'
-                    }, {}, design.fontSubSection)}
+                    className="flex flex-col space-y-[2px] text-left items-start w-full"
+                    style={{
+                      ...resolveStyle(design.fontSubmittedByContent, {
+                        fontFamily: fontFamily || '"Times New Roman", Times, serif',
+                        fontSize: 11.5,
+                        color: fontColor || '#000000',
+                        bold: false,
+                        italic: false,
+                        uppercase: false,
+                        align: 'left'
+                      }, {}, design.fontSubSection),
+                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                    }}
                   >
-                    <div style={{ fontWeight: (design.fontSubmittedByContent?.bold !== undefined ? design.fontSubmittedByContent.bold : true) ? 'bold' : 'normal' }}>{data.studentName || 'Md Abdul Basir'}</div>
-                    {data.studentId && <div className="opacity-90">ID: {data.studentId || '18PHY040'}</div>}
-                    {data.studentYearTerm && <div className="opacity-90">{data.studentYearTerm || '31th Batch'}</div>}
+                    <div>{data.studentName || 'Md Abdul Basir'}</div>
+                    {data.studentId && <div>ID: {data.studentId}</div>}
+                    {data.studentRoll && <div>Roll No: {data.studentRoll}</div>}
+                    {data.studentRegNo && <div>Reg No: {data.studentRegNo}</div>}
+                    {data.studentYearTerm && <div className="opacity-90">{data.studentYearTerm}</div>}
                     <div className="opacity-90">{data.studentDiscipline || (design.disciplineLabel === 'Discipline' ? 'Physics Discipline' : 'Department of Physics')}</div>
                     <div className="opacity-90">{data.studentUniversity || 'Jagannath University, Dhaka'}</div>
+                    {data.studentLocation && <div className="opacity-75">{data.studentLocation}</div>}
                   </div>
                 )}
               </div>

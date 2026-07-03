@@ -37,6 +37,7 @@ export interface CoverPageData {
   submissionDate: string;
   submissionDateHeading?: string;
   universityName?: string;
+  departmentName?: string;
 }
 
 export interface FontConfig {
@@ -47,6 +48,7 @@ export interface FontConfig {
   italic: boolean;
   uppercase: boolean;
   align?: 'left' | 'center' | 'right';
+  lineHeight?: string;
 }
 
 export interface CoverPageDesign {
@@ -111,6 +113,12 @@ export interface CoverPageDesign {
   // Drag and drop custom element positions
   positions?: Record<string, { x: number; y: number }>;
   customizedProperties?: Record<string, string[]>;
+  
+  // Back Cover / Last Page Settings
+  backPageEnabled?: boolean;
+  backPageText?: string;
+  boldSubmissionDetails?: boolean;
+  showTopHeader?: boolean;
 }
 
 // Default values as specified in user guidelines
@@ -142,6 +150,8 @@ export const DEFAULT_COVER_DATA: CoverPageData = {
   
   submissionDate: '2026-05-25',
   submissionDateHeading: 'DATE OF SUBMISSION:',
+  universityName: 'Khulna University',
+  departmentName: 'Environmental Science Discipline',
 };
 
 export const STANDARD_FONTS = [
@@ -388,7 +398,11 @@ export const DEFAULT_DESIGN: CoverPageDesign = {
   disciplineLabel: 'Discipline',
   dateFormat: 'UK',
   positions: {},
-  customizedProperties: {}
+  customizedProperties: {},
+  backPageEnabled: false,
+  backPageText: '',
+  boldSubmissionDetails: false,
+  showTopHeader: true
 };
 
 /**
@@ -410,6 +424,7 @@ export function getDirectStyle(
   const italic = fontConfig?.italic !== undefined ? fontConfig.italic : (parentConfig?.italic !== undefined ? parentConfig.italic : false);
   const uppercase = fontConfig?.uppercase !== undefined ? fontConfig.uppercase : (parentConfig?.uppercase !== undefined ? parentConfig.uppercase : false);
   const align = fontConfig?.align || parentConfig?.align || undefined;
+  const lineHeight = fontConfig?.lineHeight || parentConfig?.lineHeight || '1.45';
   
   const resolvedSize = fontConfig?.fontSize !== undefined ? fontConfig.fontSize : (parentConfig?.fontSize !== undefined ? parentConfig.fontSize : baseSize);
   
@@ -421,6 +436,7 @@ export function getDirectStyle(
   style.fontStyle = italic ? 'italic' : 'normal';
   style.textTransform = uppercase ? 'uppercase' : 'none';
   if (align) style.textAlign = align;
+  style.lineHeight = lineHeight;
 
   if (resolvedSize !== undefined) {
     if (unit === 'em') {
