@@ -275,7 +275,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                       uppercase: false,
                       align: 'left'
                     }, {}, design.fontSubSection),
-                    fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                    fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
                   }}
                 >
                   {data.teacherDetails ? (
@@ -330,7 +330,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                       uppercase: false,
                       align: 'left'
                     }, {}, design.fontSubSection),
-                    fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                    fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
                   }}
                 >
                   {data.studentDetails ? (
@@ -372,7 +372,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                 fontFamily: fontFamily || 'Georgia, serif',
                 fontSize: 12,
                 color: fontColor || '#000000',
-                bold: true,
+                bold: design.boldSubmissionDetails || false,
                 italic: false,
                 uppercase: false,
                 align: 'center'
@@ -562,7 +562,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                       uppercase: false,
                       align: 'left'
                     }, {}, design.fontSubSection),
-                    fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                    fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
                   }}
                 >
                   <tbody>
@@ -669,7 +669,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                       uppercase: false,
                       align: 'left'
                     }, {}, design.fontSubSection),
-                    fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                    fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
                   }}
                 >
                   <tbody>
@@ -736,7 +736,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
           <DraggableBlock elementId="submissionDate" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full text-center">
             <div className="flex items-center space-x-3 select-none text-left justify-center w-full">
               <span 
-                className="font-bold uppercase tracking-wider block"
+                className="font-normal uppercase tracking-wider block"
                 style={resolveStyle(design.fontSubmissionDateHeading, {
                   fontFamily: fontFamily || '"Times New Roman", Times, serif',
                   fontSize: 11,
@@ -751,12 +751,12 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
               </span>
               
               <div 
-                className="flex items-center space-x-1.5 font-sans font-extrabold text-[12px]"
+                className="flex items-center space-x-1.5 font-sans text-[12px] font-normal"
                 style={resolveStyle(design.fontSubmissionDateContent, {
                   fontFamily: '"Times New Roman", Times, serif',
                   fontSize: 12,
                   color: '#000000',
-                  bold: true,
+                  bold: design.boldSubmissionDetails || false,
                   italic: false,
                   uppercase: false,
                   align: 'left'
@@ -794,7 +794,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                     } else {
                       // Fallback for completely custom non-date texts: render in a single clean box
                       return (
-                        <span className="border border-black px-2.5 py-0.5 rounded-[1px] bg-white text-black shadow-sm font-bold">{cleanDate}</span>
+                        <span className="border border-black px-2.5 py-0.5 rounded-[1px] bg-white text-black shadow-sm" style={{ fontWeight: (design.boldSubmissionDetails || design.fontSubmissionDateContent?.bold) ? 'bold' : 'normal' }}>{cleanDate}</span>
                       );
                     }
                   }
@@ -802,11 +802,11 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                   const isUsa = design.dateFormat === 'USA';
                   return (
                     <>
-                      <span className="border border-black px-2 py-0.5 rounded-[1px] bg-white text-black shadow-sm" style={{ fontWeight: 'bold' }}>{isUsa ? month : day}</span>
-                      <span className="text-slate-500 font-bold">-</span>
-                      <span className="border border-black px-2 py-0.5 rounded-[1px] bg-white text-black shadow-sm" style={{ fontWeight: 'bold' }}>{isUsa ? day : month}</span>
-                      <span className="text-slate-500 font-bold">-</span>
-                      <span className="border border-black px-2 py-0.5 rounded-[1px] bg-white text-black shadow-sm" style={{ fontWeight: 'bold' }}>{year}</span>
+                      <span className="border border-black px-2 py-0.5 rounded-[1px] bg-white text-black shadow-sm" style={{ fontWeight: (design.boldSubmissionDetails || design.fontSubmissionDateContent?.bold) ? 'bold' : 'normal' }}>{isUsa ? month : day}</span>
+                      <span className="text-slate-500 font-normal">-</span>
+                      <span className="border border-black px-2 py-0.5 rounded-[1px] bg-white text-black shadow-sm" style={{ fontWeight: (design.boldSubmissionDetails || design.fontSubmissionDateContent?.bold) ? 'bold' : 'normal' }}>{isUsa ? day : month}</span>
+                      <span className="text-slate-500 font-normal">-</span>
+                      <span className="border border-black px-2 py-0.5 rounded-[1px] bg-white text-black shadow-sm" style={{ fontWeight: (design.boldSubmissionDetails || design.fontSubmissionDateContent?.bold) ? 'bold' : 'normal' }}>{year}</span>
                     </>
                   );
                 })()}
@@ -1017,7 +1017,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                         uppercase: false,
                         align: 'left'
                       }, {}, design.fontSubSection),
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
                     }}
                   >
                     {data.teacherDetails}
@@ -1035,7 +1035,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                         uppercase: false,
                         align: 'left'
                       }, {}, design.fontSubSection),
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
                     }}
                   >
                     <div>{data.teacherName || 'Dr. Abul Kashem Mohammad Jamal Uddin'}</div>
@@ -1086,7 +1086,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                         uppercase: false,
                         align: 'right'
                       }, {}, design.fontSubSection),
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
                     }}
                   >
                     {data.studentDetails}
@@ -1104,7 +1104,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                         uppercase: false,
                         align: 'right'
                       }, {}, design.fontSubSection),
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
                     }}
                   >
                     <div>{data.studentName || 'Tahmid Ul Islam'}</div>
@@ -1141,7 +1141,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                 fontFamily: fontFamily || 'Georgia, serif',
                 fontSize: 11.5,
                 color: fontColor || '#111827',
-                bold: true,
+                bold: design.boldSubmissionDetails || false,
                 italic: false,
                 uppercase: false,
                 align: 'center'
@@ -1346,7 +1346,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                         uppercase: false,
                         align: 'left'
                       }, {}, design.fontSubSection),
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
                     }}
                   >
                     {data.teacherDetails}
@@ -1364,7 +1364,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                         uppercase: false,
                         align: 'left'
                       }, {}, design.fontSubSection),
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
                     }}
                   >
                     <div>{data.teacherName || 'Arpon Chakraborty'}</div>
@@ -1415,7 +1415,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                         uppercase: false,
                         align: 'left'
                       }, {}, design.fontSubSection),
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
                     }}
                   >
                     {data.studentDetails}
@@ -1433,7 +1433,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                         uppercase: false,
                         align: 'left'
                       }, {}, design.fontSubSection),
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
                     }}
                   >
                     <div>{data.studentName || 'Md Abdul Basir'}</div>
@@ -1471,7 +1471,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                 fontFamily: fontFamily || '"Times New Roman", Times, serif',
                 fontSize: 12,
                 color: fontColor || '#0f172a',
-                bold: true,
+                bold: design.boldSubmissionDetails || false,
                 italic: false,
                 uppercase: false,
                 align: 'center'

@@ -650,7 +650,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                     className="space-y-0.5"
                     style={{ 
                       ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor, false, 11, 'em'),
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
                     }}
                   >
                     {data.teacherDetails ? (
@@ -696,7 +696,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                     className="space-y-0.5"
                     style={{ 
                       ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor, false, 11, 'em'),
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
                     }}
                   >
                     {data.studentDetails ? (
@@ -721,7 +721,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             {/* Bottom Pill border wrapper for submission date */}
             <DraggableBlock elementId="submissionDate" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 mb-2">
               <div 
-                className="rounded-full px-8 py-1.5 font-bold tracking-wide text-center border-2 bg-blue-50/20 dark:bg-slate-900/10"
+                className="rounded-full px-8 py-1.5 font-normal tracking-wide text-center border-2 bg-blue-50/20 dark:bg-slate-900/10"
                 style={{ 
                   ...getDirectStyle(design.fontSubmissionDateHeading, design.fontDate, fontFamily, fontColor || '#1e3a8a', true, 11, 'em'),
                   borderColor: design.fontSubmissionDateHeading?.color || fontColor || '#2563eb'
@@ -845,7 +845,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                     className="space-y-0.5"
                     style={{ 
                       ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor || '#000000', false, 11, 'em'),
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
                     }}
                   >
                     {data.teacherDetails ? (
@@ -889,7 +889,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                     className="space-y-0.5 text-left"
                     style={{ 
                       ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor || '#000000', false, 11, 'em'),
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal',
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal',
                       textAlign: 'left'
                     }}
                   >
@@ -915,7 +915,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             {/* Submission Date bottom */}
             <DraggableBlock elementId="submissionDate" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 mb-2">
               <div 
-                className="text-center font-bold tracking-wider mt-8 select-none" 
+                className="text-center font-normal tracking-wider mt-8 select-none" 
                 style={{ 
                   ...getDirectStyle(design.fontSubmissionDateHeading, design.fontDate, fontFamily, fontColor || '#000000', true, 12, 'em')
                 }}
@@ -1005,7 +1005,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                     className="space-y-0.5 text-center"
                     style={{ 
                       ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor, false, 11.5, 'em'),
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
                     }}
                   >
                     {data.teacherDetails ? (
@@ -1038,7 +1038,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                     className="space-y-0.5 text-center"
                     style={{ 
                       ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor, false, 11.5, 'em'),
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
                     }}
                   >
                     {data.studentDetails ? (
@@ -1059,7 +1059,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             {/* Submission Date bottom centered bar style */}
             <DraggableBlock elementId="submissionDate" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 mb-4">
               <div 
-                className="text-center font-bold tracking-wider select-none cyan-accent-banner px-6 py-1 bg-cyan-50/40 dark:bg-slate-905/10 border border-cyan-600/20 rounded-md" 
+                className="text-center font-normal tracking-wider select-none cyan-accent-banner px-6 py-1 bg-cyan-50/40 dark:bg-slate-905/10 border border-cyan-600/20 rounded-md" 
                 style={{ 
                   ...getDirectStyle(design.fontSubmissionDateHeading, design.fontDate, fontFamily, fontColor || '#0891b2', true, 12, 'em')
                 }}
@@ -1215,7 +1215,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   <div 
                     style={{ 
                       ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor || '#1e293b', false, 10.5, 'em'),
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
                     }} 
                     className="flex flex-col items-center"
                   >
@@ -1260,7 +1260,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   <div 
                     style={{ 
                       ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor || '#1e293b', false, 10.5, 'em'),
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
                     }} 
                     className="flex flex-col items-center"
                   >
@@ -1287,7 +1287,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             {/* Date block */}
             <DraggableBlock elementId="submissionDate" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
               <div 
-                className="text-center font-bold tracking-wider my-1" 
+                className="text-center font-normal tracking-wider my-1" 
                 style={{ 
                   ...getDirectStyle(design.fontSubmissionDateHeading, design.fontDate, fontFamily, fontColor || accentColor, true, 11, 'em')
                 }}
@@ -1431,8 +1431,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 </div>
               </DraggableBlock>
             )}
-
-            {/* Bottom area: Left Side Student (Submitted By) and Right Side Teacher (Submitted To) */}
+                    {/* Bottom area: Left Side Student (Submitted By) and Right Side Teacher (Submitted To) */}
             {/* Note the explicit inversion to map precisely with Dhaka University minimal Image 2 layout! */}
             {(() => {
               const sharedAlign = design.fontSubmittedToHeading?.align || 'left';
@@ -1453,7 +1452,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                         style={{
                           ...getDirectStyle(fontSubmittedByHeadingSync, design.fontSubSection, fontFamily, fontColor || accentColor, true, 13, 'em')
                         }}
-                        className="mb-3 tracking-wider border-b pb-1 pr-6"
+                        className="mb-3 tracking-wider border-b pb-1 pr-6 font-normal"
                       >
                         {data.submittedByLabel || 'Submitted by,'}
                       </h4>
@@ -1461,7 +1460,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                         className={`space-y-1 w-full flex flex-col ${alignClasses.container}`}
                         style={{ 
                           ...getDirectStyle(fontSubmittedByContentSync, design.fontSubSection, fontFamily, fontColor, false, 11, 'em'),
-                          fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                          fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
                         }}
                       >
                         {data.studentDetails ? (
@@ -1489,7 +1488,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                         style={{
                           ...getDirectStyle(fontSubmittedToHeadingSync, design.fontSubSection, fontFamily, fontColor || accentColor, true, 13, 'em')
                         }}
-                        className="mb-3 tracking-wider border-b pb-1 pr-6"
+                        className="mb-3 tracking-wider border-b pb-1 pr-6 font-normal"
                       >
                         {data.teacherHeading || 'Submitted to,'}
                       </h4>
@@ -1497,7 +1496,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                         className={`space-y-1 w-full flex flex-col ${alignClasses.container}`}
                         style={{ 
                           ...getDirectStyle(fontSubmittedToContentSync, design.fontSubSection, fontFamily, fontColor, false, 11, 'em'),
-                          fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                          fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
                         }}
                       >
                         {data.teacherDetails ? (
@@ -1532,7 +1531,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             {/* Submission Date center base */}
             <DraggableBlock elementId="submissionDate" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
               <div 
-                className="text-center font-bold tracking-wider mt-10 mb-2" 
+                className="text-center font-normal tracking-wider mt-10 mb-2" 
                 style={{ 
                   ...getDirectStyle(design.fontSubmissionDateHeading, design.fontDate, fontFamily, fontColor || accentColor, true, 11.5, 'em')
                 }}
@@ -1699,7 +1698,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                         className="space-y-0.5 text-left flex flex-col w-full"
                         style={{ 
                           ...getDirectStyle(fontSubmittedToContentSync, design.fontSubSection, fontFamily, fontColor || '#1e293b', false, 10.5, 'em'),
-                          fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                          fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
                         }}
                       >
                         {data.teacherDetails ? (
@@ -1742,7 +1741,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                         className="space-y-0.5 text-left flex flex-col w-full"
                         style={{ 
                           ...getDirectStyle(fontSubmittedByContentSync, design.fontSubSection, fontFamily, fontColor || '#1e293b', false, 10.5, 'em'),
-                          fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                          fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
                         }}
                       >
                         {data.studentDetails ? (
@@ -1770,7 +1769,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             {/* submission date */}
             <DraggableBlock elementId="submissionDate" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
               <div 
-                className="text-center font-bold tracking-wider mt-8 select-none" 
+                className="text-center font-normal tracking-wider mt-8 select-none" 
                 style={{ 
                   ...getDirectStyle(design.fontSubmissionDateHeading, design.fontDate, fontFamily, fontColor || '#9f1239', true, 11, 'em')
                 }}
@@ -1931,7 +1930,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                     className="space-y-0.5 text-left"
                     style={{ 
                       ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor || '#000000', false, 11, 'em'),
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
                     }}
                   >
                     {data.teacherDetails ? (
@@ -1974,7 +1973,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                     className="space-y-0.5 text-left"
                     style={{ 
                       ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor || '#000000', false, 11, 'em'),
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal'
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
                     }}
                   >
                     {data.studentDetails ? (
@@ -2282,7 +2281,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                       fontFamily: design.fontSubmittedToContent?.fontFamily || design.fontSubSection.fontFamily || fontFamily,
                       color: design.fontSubmittedToContent?.color || design.fontSubSection.color || fontColor,
                       fontSize: `${(design.fontSubmittedToContent?.fontSize || design.fontSubSection.fontSize) / 14}em`,
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal',
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal',
                       fontStyle: design.fontSubmittedToContent?.italic ? 'italic' : 'normal',
                       textTransform: design.fontSubmittedToContent?.uppercase ? 'uppercase' : 'none',
                       lineHeight: '1.4',
@@ -2338,7 +2337,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                       fontFamily: design.fontSubmittedByContent?.fontFamily || design.fontSubSection.fontFamily || fontFamily,
                       color: design.fontSubmittedByContent?.color || design.fontSubSection.color || fontColor,
                       fontSize: `${(design.fontSubmittedByContent?.fontSize || design.fontSubSection.fontSize) / 14}em`,
-                      fontWeight: design.boldSubmissionDetails ? 'bold' : 'normal',
+                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal',
                       fontStyle: design.fontSubmittedByContent?.italic ? 'italic' : 'normal',
                       textTransform: design.fontSubmittedByContent?.uppercase ? 'uppercase' : 'none',
                       lineHeight: '1.4',
@@ -2379,7 +2378,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             {/* ==================== 5. DATE OF SUBMISSION (BOTTOM) ==================== */}
             <DraggableBlock elementId="submissionDate" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
               <div className="flex flex-col items-center justify-center text-center mt-8 mb-2 z-10 w-full select-none">
-                <div className="select-text tracking-wider font-bold">
+                <div className="select-text tracking-wider font-normal">
                   <span 
                     style={{ 
                       fontFamily: design.fontSubmissionDateHeading?.fontFamily || design.fontDate.fontFamily || fontFamily,
