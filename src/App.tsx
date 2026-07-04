@@ -1812,6 +1812,7 @@ export default function App() {
                       1. "Download Front" menu utilizes left-0 and origin-top-left to expand inward (to the right).
                       2. "Download Back" menu utilizes right-0 and origin-top-right to expand inward (to the left).
                       3. Maximum layer level of z-[9999] is preserved with no clipping from parent elements.
+                      [SYNC-TOKEN: 2026-07-03-FORCE-GITHUB-REDEPLOY]
                     */}
                     <div className={`absolute left-0 top-full mt-2 w-72 rounded-2xl shadow-2xl py-3 animate-fadeIn z-[9999] ${
                       isDownloadOpen ? 'opacity-100 pointer-events-auto scale-100 translate-y-0' : 'opacity-0 pointer-events-none scale-95 -translate-y-2 origin-top-left'
