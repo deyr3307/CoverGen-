@@ -399,8 +399,8 @@ export const DEFAULT_DESIGN: CoverPageDesign = {
   dateFormat: 'UK',
   positions: {},
   customizedProperties: {},
-  backPageEnabled: false,
-  backPageText: '',
+  backPageEnabled: true,
+  backPageText: 'PLAGIARISM STATEMENT & DECLARATION\n\nI hereby declare that this assignment/report is my own original work and that no part of it has been plagiarized, copied, or fabricated. All external sources, data, and literature used in the compilation of this document have been properly referenced and cited in accordance with academic standards and guidelines.\n\nStudent Signature: ___________________________\n\nDate: ___________________________',
   boldSubmissionDetails: false,
   showTopHeader: true
 };

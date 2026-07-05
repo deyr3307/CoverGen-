@@ -238,6 +238,7 @@ export default function App() {
   const [pdfPrintBackground, setPdfPrintBackground] = useState<boolean>(true);
   const [pdfPaperSize, setPdfPaperSize] = useState<'a4' | 'letter'>('a4');
   const [pdfQuality, setPdfQuality] = useState<'low' | 'medium' | 'high'>('high');
+  const [pdfInclusions, setPdfInclusions] = useState<'front' | 'back' | 'combined'>('combined');
 
   // Master unified client-side navigation with Browser History Synchronization
   const navigateTo = (step: 'landing' | 'inputs' | 'builder', tab: 'inputs' | 'designer' | 'preview' = 'inputs') => {
@@ -553,6 +554,7 @@ export default function App() {
       printBackgroundGraphics?: boolean;
       paperSize?: 'a4' | 'letter';
       onlyBackPage?: boolean;
+      combined?: boolean;
     }
   ) => {
     const element = document.getElementById('academic-cover-page');
@@ -564,6 +566,10 @@ export default function App() {
     if (options?.onlyBackPage && !backElement) {
       alert("Error: Back Page is not enabled or missing.");
       return;
+    }
+    if (options?.combined && !backElement) {
+      // If combined requested but back page missing, fall back to front page only silently or alert
+      console.warn("Combined PDF requested but Back Page element is missing.");
     }
 
     const includePageNumbers = options?.includePageNumbers ?? false;
@@ -615,7 +621,8 @@ export default function App() {
     }
 
     // Stabilize DOM transforms on parent to prevent html2canvas clipping/misalignment
-    const parent = targetElement.parentElement;
+    // Always stabilize relative to element (front page) as both live under the same parent container
+    const parent = element.parentElement;
     const grandParent = parent ? parent.parentElement : null;
     
     const originalTransform = parent ? parent.style.transform : '';
@@ -906,7 +913,7 @@ export default function App() {
       }
 
       let canvas = null;
-      if (!options?.onlyBackPage) {
+      if (!options?.onlyBackPage || options?.combined) {
         canvas = await html2canvas(element, {
           scale: scaleValue,
           width: targetWidth,
@@ -952,7 +959,7 @@ export default function App() {
       }
 
       let backCanvas = null;
-      if (options?.onlyBackPage) {
+      if (options?.onlyBackPage || options?.combined) {
         if (backElement) {
           try {
             backCanvas = await html2canvas(backElement, {
@@ -1073,7 +1080,7 @@ export default function App() {
         console.warn("Canvas may be tainted by cross-origin images. Re-rendering html2canvas safely...", taintErr);
         // Fallback: Re-render without CORS
         let fallbackCanvas = null;
-        if (!options?.onlyBackPage) {
+        if (!options?.onlyBackPage || options?.combined) {
           fallbackCanvas = await html2canvas(element, {
             scale: scaleValue,
             width: targetWidth,
@@ -1119,7 +1126,7 @@ export default function App() {
         }
         
         let fallbackBackCanvas = null;
-        if (options?.onlyBackPage) {
+        if (options?.onlyBackPage || options?.combined) {
           if (backElement) {
             fallbackBackCanvas = await html2canvas(backElement, {
               scale: scaleValue,
@@ -1207,7 +1214,26 @@ export default function App() {
           keywords: `academic, coverpage, ${coverData.documentType.toLowerCase()}, ${coverData.courseNo?.toLowerCase()}`
         });
 
-        if (options?.onlyBackPage) {
+        if (options?.combined) {
+          if (imgData) {
+            doc.addImage(imgData, 'JPEG', 0, 0, docWidth, docHeight, undefined, 'FAST');
+            if (includePageNumbers) {
+              doc.setFontSize(9);
+              doc.setTextColor(148, 163, 184); // slate-400
+              doc.text("Page 1", docWidth / 2, docHeight - 12, { align: 'center' });
+            }
+          }
+          if (backImgData) {
+            doc.addPage();
+            doc.addImage(backImgData, 'JPEG', 0, 0, docWidth, docHeight, undefined, 'FAST');
+            if (includePageNumbers) {
+              doc.setFontSize(9);
+              doc.setTextColor(148, 163, 184); // slate-400
+              doc.text("Page 2", docWidth / 2, docHeight - 12, { align: 'center' });
+            }
+          }
+          doc.save(`${cleanFileName}_complete_document.pdf`);
+        } else if (options?.onlyBackPage) {
           if (backImgData) {
             doc.addImage(backImgData, 'JPEG', 0, 0, docWidth, docHeight, undefined, 'FAST');
             if (includePageNumbers) {
@@ -1348,6 +1374,7 @@ export default function App() {
       printBackgroundGraphics?: boolean;
       paperSize?: 'a4' | 'letter';
       onlyBackPage?: boolean;
+      combined?: boolean;
     }
   ) => {
     await executeExport('pdf', quality, options);
@@ -1760,6 +1787,26 @@ export default function App() {
                     <Maximize className="w-3.5 h-3.5" />
                   </button>
                 </div>
+
+                {/* Back Page Instant Toggle Pill */}
+                <button
+                  onClick={() => setCoverDesign(prev => ({ ...prev, backPageEnabled: !prev.backPageEnabled }))}
+                  className={`flex items-center space-x-1.5 px-3 py-1.5 backdrop-blur border rounded-lg shadow-sm select-none transition-all duration-300 cursor-pointer text-xs font-bold ${
+                    coverDesign.backPageEnabled
+                      ? theme === 'dark'
+                        ? 'bg-indigo-950/40 border-indigo-500/50 text-indigo-400'
+                        : 'bg-indigo-50 border-indigo-200 text-indigo-600 animate-pulse'
+                      : theme === 'dark'
+                        ? 'bg-[#090b12]/95 border-slate-800 text-slate-400 hover:text-slate-200'
+                        : 'bg-white border-slate-200/90 text-slate-500 hover:text-slate-800 shadow-sm'
+                  }`}
+                  title="Toggle Back Cover Page"
+                >
+                  <span className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    coverDesign.backPageEnabled ? 'bg-indigo-500 animate-pulse' : 'bg-slate-400'
+                  }`} />
+                  <span>Back Page: {coverDesign.backPageEnabled ? 'ON' : 'OFF'}</span>
+                </button>
 
                 <div className={`flex flex-row items-center gap-1.5 sm:gap-2 backdrop-blur border p-1 rounded-lg shadow-sm transition-colors duration-300 w-full sm:w-auto justify-between sm:justify-end ${
                   theme === 'dark' ? 'bg-[#090b12]/95 border-slate-800' : 'bg-white border-slate-200/90'
@@ -2335,6 +2382,37 @@ export default function App() {
                         </div>
                       </div>
 
+                      {/* Configuration Element: Pages to Include (Only shown if backPageEnabled is true) */}
+                      {coverDesign.backPageEnabled && (
+                        <div className="space-y-2">
+                          <label className={`block text-[10px] font-mono font-extrabold uppercase tracking-widest text-left ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                            Pages to Include
+                          </label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {[
+                              { id: 'front', label: 'Front Only' },
+                              { id: 'back', label: 'Back Only' },
+                              { id: 'combined', label: 'Front + Back' }
+                            ].map((opt) => (
+                              <button
+                                key={opt.id}
+                                type="button"
+                                onClick={() => setPdfInclusions(opt.id as any)}
+                                className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl border transition-all cursor-pointer text-center ${
+                                  pdfInclusions === opt.id
+                                    ? 'bg-indigo-600/15 text-indigo-455 border-indigo-550 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/40'
+                                    : theme === 'dark'
+                                      ? 'bg-[#121932]/40 border-slate-850 hover:bg-slate-900 text-slate-400'
+                                      : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-650 shadow-sm'
+                                }`}
+                              >
+                                <span className="text-[10px] font-black uppercase tracking-wider">{opt.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       {/* Config Options: Toggle switches */}
                       <div className="space-y-3 pt-1">
                         {/* Option 1: Page Numbers Option */}
@@ -2402,7 +2480,9 @@ export default function App() {
                           await handleDownloadPDF(pdfQuality, {
                             includePageNumbers: pdfIncludePageNumbers,
                             printBackgroundGraphics: pdfPrintBackground,
-                            paperSize: pdfPaperSize
+                            paperSize: pdfPaperSize,
+                            onlyBackPage: coverDesign.backPageEnabled && pdfInclusions === 'back',
+                            combined: coverDesign.backPageEnabled && pdfInclusions === 'combined'
                           });
                         }}
                         className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-black uppercase tracking-wider hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center space-x-2 cursor-pointer border border-emerald-400/20"
