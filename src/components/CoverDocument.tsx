@@ -1600,14 +1600,6 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 style={{
                   ...getDirectStyle(design.fontAssignmentTopic, design.fontTitle, fontFamily, fontColor || '#64748b', true, 9.5, 'em'),
                   display: 'inline-block',
-                  borderTop: `1px solid ${design.fontAssignmentTopic?.color || fontColor || '#64748b'}`,
-                  borderBottom: `1px solid ${design.fontAssignmentTopic?.color || fontColor || '#64748b'}`,
-                  paddingTop: '6px',
-                  paddingBottom: '6px',
-                  paddingLeft: '0px',
-                  paddingRight: '0px',
-                  marginTop: '4px',
-                  marginBottom: '4px',
                   lineHeight: '1.2'
                 }}
                 className="inline-block text-center tracking-widest select-none"
