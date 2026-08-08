@@ -1697,22 +1697,31 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   {/* LEFT Column: Submitted To */}
                   <DraggableBlock elementId="submittedTo" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
                     <div className="flex flex-col items-start justify-start text-left">
-                      <h4 
-                        style={{
-                          ...getDirectStyle(fontSubmittedToHeadingSync, design.fontSubSection, fontFamily, subToColor, true, 11.5, 'em'),
-                          borderLeft: `4px solid ${subToColor}`,
-                          paddingLeft: '8px',
-                          lineHeight: '1.2',
-                          marginTop: 0,
-                          marginRight: 0,
-                          marginBottom: '10px',
-                          marginLeft: 0,
-                          display: 'block'
-                        }}
-                        className="tracking-wider text-left"
-                      >
-                        {data.teacherHeading || 'SUBMITTED TO'}
-                      </h4>
+                      <div className="flex items-center gap-2 mb-2.5">
+                        <span 
+                          style={{ 
+                            backgroundColor: subToColor, 
+                            width: '4px', 
+                            height: '1.1em', 
+                            borderRadius: '1px',
+                            display: 'inline-block', 
+                            flexShrink: 0 
+                          }} 
+                        />
+                        <h4 
+                          style={{
+                            ...getDirectStyle(fontSubmittedToHeadingSync, design.fontSubSection, fontFamily, subToColor, true, 11.5, 'em'),
+                            marginTop: 0,
+                            marginRight: 0,
+                            marginBottom: 0,
+                            marginLeft: 0,
+                            lineHeight: '1.2'
+                          }}
+                          className="tracking-wider text-left"
+                        >
+                          {data.teacherHeading || 'SUBMITTED TO'}
+                        </h4>
+                      </div>
                       <div 
                         className="space-y-0.5 text-left flex flex-col w-full"
                         style={{ 
@@ -1748,22 +1757,31 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   {/* RIGHT Column: Submitted By */}
                   <DraggableBlock elementId="submittedBy" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
                     <div className="flex flex-col items-start justify-start text-left">
-                      <h4 
-                        style={{
-                          ...getDirectStyle(fontSubmittedByHeadingSync, design.fontSubSection, fontFamily, subByColor, true, 11.5, 'em'),
-                          borderLeft: `4px solid ${subByColor}`,
-                          paddingLeft: '8px',
-                          lineHeight: '1.2',
-                          marginTop: 0,
-                          marginRight: 0,
-                          marginBottom: '10px',
-                          marginLeft: 0,
-                          display: 'block'
-                        }}
-                        className="tracking-wider text-left"
-                      >
-                        {data.submittedByLabel || 'SUBMITTED BY'}
-                      </h4>
+                      <div className="flex items-center gap-2 mb-2.5">
+                        <span 
+                          style={{ 
+                            backgroundColor: subByColor, 
+                            width: '4px', 
+                            height: '1.1em', 
+                            borderRadius: '1px',
+                            display: 'inline-block', 
+                            flexShrink: 0 
+                          }} 
+                        />
+                        <h4 
+                          style={{
+                            ...getDirectStyle(fontSubmittedByHeadingSync, design.fontSubSection, fontFamily, subByColor, true, 11.5, 'em'),
+                            marginTop: 0,
+                            marginRight: 0,
+                            marginBottom: 0,
+                            marginLeft: 0,
+                            lineHeight: '1.2'
+                          }}
+                          className="tracking-wider text-left"
+                        >
+                          {data.submittedByLabel || 'SUBMITTED BY'}
+                        </h4>
+                      </div>
                       <div 
                         className="space-y-0.5 text-left flex flex-col w-full"
                         style={{ 
