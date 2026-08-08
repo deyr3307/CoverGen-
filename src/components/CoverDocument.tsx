@@ -1600,13 +1600,17 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 style={{
                   ...getDirectStyle(design.fontAssignmentTopic, design.fontTitle, fontFamily, fontColor || '#64748b', true, 9.5, 'em'),
                   display: 'inline-block',
-                  borderTop: '1px solid currentColor',
-                  borderBottom: '1px solid currentColor',
-                  paddingBlock: '6px',
-                  margin: 0,
+                  borderTop: `1px solid ${design.fontAssignmentTopic?.color || fontColor || '#64748b'}`,
+                  borderBottom: `1px solid ${design.fontAssignmentTopic?.color || fontColor || '#64748b'}`,
+                  paddingTop: '6px',
+                  paddingBottom: '6px',
+                  paddingLeft: '32px',
+                  paddingRight: '32px',
+                  marginTop: '4px',
+                  marginBottom: '4px',
                   lineHeight: '1.2'
                 }}
-                className="assignment-heading inline-block text-center tracking-widest px-8 select-none"
+                className="inline-block text-center tracking-widest select-none"
               >
                 {data.documentType || 'Assignment On'}
               </div>
@@ -1642,7 +1646,13 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
 
             {/* Course Information Box */}
             <DraggableBlock elementId="courseDetails" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full flex justify-center">
-              <div className="rounded-xl p-4 border border-current/15 w-[85%] select-none bg-current/2 flex justify-center">
+              <div 
+                style={{
+                  borderColor: fontColor ? `${fontColor}33` : 'rgba(100, 116, 139, 0.25)',
+                  backgroundColor: fontColor ? `${fontColor}0A` : 'rgba(241, 245, 249, 0.5)'
+                }}
+                className="rounded-xl p-4 border w-[85%] select-none flex justify-center"
+              >
                 <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 items-baseline text-left w-fit max-w-full">
                   <span 
                     style={{
@@ -1686,6 +1696,9 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               const fontSubmittedByHeadingSync = { ...design.fontSubmittedByHeading, align: 'left' };
               const fontSubmittedByContentSync = { ...design.fontSubmittedByContent, align: 'left' };
 
+              const subToColor = fontSubmittedToHeadingSync?.color || fontColor || '#d97706';
+              const subByColor = fontSubmittedByHeadingSync?.color || fontColor || '#d97706';
+
               return (
                 <div className="grid grid-cols-2 gap-x-12 px-8 w-full mt-4 select-none">
                   
@@ -1694,13 +1707,17 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                     <div className="flex flex-col items-start justify-start text-left">
                       <h4 
                         style={{
-                          ...getDirectStyle(fontSubmittedToHeadingSync, design.fontSubSection, fontFamily, fontColor || '#d97706', true, 11.5, 'em'),
-                          borderLeft: '4px solid currentColor',
+                          ...getDirectStyle(fontSubmittedToHeadingSync, design.fontSubSection, fontFamily, subToColor, true, 11.5, 'em'),
+                          borderLeft: `4px solid ${subToColor}`,
                           paddingLeft: '8px',
                           lineHeight: '1.2',
-                          margin: '0 0 10px 0'
+                          marginTop: 0,
+                          marginRight: 0,
+                          marginBottom: '10px',
+                          marginLeft: 0,
+                          display: 'block'
                         }}
-                        className="submitted-title mb-2.5 tracking-wider text-left"
+                        className="tracking-wider text-left"
                       >
                         {data.teacherHeading || 'SUBMITTED TO'}
                       </h4>
@@ -1741,13 +1758,17 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                     <div className="flex flex-col items-start justify-start text-left">
                       <h4 
                         style={{
-                          ...getDirectStyle(fontSubmittedByHeadingSync, design.fontSubSection, fontFamily, fontColor || '#d97706', true, 11.5, 'em'),
-                          borderLeft: '4px solid currentColor',
+                          ...getDirectStyle(fontSubmittedByHeadingSync, design.fontSubSection, fontFamily, subByColor, true, 11.5, 'em'),
+                          borderLeft: `4px solid ${subByColor}`,
                           paddingLeft: '8px',
                           lineHeight: '1.2',
-                          margin: '0 0 10px 0'
+                          marginTop: 0,
+                          marginRight: 0,
+                          marginBottom: '10px',
+                          marginLeft: 0,
+                          display: 'block'
                         }}
-                        className="submitted-by-title mb-2.5 tracking-wider text-left"
+                        className="tracking-wider text-left"
                       >
                         {data.submittedByLabel || 'SUBMITTED BY'}
                       </h4>
