@@ -162,3 +162,28 @@ b:not(.font-image1):not(.font-image1 *):not(.font-image2):not(.font-image2 *) {
   text-shadow: 0.35px 0px 0px currentColor;
 }
 
+/* Cover Page Heading & Section Styling */
+.assignment-heading {
+    display: inline-block;
+    border-top: 1px solid #7B8DFF;
+    border-bottom: 1px solid #7B8DFF;
+    padding: 6px 0px;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.submitted-title {
+    border-left: 4px solid #1dbb8e;
+    padding-left: 8px;
+    margin: 0 0 10px 0;
+    line-height: 1.2;
+}
+
+/* SUBMITTED BY header title */
+.submitted-by-title {
+    border-left: 4px solid #10b981;
+    padding-left: 8px;
+    margin: 0 0 10px 0;
+    line-height: 1.2;
+}
+
