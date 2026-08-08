@@ -1604,8 +1604,8 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   borderBottom: `1px solid ${design.fontAssignmentTopic?.color || fontColor || '#64748b'}`,
                   paddingTop: '6px',
                   paddingBottom: '6px',
-                  paddingLeft: '32px',
-                  paddingRight: '32px',
+                  paddingLeft: '0px',
+                  paddingRight: '0px',
                   marginTop: '4px',
                   marginBottom: '4px',
                   lineHeight: '1.2'
