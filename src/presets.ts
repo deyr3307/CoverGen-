@@ -274,6 +274,18 @@ export const WATERMARK_PRESETS = [
     svgPath: ''
   },
   {
+    id: 'use-logo',
+    name: 'Current University Crest',
+    viewBox: '0 0 100 100',
+    svgPath: `
+      <g stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M50 8 C20 8 16 30 16 64 C16 90 44 110 50 112 C56 110 84 90 84 64 C84 30 80 8 50 8 Z" />
+        <circle cx="50" cy="55" r="22" />
+        <path d="M50 35 L62 48 L50 61 L38 48 Z" fill="currentColor" fill-opacity="0.15" />
+      </g>
+    `
+  },
+  {
     id: 'wm-crest',
     name: 'Academic Crest Watermark',
     viewBox: '0 0 100 100',
@@ -342,5 +354,35 @@ export const WATERMARK_PRESETS = [
         <line x1="0" y1="90" x2="100" y2="90" />
       </g>
     `
+  },
+  {
+    id: 'preset-khulna',
+    name: 'Khulna Univ Stag Crest',
+    viewBox: '0 0 100 115',
+    svgPath: LOGO_PRESETS[0].svgPath
+  },
+  {
+    id: 'preset-du',
+    name: 'Dhaka Univ Curzon Crest',
+    viewBox: '0 0 100 100',
+    svgPath: LOGO_PRESETS[2].svgPath
+  },
+  {
+    id: 'preset-academic',
+    name: 'Classic University Seal',
+    viewBox: '0 0 100 100',
+    svgPath: LOGO_PRESETS[1].svgPath
+  },
+  {
+    id: 'preset-ruet',
+    name: 'RUET Engineering Cog',
+    viewBox: '0 0 100 105',
+    svgPath: LOGO_PRESETS[5].svgPath
+  },
+  {
+    id: 'preset-presidency',
+    name: 'Presidency Univ Shield',
+    viewBox: '0 0 100 115',
+    svgPath: LOGO_PRESETS[6].svgPath
   }
 ];

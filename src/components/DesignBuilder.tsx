@@ -823,13 +823,14 @@ export function DesignBuilder({
   };
 
   const getDesignForTemplate = (id: 'ku' | 'du-classic' | 'du-minimal' | 'jnu' | 'ruet'): CoverPageDesign => {
+    const currentWatermark = coverDesign.watermarkUrl || '';
     const base = { ...coverDesign, templateId: id };
     switch (id) {
       case 'du-classic':
         return {
           ...base,
           logoUrl: 'preset-du',
-          watermarkUrl: '',
+          watermarkUrl: currentWatermark,
           borderStyle: 'classic',
           borderColor: '#1e3a8a',
           accentColor: '#1e3a8a',
@@ -855,7 +856,7 @@ export function DesignBuilder({
         return {
           ...base,
           logoUrl: 'preset-du',
-          watermarkUrl: '',
+          watermarkUrl: currentWatermark,
           borderStyle: 'single',
           borderColor: '#475569',
           accentColor: '#1e3a8a',
@@ -881,7 +882,7 @@ export function DesignBuilder({
         return {
           ...base,
           logoUrl: 'preset-jnu',
-          watermarkUrl: '',
+          watermarkUrl: currentWatermark,
           borderStyle: 'double',
           borderColor: '#be123c',
           accentColor: '#be123c',
@@ -907,7 +908,7 @@ export function DesignBuilder({
         return {
           ...base,
           logoUrl: 'preset-ruet',
-          watermarkUrl: '',
+          watermarkUrl: currentWatermark,
           borderStyle: 'modern',
           borderColor: '#ea580c',
           accentColor: '#0284c7',
@@ -934,7 +935,7 @@ export function DesignBuilder({
         return {
           ...base,
           logoUrl: 'preset-khulna',
-          watermarkUrl: '',
+          watermarkUrl: currentWatermark,
           borderStyle: 'none',
           borderColor: '#0284c7',
           accentColor: '#0284c7',
@@ -1263,6 +1264,7 @@ export function DesignBuilder({
       const getPreset = (): CoverPageDesign => {
         const base = { ...prev, templateId: id };
         const currentLogo = prev.logoUrl || ''; // Preserve custom uploaded logo
+        const currentWatermark = prev.watermarkUrl || ''; // Preserve watermark
         
         // Choose appropriate default logo based on template selection if not a custom file
         let defaultLogo = '';
@@ -1283,7 +1285,7 @@ export function DesignBuilder({
           return {
             ...base,
             logoUrl: defaultLogo,
-            watermarkUrl: '',
+            watermarkUrl: currentWatermark,
             borderStyle: 'double',
             borderColor: '#2563eb',
             accentColor: '#2563eb',
@@ -1309,7 +1311,7 @@ export function DesignBuilder({
           return {
             ...base,
             logoUrl: defaultLogo,
-            watermarkUrl: '',
+            watermarkUrl: currentWatermark,
             borderStyle: 'none',
             borderColor: '#1e293b',
             accentColor: '#1e293b',
@@ -1335,7 +1337,7 @@ export function DesignBuilder({
           return {
             ...base,
             logoUrl: defaultLogo,
-            watermarkUrl: '',
+            watermarkUrl: currentWatermark,
             borderStyle: 'single',
             borderColor: '#0891b2',
             accentColor: '#0891b2',
@@ -1361,7 +1363,7 @@ export function DesignBuilder({
           return {
             ...base,
             logoUrl: defaultLogo,
-            watermarkUrl: '',
+            watermarkUrl: currentWatermark,
             borderStyle: 'classic',
             borderColor: '#1e3a8a',
             accentColor: '#1e3a8a',
@@ -1387,7 +1389,7 @@ export function DesignBuilder({
           return {
             ...base,
             logoUrl: defaultLogo,
-            watermarkUrl: '',
+            watermarkUrl: currentWatermark,
             borderStyle: 'none',
             borderColor: '#475569',
             accentColor: '#1e3a8a',
@@ -1413,7 +1415,7 @@ export function DesignBuilder({
           return {
             ...base,
             logoUrl: defaultLogo,
-            watermarkUrl: '',
+            watermarkUrl: currentWatermark,
             borderStyle: 'none',
             borderColor: '#b45309',
             accentColor: '#b45309',
@@ -1439,7 +1441,7 @@ export function DesignBuilder({
           return {
             ...base,
             logoUrl: defaultLogo,
-            watermarkUrl: '',
+            watermarkUrl: currentWatermark,
             borderStyle: 'none',
             borderColor: '#1e3a8a',
             accentColor: '#1e3a8a',
@@ -1465,7 +1467,7 @@ export function DesignBuilder({
           return {
             ...base,
             logoUrl: defaultLogo,
-            watermarkUrl: '',
+            watermarkUrl: currentWatermark,
             borderStyle: 'modern',
             borderColor: '#ea580c',
             accentColor: '#0284c7',
@@ -1491,7 +1493,7 @@ export function DesignBuilder({
           return {
             ...base,
             logoUrl: defaultLogo,
-            watermarkUrl: '',
+            watermarkUrl: currentWatermark,
             borderStyle: 'none',
             borderColor: '#1e3a8a',
             accentColor: '#1e3a8a',
@@ -1517,7 +1519,7 @@ export function DesignBuilder({
           return {
             ...base,
             logoUrl: defaultLogo,
-            watermarkUrl: '',
+            watermarkUrl: currentWatermark,
             borderStyle: 'single',
             borderColor: '#0f172a',
             accentColor: '#1e3a8a',
@@ -1543,7 +1545,7 @@ export function DesignBuilder({
           return {
             ...base,
             logoUrl: defaultLogo,
-            watermarkUrl: '',
+            watermarkUrl: currentWatermark,
             borderStyle: 'none',
             borderColor: '#ffa07a',
             accentColor: '#d95d39',
@@ -1573,7 +1575,7 @@ export function DesignBuilder({
           return {
             ...base,
             logoUrl: defaultLogo,
-            watermarkUrl: '',
+            watermarkUrl: currentWatermark,
             borderStyle: 'none',
             borderColor: '#0284c7',
             accentColor: '#0284c7',

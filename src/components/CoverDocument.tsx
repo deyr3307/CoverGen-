@@ -183,7 +183,13 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
 }) => {
   // Find current presets if any
   const logoPreset = LOGO_PRESETS.find(p => p.id === design.logoUrl);
-  const watermarkPreset = WATERMARK_PRESETS.find(p => p.id === design.watermarkUrl) || LOGO_PRESETS.find(p => p.id === design.watermarkUrl);
+  
+  // Resolve effective watermark source (supports presets, custom images, or mirroring current university crest)
+  const rawWatermark = design.watermarkUrl;
+  const effectiveWatermark = (rawWatermark === 'use-logo' || rawWatermark === 'logo') 
+    ? (design.logoUrl || 'preset-science') 
+    : rawWatermark;
+  const watermarkPreset = WATERMARK_PRESETS.find(p => p.id === effectiveWatermark) || LOGO_PRESETS.find(p => p.id === effectiveWatermark);
 
   // Parse custom colors or fallback
   const accentColor = design.accentColor || '#1e3a8a';
@@ -402,10 +408,10 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             transition: color 0.4s ease-in-out, font-size 0.3s ease-out, font-family 0.4s ease-in-out, background-color 0.4s ease-in-out, border-color 0.4s ease-in-out, opacity 0.4s ease-in-out, margin 0.4s ease-in-out, padding 0.4s ease-in-out;
           }
           @keyframes watermark-smooth-pan {
-            0% { transform: translate(0px, 0px) rotate(0deg) scale(${design.watermarkScale / 100}); }
-            33% { transform: translate(15px, -10px) rotate(1.5deg) scale(${design.watermarkScale / 100}); }
-            66% { transform: translate(-12px, 14px) rotate(-1.5deg) scale(${design.watermarkScale / 100}); }
-            100% { transform: translate(0px, 0px) rotate(0deg) scale(${design.watermarkScale / 100}); }
+            0% { transform: translate(0px, 0px) rotate(0deg) scale(${(design.watermarkScale || 110) / 100}); }
+            33% { transform: translate(15px, -10px) rotate(1.5deg) scale(${(design.watermarkScale || 110) / 100}); }
+            66% { transform: translate(-12px, 14px) rotate(-1.5deg) scale(${(design.watermarkScale || 110) / 100}); }
+            100% { transform: translate(0px, 0px) rotate(0deg) scale(${(design.watermarkScale || 110) / 100}); }
           }
           @keyframes qr-ripple {
             0% {
@@ -442,9 +448,9 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
         )}
 
         {/* Background Watermark */}
-        {design.watermarkUrl && design.watermarkUrl !== 'wm-none' && design.templateId !== 'ruet' && (
+        {effectiveWatermark && effectiveWatermark !== 'wm-none' && (
           <div 
-            className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+            className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-[1]"
             style={{ 
               transform: `translate(${design.watermarkXOffset || 0}px, ${design.watermarkYOffset || 0}px)`
             }}
@@ -452,25 +458,29 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             <div
               className={`flex items-center justify-center ${design.watermarkAnimate ? 'watermark-animate' : ''}`}
               style={{
-                opacity: design.watermarkOpacity,
+                opacity: design.watermarkOpacity !== undefined ? design.watermarkOpacity : 0.08,
                 animation: design.watermarkAnimate ? 'watermark-smooth-pan 15s ease-in-out infinite' : 'none',
-                transform: design.watermarkAnimate ? undefined : `scale(${design.watermarkScale / 100})`
+                transform: design.watermarkAnimate ? undefined : `scale(${(design.watermarkScale !== undefined ? design.watermarkScale : 110) / 100})`
               }}
             >
               {watermarkPreset ? (
-                <svg 
-                  className="w-[450px] h-[450px]"
-                  viewBox={watermarkPreset.viewBox || '0 0 100 100'}
-                  dangerouslySetInnerHTML={{ __html: watermarkPreset.svgPath }}
-                  style={{ color: accentColor }}
-                />
+                <div 
+                  className="w-[450px] h-[450px] flex items-center justify-center"
+                  style={{ color: design.accentColor || accentColor || '#1e3a8a' }}
+                >
+                  <svg 
+                    className="w-full h-full"
+                    viewBox={watermarkPreset.viewBox || '0 0 100 100'}
+                    dangerouslySetInnerHTML={{ __html: watermarkPreset.svgPath }}
+                  />
+                </div>
               ) : (
-                // Custom watermark
+                // Custom watermark image
                 <img 
-                  src={design.watermarkUrl} 
+                  src={effectiveWatermark} 
                   alt="Watermark" 
-                  className="max-w-[450px] max-h-[450px] object-contain"
-                  style={design.watermarkBlendMultiply ? { mixBlendMode: 'multiply' } : undefined}
+                  className="max-w-[500px] max-h-[500px] object-contain"
+                  style={design.watermarkBlendMultiply !== false ? { mixBlendMode: 'multiply' } : undefined}
                   referrerPolicy="no-referrer"
                 />
               )}
