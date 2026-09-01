@@ -641,92 +641,99 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             </DraggableBlock>
 
             {/* Bottom side-by-side Rounded Cards */}
-            <div className="grid grid-cols-2 gap-6 w-full px-12 select-none my-2">
-              {/* Left Card: Prepared For / Submitted To */}
-              <DraggableBlock elementId="submittedTo" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
-                <div 
-                  className="rounded-xl px-4 py-3 bg-white/50 dark:bg-slate-900/5 text-left border"
-                  style={{ borderColor: design.fontSubmittedToHeading?.color || fontColor || '#1e3a8a' }}
-                >
-                  <h4 
-                    style={{
-                      ...getDirectStyle(design.fontSubmittedToHeading, design.fontSubSection, fontFamily, fontColor || '#1e3a8a', true, 11.5, 'em')
-                    }}
-                    className="border-b pb-1.5 mb-2 uppercase tracking-wide opacity-90"
-                  >
-                    {data.teacherHeading || 'Submitted To :'}
-                  </h4>
-                  <div 
-                    className="space-y-0.5"
-                    style={{ 
-                      ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor, false, 11, 'em'),
-                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
-                    }}
-                  >
-                    {data.teacherDetails ? (
-                      <div className="whitespace-pre-line text-left">{data.teacherDetails}</div>
-                    ) : (
-                      <>
-                        <div>{data.teacherName || 'Sawban Ibn Farid'}</div>
-                        {data.teacherDesignation && <div className="opacity-80">{data.teacherDesignation}</div>}
-                        <div className="opacity-80">{data.teacherDiscipline || (design.disciplineLabel === 'Discipline' ? 'CSE Discipline' : 'Department of CSE')}</div>
-                        <div className="opacity-80">{data.teacherUniversity || 'Presidency University'}</div>
-                        {data.teacherLocation && <div className="opacity-75">{data.teacherLocation}</div>}
-                        {data.teacher2Name && (
-                          <div className="mt-2 border-t border-dashed border-gray-300 pt-1 w-full text-left">
-                            <div className="text-[0.8em] tracking-wider opacity-60 uppercase">Joint Supervisor</div>
-                            <div>{data.teacher2Name}</div>
-                            {data.teacher2Designation && <div className="opacity-80">{data.teacher2Designation}</div>}
-                            {data.teacher2Discipline && <div className="opacity-80">{data.teacher2Discipline}</div>}
-                            {data.teacher2University && <div className="opacity-80">{data.teacher2University}</div>}
-                            {data.teacher2Location && <div className="opacity-75">{data.teacher2Location}</div>}
+            {(() => {
+              const hasTeacher2 = Boolean(data.teacher2Name && data.teacher2Name.trim());
+              return (
+                <div className={`grid grid-cols-2 ${hasTeacher2 ? 'gap-4 px-8 my-1' : 'gap-6 px-12 my-2'} w-full select-none items-start`}>
+                  {/* Left Card: Prepared For / Submitted To */}
+                  <DraggableBlock elementId="submittedTo" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
+                    <div 
+                      className={`rounded-xl ${hasTeacher2 ? 'px-3.5 py-2' : 'px-4 py-3'} bg-white/50 dark:bg-slate-900/5 text-left border`}
+                      style={{ borderColor: design.fontSubmittedToHeading?.color || fontColor || '#1e3a8a' }}
+                    >
+                      <h4 
+                        style={{
+                          ...getDirectStyle(design.fontSubmittedToHeading, design.fontSubSection, fontFamily, fontColor || '#1e3a8a', true, hasTeacher2 ? 10.5 : 11.5, 'em')
+                        }}
+                        className={`border-b ${hasTeacher2 ? 'pb-1 mb-1.5' : 'pb-1.5 mb-2'} uppercase tracking-wide opacity-90`}
+                      >
+                        {data.teacherHeading || 'Submitted To :'}
+                      </h4>
+                      <div 
+                        className="space-y-0.5"
+                        style={{ 
+                          ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor, false, hasTeacher2 ? 9.8 : 11, 'em'),
+                          fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
+                        }}
+                      >
+                        {data.teacherDetails ? (
+                          <div className="whitespace-pre-line text-left">{data.teacherDetails}</div>
+                        ) : (
+                          <>
+                            <div>{data.teacherName || 'Sawban Ibn Farid'}</div>
+                            {data.teacherDesignation && <div className="opacity-80">{data.teacherDesignation}</div>}
+                            <div className="opacity-80">{data.teacherDiscipline || (design.disciplineLabel === 'Discipline' ? 'CSE Discipline' : 'Department of CSE')}</div>
+                            <div className="opacity-80">{data.teacherUniversity || 'Presidency University'}</div>
+                            {data.teacherLocation && <div className="opacity-75">{data.teacherLocation}</div>}
+                          </>
+                        )}
+                        {hasTeacher2 && (
+                          <div className="mt-2 border-t border-slate-300 dark:border-slate-700 pt-1.5 w-full text-left">
+                            <div className="text-[0.85em] tracking-wider uppercase font-bold text-blue-800 dark:text-blue-300 mb-0.5">
+                              Joint Supervisor / Co-Evaluator
+                            </div>
+                            <div className="font-semibold text-[1.02em]">{data.teacher2Name}</div>
+                            {data.teacher2Designation && <div className="opacity-95 font-normal">{data.teacher2Designation}</div>}
+                            {data.teacher2Discipline && <div className="opacity-95 font-normal">{data.teacher2Discipline}</div>}
+                            {data.teacher2University && <div className="opacity-95 font-medium">{data.teacher2University}</div>}
+                            {data.teacher2Location && <div className="opacity-90 font-normal">{data.teacher2Location}</div>}
                           </div>
                         )}
-                      </>
-                    )}
-                  </div>
+                      </div>
+                    </div>
+                  </DraggableBlock>
+     
+                  {/* Right Card: Prepared By / Submitted By */}
+                  <DraggableBlock elementId="submittedBy" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
+                    <div 
+                      className={`rounded-xl ${hasTeacher2 ? 'px-3.5 py-2' : 'px-4 py-3'} bg-white/50 dark:bg-slate-900/5 text-left border`}
+                      style={{ borderColor: design.fontSubmittedByHeading?.color || fontColor || '#1e3a8a' }}
+                    >
+                      <h4 
+                        style={{
+                          ...getDirectStyle(design.fontSubmittedByHeading, design.fontSubSection, fontFamily, fontColor || '#1e3a8a', true, hasTeacher2 ? 10.5 : 11.5, 'em')
+                        }}
+                        className={`border-b ${hasTeacher2 ? 'pb-1 mb-1.5' : 'pb-1.5 mb-2'} uppercase tracking-wide opacity-90`}
+                      >
+                        {data.submittedByLabel || 'Submitted By :'}
+                      </h4>
+                      <div 
+                        className="space-y-0.5"
+                        style={{ 
+                          ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor, false, hasTeacher2 ? 9.8 : 11, 'em'),
+                          fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
+                        }}
+                      >
+                        {data.studentDetails ? (
+                          <div className="whitespace-pre-line text-left">{data.studentDetails}</div>
+                        ) : (
+                          <>
+                            <div>{data.studentName || 'Mst. Urmi Akter'}</div>
+                            <div>ID: {data.studentId || '242450038'}</div>
+                            {data.studentRoll && <div>Roll No: {data.studentRoll}</div>}
+                            {data.studentRegNo && <div>Reg No: {data.studentRegNo}</div>}
+                            {data.studentYearTerm && <div className="opacity-80">{data.studentYearTerm}</div>}
+                            <div className="opacity-80">{data.studentDiscipline || (design.disciplineLabel === 'Discipline' ? 'CSE Discipline' : 'Department of CSE')}</div>
+                            {data.studentUniversity && <div className="opacity-80">{data.studentUniversity}</div>}
+                            {data.studentLocation && <div className="opacity-75">{data.studentLocation}</div>}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </DraggableBlock>
                 </div>
-              </DraggableBlock>
- 
-              {/* Right Card: Prepared By / Submitted By */}
-              <DraggableBlock elementId="submittedBy" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
-                <div 
-                  className="rounded-xl px-4 py-3 bg-white/50 dark:bg-slate-900/5 text-left border"
-                  style={{ borderColor: design.fontSubmittedByHeading?.color || fontColor || '#1e3a8a' }}
-                >
-                  <h4 
-                    style={{
-                      ...getDirectStyle(design.fontSubmittedByHeading, design.fontSubSection, fontFamily, fontColor || '#1e3a8a', true, 11.5, 'em')
-                    }}
-                    className="border-b pb-1.5 mb-2 uppercase tracking-wide opacity-90"
-                  >
-                    {data.submittedByLabel || 'Submitted By :'}
-                  </h4>
-                  <div 
-                    className="space-y-0.5"
-                    style={{ 
-                      ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor, false, 11, 'em'),
-                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
-                    }}
-                  >
-                    {data.studentDetails ? (
-                      <div className="whitespace-pre-line text-left">{data.studentDetails}</div>
-                    ) : (
-                      <>
-                        <div>{data.studentName || 'Mst. Urmi Akter'}</div>
-                        <div>ID: {data.studentId || '242450038'}</div>
-                        {data.studentRoll && <div>Roll No: {data.studentRoll}</div>}
-                        {data.studentRegNo && <div>Reg No: {data.studentRegNo}</div>}
-                        {data.studentYearTerm && <div className="opacity-80">{data.studentYearTerm}</div>}
-                        <div className="opacity-80">{data.studentDiscipline || (design.disciplineLabel === 'Discipline' ? 'CSE Discipline' : 'Department of CSE')}</div>
-                        {data.studentUniversity && <div className="opacity-80">{data.studentUniversity}</div>}
-                        {data.studentLocation && <div className="opacity-75">{data.studentLocation}</div>}
-                      </>
-                    )}
-                  </div>
-                </div>
-              </DraggableBlock>
-            </div>
+              );
+            })()}
 
             {/* Bottom Pill border wrapper for submission date */}
             <DraggableBlock elementId="submissionDate" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 mb-2">
@@ -839,37 +846,42 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             </DraggableBlock>
 
             {/* Side-by-side stacked column info */}
-            <div className="grid grid-cols-2 gap-x-12 px-6 w-full mt-6 select-none">
-              {/* LEFT: Supervised By (Submitted To) */}
-              <DraggableBlock elementId="submittedTo" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
-                <div className="flex flex-col items-start justify-start text-left">
-                  <h4 
-                    style={{
-                      ...getDirectStyle(design.fontSubmittedToHeading, design.fontSubSection, fontFamily, fontColor || '#000000', true, 12.5, 'em')
-                    }}
-                    className="mb-2 tracking-wide border-b pb-0.5 w-[160px]"
-                  >
-                    Supervised By
-                  </h4>
-                  <div 
-                    className="space-y-0.5"
-                    style={{ 
-                      ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor || '#000000', false, 11, 'em'),
-                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
-                    }}
-                  >
-                    {data.teacherDetails ? (
-                      <div className="whitespace-pre-line text-left">{data.teacherDetails}</div>
-                    ) : (
-                      <>
-                        <div>{data.teacherName || 'Mezbah-Ul-Azam Sowdagor'}</div>
-                        {data.teacherDesignation && <div>{data.teacherDesignation}</div>}
-                        <div>{data.teacherDiscipline || 'Department of Political Science'}</div>
-                        <div>{data.teacherUniversity || 'Jagannath University, Dhaka'}</div>
-                        {data.teacherLocation && <div>{data.teacherLocation}</div>}
-                        {data.teacher2Name && (
-                          <div className="mt-2 border-t border-dashed border-gray-400 pt-1 w-full text-left">
-                            <div className="text-[0.8em] tracking-wider opacity-60 uppercase">Joint Supervisor</div>
+            {(() => {
+              const hasTeacher2 = Boolean(data.teacher2Name && data.teacher2Name.trim());
+              return (
+                <div className={`grid grid-cols-2 ${hasTeacher2 ? 'gap-x-8 px-6 mt-3' : 'gap-x-12 px-6 mt-6'} w-full select-none items-start`}>
+                  {/* LEFT: Supervised By (Submitted To) */}
+                  <DraggableBlock elementId="submittedTo" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
+                    <div className="flex flex-col items-start justify-start text-left">
+                      <h4 
+                        style={{
+                          ...getDirectStyle(design.fontSubmittedToHeading, design.fontSubSection, fontFamily, fontColor || '#000000', true, hasTeacher2 ? 11 : 12.5, 'em')
+                        }}
+                        className={`tracking-wide border-b pb-0.5 w-[160px] ${hasTeacher2 ? 'mb-1' : 'mb-2'}`}
+                      >
+                        Supervised By
+                      </h4>
+                      <div 
+                        className="space-y-0.5"
+                        style={{ 
+                          ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor || '#000000', false, hasTeacher2 ? 9.8 : 11, 'em'),
+                          fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
+                        }}
+                      >
+                        {data.teacherDetails ? (
+                          <div className="whitespace-pre-line text-left">{data.teacherDetails}</div>
+                        ) : (
+                          <>
+                            <div>{data.teacherName || 'Mezbah-Ul-Azam Sowdagor'}</div>
+                            {data.teacherDesignation && <div>{data.teacherDesignation}</div>}
+                            <div>{data.teacherDiscipline || 'Department of Political Science'}</div>
+                            <div>{data.teacherUniversity || 'Jagannath University, Dhaka'}</div>
+                            {data.teacherLocation && <div>{data.teacherLocation}</div>}
+                          </>
+                        )}
+                        {hasTeacher2 && (
+                          <div className="mt-1.5 border-t border-dashed border-gray-400 pt-1 w-full text-left">
+                            <div className="text-[0.8em] tracking-wider opacity-60 uppercase font-serif">Joint Supervisor</div>
                             <div>{data.teacher2Name}</div>
                             {data.teacher2Designation && <div>{data.teacher2Designation}</div>}
                             {data.teacher2Discipline && <div>{data.teacher2Discipline}</div>}
@@ -877,50 +889,50 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                             {data.teacher2Location && <div>{data.teacher2Location}</div>}
                           </div>
                         )}
-                      </>
-                    )}
-                  </div>
+                      </div>
+                    </div>
+                  </DraggableBlock>
+     
+                  {/* RIGHT: Prepared By */}
+                  <DraggableBlock elementId="submittedBy" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
+                    <div className="flex flex-col items-start justify-start text-left">
+                      <h4 
+                        style={{
+                          ...getDirectStyle(design.fontSubmittedByHeading, design.fontSubSection, fontFamily, fontColor || '#000000', true, hasTeacher2 ? 11 : 12.5, 'em'),
+                          textAlign: 'left'
+                        }}
+                        className={`tracking-wide border-b pb-0.5 w-[160px] text-left ${hasTeacher2 ? 'mb-1' : 'mb-2'}`}
+                      >
+                        Prepared By
+                      </h4>
+                      <div 
+                        className="space-y-0.5 text-left"
+                        style={{ 
+                          ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor || '#000000', false, hasTeacher2 ? 9.8 : 11, 'em'),
+                          fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal',
+                          textAlign: 'left'
+                        }}
+                      >
+                        {data.studentDetails ? (
+                          <div className="whitespace-pre-line text-left">{data.studentDetails}</div>
+                        ) : (
+                          <>
+                            <div className="text-left">{data.studentName || 'Sabiha Akter'}</div>
+                            <div className="text-left">ID: {data.studentId || 'B-150402028'}</div>
+                            {data.studentRoll && <div className="text-left">Roll No: {data.studentRoll}</div>}
+                            {data.studentRegNo && <div className="text-left">Reg No: {data.studentRegNo}</div>}
+                            {data.studentYearTerm && <div className="text-left">Session: {data.studentYearTerm}</div>}
+                            <div className="text-left">{data.studentDiscipline || 'Department of Political Science'}</div>
+                            {data.studentUniversity && <div className="text-left">{data.studentUniversity || 'Jagannath University, Dhaka'}</div>}
+                            {data.studentLocation && <div className="text-left">{data.studentLocation}</div>}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </DraggableBlock>
                 </div>
-              </DraggableBlock>
- 
-              {/* RIGHT: Prepared By */}
-              <DraggableBlock elementId="submittedBy" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
-                <div className="flex flex-col items-start justify-start text-left">
-                  <h4 
-                    style={{
-                      ...getDirectStyle(design.fontSubmittedByHeading, design.fontSubSection, fontFamily, fontColor || '#000000', true, 12.5, 'em'),
-                      textAlign: 'left'
-                    }}
-                    className="mb-2 tracking-wide border-b pb-0.5 w-[160px] text-left"
-                  >
-                    Prepared By
-                  </h4>
-                  <div 
-                    className="space-y-0.5 text-left"
-                    style={{ 
-                      ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor || '#000000', false, 11, 'em'),
-                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal',
-                      textAlign: 'left'
-                    }}
-                  >
-                    {data.studentDetails ? (
-                      <div className="whitespace-pre-line text-left">{data.studentDetails}</div>
-                    ) : (
-                      <>
-                        <div className="text-left">{data.studentName || 'Sabiha Akter'}</div>
-                        <div className="text-left">ID: {data.studentId || 'B-150402028'}</div>
-                        {data.studentRoll && <div className="text-left">Roll No: {data.studentRoll}</div>}
-                        {data.studentRegNo && <div className="text-left">Reg No: {data.studentRegNo}</div>}
-                        {data.studentYearTerm && <div className="text-left">Session: {data.studentYearTerm}</div>}
-                        <div className="text-left">{data.studentDiscipline || 'Department of Political Science'}</div>
-                        {data.studentUniversity && <div className="text-left">{data.studentUniversity || 'Jagannath University, Dhaka'}</div>}
-                        {data.studentLocation && <div className="text-left">{data.studentLocation}</div>}
-                      </>
-                    )}
-                  </div>
-                </div>
-              </DraggableBlock>
-            </div>
+              );
+            })()}
 
             {/* Submission Date bottom */}
             <DraggableBlock elementId="submissionDate" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 mb-2">
@@ -997,74 +1009,96 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             </div>
 
             {/* Central detail cards or labels structured */}
-            <div className="w-full px-12 flex flex-col space-y-6 select-none my-4">
-              
-              {/* Submitted To Section (Centered with bold underlined headers matching Image 3) */}
-              <DraggableBlock elementId="submittedTo" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full text-center">
-                <div className="flex flex-col items-center justify-center text-center">
-                  <h4 
-                    style={{
-                      ...getDirectStyle(design.fontSubmittedToHeading, design.fontSubSection, fontFamily, fontColor || '#0891b2', true, 13, 'em'),
-                      borderColor: design.fontSubmittedToHeading?.color || fontColor || '#0891b2'
-                    }}
-                    className="mb-1.5 uppercase tracking-widest border-b-2 pb-1 px-4 text-center"
-                  >
-                    {data.teacherHeading || 'Submitted To'}
-                  </h4>
-                  <div 
-                    className="space-y-0.5 text-center"
-                    style={{ 
-                      ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor, false, 11.5, 'em'),
-                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
-                    }}
-                  >
-                    {data.teacherDetails ? (
-                       <div className="whitespace-pre-line text-center">{data.teacherDetails}</div>
-                    ) : (
-                      <>
-                        <div>{data.teacherName || 'Teacher Name'}</div>
-                        <div className="opacity-80">{data.teacherDesignation || 'Professor'}</div>
-                        <div className="opacity-80">{data.teacherDiscipline || 'Department of Finance'}</div>
-                        <div className="opacity-80">{data.teacherUniversity || 'Jagannath University'}</div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </DraggableBlock>
+            {(() => {
+              const hasTeacher2 = Boolean(data.teacher2Name && data.teacher2Name.trim());
+              return (
+                <div className={`w-full ${hasTeacher2 ? 'px-8 space-y-3 my-2' : 'px-12 space-y-6 my-4'} flex flex-col select-none`}>
+                  
+                  {/* Submitted To Section (Centered with bold underlined headers matching Image 3) */}
+                  <DraggableBlock elementId="submittedTo" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full text-center">
+                    <div className="flex flex-col items-center justify-center text-center">
+                      <h4 
+                        style={{
+                          ...getDirectStyle(design.fontSubmittedToHeading, design.fontSubSection, fontFamily, fontColor || '#0891b2', true, hasTeacher2 ? 11.5 : 13, 'em'),
+                          borderColor: design.fontSubmittedToHeading?.color || fontColor || '#0891b2'
+                        }}
+                        className={`uppercase tracking-widest border-b-2 px-4 text-center ${hasTeacher2 ? 'mb-1 pb-0.5' : 'mb-1.5 pb-1'}`}
+                      >
+                        {data.teacherHeading || 'Submitted To'}
+                      </h4>
+                      <div 
+                        className="space-y-0.5 text-center"
+                        style={{ 
+                          ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor, false, hasTeacher2 ? 10 : 11.5, 'em'),
+                          fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
+                        }}
+                      >
+                        {data.teacherDetails ? (
+                           <div className="whitespace-pre-line text-center">{data.teacherDetails}</div>
+                        ) : (
+                          <>
+                            <div>{data.teacherName || 'Teacher Name'}</div>
+                            <div className="opacity-80">{data.teacherDesignation || 'Professor'}</div>
+                            <div className="opacity-80">{data.teacherDiscipline || 'Department of Finance'}</div>
+                            <div className="opacity-80">{data.teacherUniversity || 'Jagannath University'}</div>
+                            {data.teacherLocation && <div className="opacity-75">{data.teacherLocation}</div>}
+                          </>
+                        )}
+                        {hasTeacher2 && (
+                          <div className="mt-2 border-t border-cyan-400/60 pt-1.5 w-full text-center">
+                            <div className="text-[0.85em] tracking-wider uppercase font-bold text-cyan-800 dark:text-cyan-300 mb-0.5">
+                              Joint Supervisor / Co-Evaluator
+                            </div>
+                            <div className="font-semibold text-[1.02em]">{data.teacher2Name}</div>
+                            {data.teacher2Designation && <div className="opacity-95 font-normal">{data.teacher2Designation}</div>}
+                            {data.teacher2Discipline && <div className="opacity-95 font-normal">{data.teacher2Discipline}</div>}
+                            {data.teacher2University && <div className="opacity-95 font-medium">{data.teacher2University}</div>}
+                            {data.teacher2Location && <div className="opacity-90 font-normal">{data.teacher2Location}</div>}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </DraggableBlock>
 
-              {/* Prepared By Section */}
-              <DraggableBlock elementId="submittedBy" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full text-center">
-                <div className="flex flex-col items-center justify-center text-center">
-                  <h4 
-                    style={{
-                      ...getDirectStyle(design.fontSubmittedByHeading, design.fontSubSection, fontFamily, fontColor || '#0891b2', true, 13, 'em'),
-                      borderColor: design.fontSubmittedByHeading?.color || fontColor || '#0891b2'
-                    }}
-                    className="mb-1.5 uppercase tracking-widest border-b-2 pb-1 px-4 text-center"
-                  >
-                    {data.submittedByLabel || 'Prepared By'}
-                  </h4>
-                  <div 
-                    className="space-y-0.5 text-center"
-                    style={{ 
-                      ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor, false, 11.5, 'em'),
-                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
-                    }}
-                  >
-                    {data.studentDetails ? (
-                      <div className="whitespace-pre-line text-center">{data.studentDetails}</div>
-                    ) : (
-                      <>
-                        <div>{data.studentName || 'Student Name'}</div>
-                        <div>ID: {data.studentId || '151000'}</div>
-                        {data.studentYearTerm && <div className="opacity-80">{data.studentYearTerm}</div>}
-                        <div className="opacity-80">{data.studentDiscipline || 'Department of Finance'}</div>
-                      </>
-                    )}
-                  </div>
+                  {/* Prepared By Section */}
+                  <DraggableBlock elementId="submittedBy" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full text-center">
+                    <div className="flex flex-col items-center justify-center text-center">
+                      <h4 
+                        style={{
+                          ...getDirectStyle(design.fontSubmittedByHeading, design.fontSubSection, fontFamily, fontColor || '#0891b2', true, hasTeacher2 ? 11.5 : 13, 'em'),
+                          borderColor: design.fontSubmittedByHeading?.color || fontColor || '#0891b2'
+                        }}
+                        className={`uppercase tracking-widest border-b-2 px-4 text-center ${hasTeacher2 ? 'mb-1 pb-0.5' : 'mb-1.5 pb-1'}`}
+                      >
+                        {data.submittedByLabel || 'Prepared By'}
+                      </h4>
+                      <div 
+                        className="space-y-0.5 text-center"
+                        style={{ 
+                          ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor, false, hasTeacher2 ? 10 : 11.5, 'em'),
+                          fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
+                        }}
+                      >
+                        {data.studentDetails ? (
+                          <div className="whitespace-pre-line text-center">{data.studentDetails}</div>
+                        ) : (
+                          <>
+                            <div>{data.studentName || 'Student Name'}</div>
+                            <div>ID: {data.studentId || '151000'}</div>
+                            {data.studentRoll && <div>Roll No: {data.studentRoll}</div>}
+                            {data.studentRegNo && <div>Reg No: {data.studentRegNo}</div>}
+                            {data.studentYearTerm && <div className="opacity-80">{data.studentYearTerm}</div>}
+                            <div className="opacity-80">{data.studentDiscipline || 'Department of Finance'}</div>
+                            {data.studentUniversity && <div className="opacity-80">{data.studentUniversity}</div>}
+                            {data.studentLocation && <div className="opacity-75">{data.studentLocation}</div>}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </DraggableBlock>
                 </div>
-              </DraggableBlock>
-            </div>
+              );
+            })()}
 
             {/* Submission Date bottom centered bar style */}
             <DraggableBlock elementId="submissionDate" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 mb-4">
@@ -1209,40 +1243,45 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             </DraggableBlock>
 
             {/* Stacked Details Pane (Prepared For & Prepared By Centered Vertically) */}
-            <div className="flex flex-col items-center justify-center space-y-4 w-full my-2 select-none">
-              
-              {/* Prepared For (Submitted To) */}
-              <DraggableBlock elementId="submittedTo" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
-                <div className="flex flex-col items-center text-center max-w-lg">
-                  <span 
-                    style={{ 
-                      ...getDirectStyle(design.fontSubmittedToHeading, design.fontSubSection, fontFamily, fontColor || accentColor, true, 9, 'em')
-                    }}
-                    className="tracking-[0.12em] mb-1"
-                  >
-                    {data.teacherHeading || 'PREPARED FOR'}
-                  </span>
-                  <div 
-                    style={{ 
-                      ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor || '#1e293b', false, 10.5, 'em'),
-                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
-                    }} 
-                    className="flex flex-col items-center"
-                  >
-                    {data.teacherDetails ? (
-                      <span className="whitespace-pre-line text-center">{data.teacherDetails}</span>
-                    ) : (
-                      <>
-                        <span>{data.teacherName || 'Teacher Name'}</span>
-                        {data.teacherDesignation && <span className="opacity-80">{data.teacherDesignation}</span>}
-                        {(data.teacherDiscipline || design.disciplineLabel) && (
-                          <span className="opacity-75">{data.teacherDiscipline || design.disciplineLabel || 'Department'}</span>
+            {(() => {
+              const hasTeacher2 = Boolean(data.teacher2Name && data.teacher2Name.trim());
+              return (
+                <div className={`flex flex-col items-center justify-center ${hasTeacher2 ? 'space-y-2 my-1' : 'space-y-4 my-2'} w-full select-none`}>
+                  
+                  {/* Prepared For (Submitted To) */}
+                  <DraggableBlock elementId="submittedTo" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
+                    <div className="flex flex-col items-center text-center max-w-lg">
+                      <span 
+                        style={{ 
+                          ...getDirectStyle(design.fontSubmittedToHeading, design.fontSubSection, fontFamily, fontColor || accentColor, true, hasTeacher2 ? 8.5 : 9, 'em')
+                        }}
+                        className={`tracking-[0.12em] ${hasTeacher2 ? 'mb-0.5' : 'mb-1'}`}
+                      >
+                        {data.teacherHeading || 'PREPARED FOR'}
+                      </span>
+                      <div 
+                        style={{ 
+                          ...getDirectStyle(design.fontSubmittedToContent, design.fontSubSection, fontFamily, fontColor || '#1e293b', false, hasTeacher2 ? 9.5 : 10.5, 'em'),
+                          fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
+                        }} 
+                        className="flex flex-col items-center space-y-0.5"
+                      >
+                        {data.teacherDetails ? (
+                          <span className="whitespace-pre-line text-center">{data.teacherDetails}</span>
+                        ) : (
+                          <>
+                            <span>{data.teacherName || 'Teacher Name'}</span>
+                            {data.teacherDesignation && <span className="opacity-80">{data.teacherDesignation}</span>}
+                            {(data.teacherDiscipline || design.disciplineLabel) && (
+                              <span className="opacity-75">{data.teacherDiscipline || design.disciplineLabel || 'Department'}</span>
+                            )}
+                            {data.teacherUniversity && <span className="opacity-85">{data.teacherUniversity}</span>}
+                            {data.teacherLocation && <span className="opacity-70">{data.teacherLocation}</span>}
+                          </>
                         )}
-                        {data.teacherUniversity && <span className="opacity-85">{data.teacherUniversity}</span>}
-                        {data.teacherLocation && <span className="opacity-70">{data.teacherLocation}</span>}
-                        {data.teacher2Name && (
-                          <div className="mt-2.5 flex flex-col items-center border-t border-dashed border-gray-300 pt-1.5 w-full">
-                            <span className="text-[0.8em] tracking-wider opacity-60 uppercase mb-0.5">Joint Supervisor</span>
+                        {hasTeacher2 && (
+                          <div className="mt-1.5 flex flex-col items-center border-t border-dashed border-gray-300 pt-1 w-full">
+                            <span className="text-[0.8em] tracking-wider opacity-60 uppercase mb-0.5 font-medium">Joint Supervisor</span>
                             <span>{data.teacher2Name}</span>
                             {data.teacher2Designation && <span className="opacity-85">{data.teacher2Designation}</span>}
                             {data.teacher2Discipline && <span className="opacity-75">{data.teacher2Discipline}</span>}
@@ -1250,49 +1289,48 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                             {data.teacher2Location && <span className="opacity-70">{data.teacher2Location}</span>}
                           </div>
                         )}
-                      </>
-                    )}
-                  </div>
-                </div>
-              </DraggableBlock>
+                      </div>
+                    </div>
+                  </DraggableBlock>
 
-              {/* Prepared By (Submitted By) */}
-              <DraggableBlock elementId="submittedBy" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
-                <div className="flex flex-col items-center text-center max-w-lg">
-                  <span 
-                    style={{ 
-                      ...getDirectStyle(design.fontSubmittedByHeading, design.fontSubSection, fontFamily, fontColor || accentColor, true, 9, 'em')
-                    }}
-                    className="tracking-[0.12em] mb-1"
-                  >
-                    {data.submittedByLabel ? data.submittedByLabel.trim().toUpperCase() : 'PREPARED BY'}
-                  </span>
-                  <div 
-                    style={{ 
-                      ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor || '#1e293b', false, 10.5, 'em'),
-                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
-                    }} 
-                    className="flex flex-col items-center"
-                  >
-                    {data.studentDetails ? (
-                       <span className="whitespace-pre-line text-center">{data.studentDetails}</span>
-                    ) : (
-                      <>
-                        <span>{data.studentName || 'Student Name'}</span>
-                        <span>ID NO: {data.studentId || 'Student ID'}</span>
-                        {data.studentRoll && <span>Roll No: {data.studentRoll}</span>}
-                        {data.studentRegNo && <span>Reg No: {data.studentRegNo}</span>}
-                        {data.studentYearTerm && <span className="opacity-80">{data.studentYearTerm}</span>}
-                        <span className="opacity-80">{data.studentDiscipline || design.disciplineLabel || 'Discipline'}</span>
-                        {data.studentUniversity && <span className="opacity-85">{data.studentUniversity}</span>}
-                        {data.studentLocation && <span className="opacity-75">{data.studentLocation}</span>}
-                      </>
-                    )}
-                  </div>
+                  {/* Prepared By (Submitted By) */}
+                  <DraggableBlock elementId="submittedBy" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
+                    <div className="flex flex-col items-center text-center max-w-lg">
+                      <span 
+                        style={{ 
+                          ...getDirectStyle(design.fontSubmittedByHeading, design.fontSubSection, fontFamily, fontColor || accentColor, true, hasTeacher2 ? 8.5 : 9, 'em')
+                        }}
+                        className={`tracking-[0.12em] ${hasTeacher2 ? 'mb-0.5' : 'mb-1'}`}
+                      >
+                        {data.submittedByLabel ? data.submittedByLabel.trim().toUpperCase() : 'PREPARED BY'}
+                      </span>
+                      <div 
+                        style={{ 
+                          ...getDirectStyle(design.fontSubmittedByContent, design.fontSubSection, fontFamily, fontColor || '#1e293b', false, hasTeacher2 ? 9.5 : 10.5, 'em'),
+                          fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
+                        }} 
+                        className="flex flex-col items-center space-y-0.5"
+                      >
+                        {data.studentDetails ? (
+                           <span className="whitespace-pre-line text-center">{data.studentDetails}</span>
+                        ) : (
+                          <>
+                            <span>{data.studentName || 'Student Name'}</span>
+                            <span>ID NO: {data.studentId || 'Student ID'}</span>
+                            {data.studentRoll && <span>Roll No: {data.studentRoll}</span>}
+                            {data.studentRegNo && <span>Reg No: {data.studentRegNo}</span>}
+                            {data.studentYearTerm && <span className="opacity-80">{data.studentYearTerm}</span>}
+                            <span className="opacity-80">{data.studentDiscipline || design.disciplineLabel || 'Discipline'}</span>
+                            {data.studentUniversity && <span className="opacity-85">{data.studentUniversity}</span>}
+                            {data.studentLocation && <span className="opacity-75">{data.studentLocation}</span>}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </DraggableBlock>
                 </div>
-              </DraggableBlock>
-
-            </div>
+              );
+            })()}
 
             {/* Date block */}
             <DraggableBlock elementId="submissionDate" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
@@ -1452,24 +1490,26 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
               const fontSubmittedToHeadingSync = { ...design.fontSubmittedToHeading, align: sharedAlign };
               const fontSubmittedToContentSync = { ...design.fontSubmittedToContent, align: sharedAlign };
 
+              const hasTeacher2 = Boolean(data.teacher2Name && data.teacher2Name.trim());
+
               return (
-                <div className="grid grid-cols-2 gap-x-12 px-8 w-full mt-6 select-none">
+                <div className={`grid grid-cols-2 ${hasTeacher2 ? 'gap-x-8 px-8 mt-3' : 'gap-x-12 px-8 mt-6'} w-full select-none items-start`}>
                   
                   {/* LEFT Column: Submitted By */}
                   <DraggableBlock elementId="submittedBy" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
                     <div className={`flex flex-col justify-start w-full ${alignClasses.container}`}>
                       <h4 
                         style={{
-                          ...getDirectStyle(fontSubmittedByHeadingSync, design.fontSubSection, fontFamily, fontColor || accentColor, true, 13, 'em')
+                          ...getDirectStyle(fontSubmittedByHeadingSync, design.fontSubSection, fontFamily, fontColor || accentColor, true, hasTeacher2 ? 11.5 : 13, 'em')
                         }}
-                        className="mb-3 tracking-wider border-b pb-1 pr-6 font-normal"
+                        className={`tracking-wider border-b pb-1 pr-6 font-normal ${hasTeacher2 ? 'mb-1.5' : 'mb-3'}`}
                       >
                         {data.submittedByLabel || 'Submitted by,'}
                       </h4>
                       <div 
-                        className={`space-y-1 w-full flex flex-col ${alignClasses.container}`}
+                        className={`space-y-0.5 w-full flex flex-col ${alignClasses.container}`}
                         style={{ 
-                          ...getDirectStyle(fontSubmittedByContentSync, design.fontSubSection, fontFamily, fontColor, false, 11, 'em'),
+                          ...getDirectStyle(fontSubmittedByContentSync, design.fontSubSection, fontFamily, fontColor, false, hasTeacher2 ? 9.8 : 11, 'em'),
                           fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
                         }}
                       >
@@ -1496,16 +1536,16 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                     <div className={`flex flex-col justify-start w-full ${alignClasses.container}`}>
                       <h4 
                         style={{
-                          ...getDirectStyle(fontSubmittedToHeadingSync, design.fontSubSection, fontFamily, fontColor || accentColor, true, 13, 'em')
+                          ...getDirectStyle(fontSubmittedToHeadingSync, design.fontSubSection, fontFamily, fontColor || accentColor, true, hasTeacher2 ? 11.5 : 13, 'em')
                         }}
-                        className="mb-3 tracking-wider border-b pb-1 pr-6 font-normal"
+                        className={`tracking-wider border-b pb-1 pr-6 font-normal ${hasTeacher2 ? 'mb-1.5' : 'mb-3'}`}
                       >
                         {data.teacherHeading || 'Submitted to,'}
                       </h4>
                       <div 
-                        className={`space-y-1 w-full flex flex-col ${alignClasses.container}`}
+                        className={`space-y-0.5 w-full flex flex-col ${alignClasses.container}`}
                         style={{ 
-                          ...getDirectStyle(fontSubmittedToContentSync, design.fontSubSection, fontFamily, fontColor, false, 11, 'em'),
+                          ...getDirectStyle(fontSubmittedToContentSync, design.fontSubSection, fontFamily, fontColor, false, hasTeacher2 ? 9.8 : 11, 'em'),
                           fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
                         }}
                       >
@@ -1518,17 +1558,19 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                             <div className="opacity-80">{data.teacherDiscipline || design.disciplineLabel || 'Department'}</div>
                             <div>{data.teacherUniversity || 'University'}</div>
                             {data.teacherLocation && <div className="opacity-75">{data.teacherLocation}</div>}
-                            {data.teacher2Name && (
-                              <div className={`mt-2 border-t border-dashed border-gray-300 pt-1 w-full flex flex-col ${alignClasses.container}`}>
-                                <div className="text-[0.8em] tracking-wider opacity-60 uppercase mb-0.5">Joint Supervisor</div>
-                                <div>{data.teacher2Name}</div>
-                                {data.teacher2Designation && <div className="opacity-80">{data.teacher2Designation}</div>}
-                                {data.teacher2Discipline && <div className="opacity-80">{data.teacher2Discipline}</div>}
-                                {data.teacher2University && <div className="opacity-80">{data.teacher2University}</div>}
-                                {data.teacher2Location && <div className="opacity-75">{data.teacher2Location}</div>}
-                              </div>
-                            )}
                           </>
+                        )}
+                        {hasTeacher2 && (
+                          <div className={`mt-2 border-t border-slate-300 dark:border-slate-700 pt-1.5 w-full flex flex-col ${alignClasses.container}`}>
+                            <div className="text-[0.85em] tracking-wider uppercase mb-0.5 font-sans font-bold text-slate-800 dark:text-slate-200">
+                              Joint Supervisor / Co-Evaluator
+                            </div>
+                            <div className="font-semibold text-[1.02em]">{data.teacher2Name}</div>
+                            {data.teacher2Designation && <div className="opacity-95 font-normal">{data.teacher2Designation}</div>}
+                            {data.teacher2Discipline && <div className="opacity-95 font-normal">{data.teacher2Discipline}</div>}
+                            {data.teacher2University && <div className="opacity-95 font-medium">{data.teacher2University}</div>}
+                            {data.teacher2Location && <div className="opacity-90 font-normal">{data.teacher2Location}</div>}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -1700,42 +1742,29 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
 
               const subToColor = fontSubmittedToHeadingSync?.color || fontColor || '#d97706';
               const subByColor = fontSubmittedByHeadingSync?.color || fontColor || '#d97706';
+              const hasTeacher2 = Boolean(data.teacher2Name && data.teacher2Name.trim());
 
               return (
-                <div className="grid grid-cols-2 gap-x-12 px-8 w-full mt-4 select-none">
+                <div className={`grid grid-cols-2 ${hasTeacher2 ? 'gap-x-8 px-8 mt-2' : 'gap-x-12 px-8 mt-4'} w-full select-none items-start`}>
                   
                   {/* LEFT Column: Submitted To */}
                   <DraggableBlock elementId="submittedTo" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
                     <div className="flex flex-col items-start justify-start text-left">
-                      <div className="flex items-center gap-2 mb-2.5">
-                        <span 
-                          style={{ 
-                            backgroundColor: subToColor, 
-                            width: '4px', 
-                            height: '1.1em', 
-                            borderRadius: '1px',
-                            display: 'inline-block', 
-                            flexShrink: 0 
-                          }} 
-                        />
-                        <h4 
-                          style={{
-                            ...getDirectStyle(fontSubmittedToHeadingSync, design.fontSubSection, fontFamily, subToColor, true, 11.5, 'em'),
-                            marginTop: 0,
-                            marginRight: 0,
-                            marginBottom: 0,
-                            marginLeft: 0,
-                            lineHeight: '1.2'
-                          }}
-                          className="tracking-wider text-left"
-                        >
-                          {data.teacherHeading || 'SUBMITTED TO'}
-                        </h4>
-                      </div>
+                      <h4 
+                        style={{
+                          ...getDirectStyle(fontSubmittedToHeadingSync, design.fontSubSection, fontFamily, subToColor, true, hasTeacher2 ? 10.5 : 11.5, 'em'),
+                          borderLeft: `3.5px solid ${subToColor}`,
+                          paddingLeft: '7px',
+                          lineHeight: '1.2'
+                        }}
+                        className={`tracking-wider text-left ${hasTeacher2 ? 'mb-1.5' : 'mb-2.5'}`}
+                      >
+                        {data.teacherHeading || 'SUBMITTED TO'}
+                      </h4>
                       <div 
                         className="space-y-0.5 text-left flex flex-col w-full"
                         style={{ 
-                          ...getDirectStyle(fontSubmittedToContentSync, design.fontSubSection, fontFamily, fontColor || '#1e293b', false, 10.5, 'em'),
+                          ...getDirectStyle(fontSubmittedToContentSync, design.fontSubSection, fontFamily, fontColor || '#1e293b', false, hasTeacher2 ? 9.5 : 10.5, 'em'),
                           fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
                         }}
                       >
@@ -1748,17 +1777,17 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                             <div className="opacity-80">{data.teacherDiscipline || design.disciplineLabel || 'Department'}</div>
                             <div className="opacity-85">{data.teacherUniversity || 'Jagannath University'}</div>
                             {data.teacherLocation && <div className="opacity-75">{data.teacherLocation}</div>}
-                            {data.teacher2Name && (
-                              <div className="mt-2 border-t border-dashed border-amber-300 pt-1 w-full text-left">
-                                <div className="text-[0.8em] tracking-wider opacity-60 uppercase">Joint Supervisor</div>
-                                <div>{data.teacher2Name}</div>
-                                {data.teacher2Designation && <div className="opacity-80">{data.teacher2Designation}</div>}
-                                {data.teacher2Discipline && <div className="opacity-80">{data.teacher2Discipline}</div>}
-                                {data.teacher2University && <div className="opacity-85">{data.teacher2University}</div>}
-                                {data.teacher2Location && <div className="opacity-75">{data.teacher2Location}</div>}
-                              </div>
-                            )}
                           </>
+                        )}
+                        {hasTeacher2 && (
+                          <div className="mt-1.5 border-t border-dashed border-amber-300 pt-1 w-full text-left">
+                            <div className="text-[0.8em] tracking-wider opacity-60 uppercase font-sans font-medium text-amber-700 dark:text-amber-400">Joint Supervisor</div>
+                            <div>{data.teacher2Name}</div>
+                            {data.teacher2Designation && <div className="opacity-80">{data.teacher2Designation}</div>}
+                            {data.teacher2Discipline && <div className="opacity-80">{data.teacher2Discipline}</div>}
+                            {data.teacher2University && <div className="opacity-85">{data.teacher2University}</div>}
+                            {data.teacher2Location && <div className="opacity-75">{data.teacher2Location}</div>}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -1767,35 +1796,21 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   {/* RIGHT Column: Submitted By */}
                   <DraggableBlock elementId="submittedBy" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
                     <div className="flex flex-col items-start justify-start text-left">
-                      <div className="flex items-center gap-2 mb-2.5">
-                        <span 
-                          style={{ 
-                            backgroundColor: subByColor, 
-                            width: '4px', 
-                            height: '1.1em', 
-                            borderRadius: '1px',
-                            display: 'inline-block', 
-                            flexShrink: 0 
-                          }} 
-                        />
-                        <h4 
-                          style={{
-                            ...getDirectStyle(fontSubmittedByHeadingSync, design.fontSubSection, fontFamily, subByColor, true, 11.5, 'em'),
-                            marginTop: 0,
-                            marginRight: 0,
-                            marginBottom: 0,
-                            marginLeft: 0,
-                            lineHeight: '1.2'
-                          }}
-                          className="tracking-wider text-left"
-                        >
-                          {data.submittedByLabel || 'SUBMITTED BY'}
-                        </h4>
-                      </div>
+                      <h4 
+                        style={{
+                          ...getDirectStyle(fontSubmittedByHeadingSync, design.fontSubSection, fontFamily, subByColor, true, hasTeacher2 ? 10.5 : 11.5, 'em'),
+                          borderLeft: `3.5px solid ${subByColor}`,
+                          paddingLeft: '7px',
+                          lineHeight: '1.2'
+                        }}
+                        className={`tracking-wider text-left ${hasTeacher2 ? 'mb-1.5' : 'mb-2.5'}`}
+                      >
+                        {data.submittedByLabel || 'SUBMITTED BY'}
+                      </h4>
                       <div 
                         className="space-y-0.5 text-left flex flex-col w-full"
                         style={{ 
-                          ...getDirectStyle(fontSubmittedByContentSync, design.fontSubSection, fontFamily, fontColor || '#1e293b', false, 10.5, 'em'),
+                          ...getDirectStyle(fontSubmittedByContentSync, design.fontSubSection, fontFamily, fontColor || '#1e293b', false, hasTeacher2 ? 9.5 : 10.5, 'em'),
                           fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
                         }}
                       >
@@ -1997,17 +2012,19 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                         <div className="opacity-80">{data.teacherDiscipline || design.disciplineLabel || 'Department'}</div>
                         <div className="opacity-90">{data.teacherUniversity || 'Jagannath University'}</div>
                         {data.teacherLocation && <div className="opacity-75">{data.teacherLocation}</div>}
-                        {data.teacher2Name && (
-                          <div className="mt-2 border-t border-dashed border-red-300 pt-1 w-full text-left">
-                            <div className="text-[0.8em] tracking-wider opacity-60 uppercase">Joint Supervisor</div>
-                            <div>{data.teacher2Name}</div>
-                            {data.teacher2Designation && <div className="opacity-80">{data.teacher2Designation}</div>}
-                            {data.teacher2Discipline && <div className="opacity-80">{data.teacher2Discipline}</div>}
-                            {data.teacher2University && <div className="opacity-90">{data.teacher2University}</div>}
-                            {data.teacher2Location && <div className="opacity-75">{data.teacher2Location}</div>}
-                          </div>
-                        )}
                       </>
+                    )}
+                    {data.teacher2Name && (
+                      <div className="mt-2 border-t border-red-300 dark:border-red-800 pt-1.5 w-full text-left">
+                        <div className="text-[0.85em] tracking-wider uppercase font-sans font-bold text-red-700 dark:text-red-300 mb-0.5">
+                          Joint Supervisor / Co-Evaluator
+                        </div>
+                        <div className="font-semibold text-[1.02em]">{data.teacher2Name}</div>
+                        {data.teacher2Designation && <div className="opacity-95 font-normal">{data.teacher2Designation}</div>}
+                        {data.teacher2Discipline && <div className="opacity-95 font-normal">{data.teacher2Discipline}</div>}
+                        {data.teacher2University && <div className="opacity-95 font-medium">{data.teacher2University}</div>}
+                        {data.teacher2Location && <div className="opacity-90 font-normal">{data.teacher2Location}</div>}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -2311,124 +2328,159 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
             </DraggableBlock>
 
             {/* ==================== 4. SUBMITTED TO & SUBMITTED BY ==================== */}
-            <div className="grid grid-cols-2 gap-x-12 px-10 z-10 mt-10 w-full select-none">
-              
-              <DraggableBlock elementId="submittedTo" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
-                <div className={`flex flex-col justify-start ${getAlignClasses(design.fontSubmittedToHeading?.align || design.fontSubSection.align || 'left').container}`}>
-                  <h3 
-                    style={{
-                      fontFamily: design.fontSubmittedToHeading?.fontFamily || design.fontSubSection.fontFamily || fontFamily,
-                      color: design.fontSubmittedToHeading?.color || fontColor || accentColor,
-                      fontSize: `${(design.fontSubmittedToHeading?.fontSize || design.fontSubSection.fontSize + 0.5) / 14}em`,
-                      fontWeight: (design.fontSubmittedToHeading?.bold !== undefined ? design.fontSubmittedToHeading.bold : true) ? 'bold' : 'normal',
-                      fontStyle: (design.fontSubmittedToHeading?.italic !== undefined ? design.fontSubmittedToHeading.italic : false) ? 'italic' : 'normal',
-                      textTransform: (design.fontSubmittedToHeading?.uppercase !== undefined ? design.fontSubmittedToHeading.uppercase : true) ? 'uppercase' : 'none',
-                      textAlign: design.fontSubmittedToHeading?.align || design.fontSubSection.align || 'left'
-                    }}
-                    className="mb-3 tracking-wider"
-                  >
-                    {data.teacherHeading || 'SUBMITTED TO,'}
-                  </h3>
+            {(() => {
+              const hasTeacher2 = Boolean(data.teacher2Name && data.teacher2Name.trim());
+              const contentScale = hasTeacher2 ? 0.88 : 1.0;
+              const headingScale = hasTeacher2 ? 0.92 : 1.0;
+
+              return (
+                <div className={`grid grid-cols-2 ${hasTeacher2 ? 'gap-x-8 px-10 mt-4' : 'gap-x-12 px-10 mt-8'} z-10 w-full select-none items-start`}>
                   
-                  <div 
-                    className={`space-y-1 select-text flex flex-col w-full ${getAlignClasses(design.fontSubmittedToContent?.align || design.fontSubSection.align || 'left').container}`} 
-                    style={{
-                      fontFamily: design.fontSubmittedToContent?.fontFamily || design.fontSubSection.fontFamily || fontFamily,
-                      color: design.fontSubmittedToContent?.color || design.fontSubSection.color || fontColor,
-                      fontSize: `${(design.fontSubmittedToContent?.fontSize || design.fontSubSection.fontSize) / 14}em`,
-                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal',
-                      fontStyle: design.fontSubmittedToContent?.italic ? 'italic' : 'normal',
-                      textTransform: design.fontSubmittedToContent?.uppercase ? 'uppercase' : 'none',
-                      lineHeight: '1.4',
-                      whiteSpace: 'pre-line',
-                      textAlign: design.fontSubmittedToContent?.align || design.fontSubSection.align || 'left'
-                    }}
-                  >
-                    {data.teacherDetails ? data.teacherDetails.trim() : (
-                      <>
-                        <div style={{ fontSize: `${((design.fontSubmittedToContent?.fontSize || design.fontSubSection.fontSize) + 1) / 14}em` }}>
-                          {data.teacherName || 'Teacher Name'}
-                        </div>
-                        <div className="opacity-80">
-                          {data.teacherDesignation || 'Professor'}
-                        </div>
-                        <div className="opacity-80">
-                          {data.teacherDiscipline || (design.disciplineLabel === 'Department' ? 'Department of Environmental Science' : 'Environmental Science Discipline')}
-                        </div>
-                        <div className="opacity-90">
-                          {data.teacherUniversity || 'Khulna University'}
-                        </div>
-                        {data.teacherLocation && (
-                          <div className="opacity-70">
-                            {data.teacherLocation}
+                  <DraggableBlock elementId="submittedTo" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
+                    <div className={`flex flex-col justify-start ${getAlignClasses(design.fontSubmittedToHeading?.align || design.fontSubSection.align || 'left').container}`}>
+                      <h3 
+                        style={{
+                          fontFamily: design.fontSubmittedToHeading?.fontFamily || design.fontSubSection.fontFamily || fontFamily,
+                          color: design.fontSubmittedToHeading?.color || fontColor || accentColor,
+                          fontSize: `${((design.fontSubmittedToHeading?.fontSize || design.fontSubSection.fontSize + 0.5) * headingScale) / 14}em`,
+                          fontWeight: (design.fontSubmittedToHeading?.bold !== undefined ? design.fontSubmittedToHeading.bold : true) ? 'bold' : 'normal',
+                          fontStyle: (design.fontSubmittedToHeading?.italic !== undefined ? design.fontSubmittedToHeading.italic : false) ? 'italic' : 'normal',
+                          textTransform: (design.fontSubmittedToHeading?.uppercase !== undefined ? design.fontSubmittedToHeading.uppercase : true) ? 'uppercase' : 'none',
+                          textAlign: design.fontSubmittedToHeading?.align || design.fontSubSection.align || 'left'
+                        }}
+                        className={`${hasTeacher2 ? 'mb-1.5' : 'mb-3'} tracking-wider`}
+                      >
+                        {data.teacherHeading || 'SUBMITTED TO,'}
+                      </h3>
+                      
+                      <div 
+                        className={`space-y-0.5 select-text flex flex-col w-full ${getAlignClasses(design.fontSubmittedToContent?.align || design.fontSubSection.align || 'left').container}`} 
+                        style={{
+                          fontFamily: design.fontSubmittedToContent?.fontFamily || design.fontSubSection.fontFamily || fontFamily,
+                          color: design.fontSubmittedToContent?.color || design.fontSubSection.color || fontColor,
+                          fontSize: `${((design.fontSubmittedToContent?.fontSize || design.fontSubSection.fontSize) * contentScale) / 14}em`,
+                          fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal',
+                          fontStyle: design.fontSubmittedToContent?.italic ? 'italic' : 'normal',
+                          textTransform: design.fontSubmittedToContent?.uppercase ? 'uppercase' : 'none',
+                          lineHeight: '1.35',
+                          whiteSpace: 'pre-line',
+                          textAlign: design.fontSubmittedToContent?.align || design.fontSubSection.align || 'left'
+                        }}
+                      >
+                        {data.teacherDetails ? data.teacherDetails.trim() : (
+                          <>
+                            <div style={{ fontSize: `${(((design.fontSubmittedToContent?.fontSize || design.fontSubSection.fontSize) + 1) * contentScale) / 14}em` }}>
+                              {data.teacherName || 'Teacher Name'}
+                            </div>
+                            <div className="opacity-80">
+                              {data.teacherDesignation || 'Professor'}
+                            </div>
+                            <div className="opacity-80">
+                              {data.teacherDiscipline || (design.disciplineLabel === 'Department' ? 'Department of Environmental Science' : 'Environmental Science Discipline')}
+                            </div>
+                            <div className="opacity-90">
+                              {data.teacherUniversity || 'Khulna University'}
+                            </div>
+                            {data.teacherLocation && (
+                              <div className="opacity-70">
+                                {data.teacherLocation}
+                              </div>
+                            )}
+                          </>
+                        )}
+                        {hasTeacher2 && (
+                          <div className="mt-2 border-t border-slate-300 dark:border-slate-700 pt-1.5 w-full text-left">
+                            <div className="text-[0.85em] tracking-wider uppercase font-sans font-bold text-emerald-800 dark:text-emerald-300 mb-0.5">
+                              Joint Supervisor / Co-Evaluator
+                            </div>
+                            <div 
+                              className="font-semibold text-[1.02em]"
+                              style={{ fontSize: `${(((design.fontSubmittedToContent?.fontSize || design.fontSubSection.fontSize) + 1) * contentScale) / 14}em` }}
+                            >
+                              {data.teacher2Name}
+                            </div>
+                            {data.teacher2Designation && <div className="opacity-95 font-normal">{data.teacher2Designation}</div>}
+                            {data.teacher2Discipline && <div className="opacity-95 font-normal">{data.teacher2Discipline}</div>}
+                            {data.teacher2University && <div className="opacity-95 font-medium">{data.teacher2University}</div>}
+                            {data.teacher2Location && <div className="opacity-90 font-normal">{data.teacher2Location}</div>}
                           </div>
                         )}
-                      </>
-                    )}
-                  </div>
-                </div>
-              </DraggableBlock>
+                      </div>
+                    </div>
+                  </DraggableBlock>
 
-              <DraggableBlock elementId="submittedBy" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
-                <div className={`flex flex-col justify-start ${getAlignClasses(design.fontSubmittedByHeading?.align || design.fontSubSection.align || 'right').container}`}>
-                  <h3 
-                    style={{
-                      fontFamily: design.fontSubmittedByHeading?.fontFamily || design.fontSubSection.fontFamily || fontFamily,
-                      color: design.fontSubmittedByHeading?.color || fontColor || accentColor,
-                      fontSize: `${(design.fontSubmittedByHeading?.fontSize || design.fontSubSection.fontSize + 0.5) / 14}em`,
-                      fontWeight: (design.fontSubmittedByHeading?.bold !== undefined ? design.fontSubmittedByHeading.bold : true) ? 'bold' : 'normal',
-                      fontStyle: (design.fontSubmittedByHeading?.italic !== undefined ? design.fontSubmittedByHeading.italic : false) ? 'italic' : 'normal',
-                      textTransform: (design.fontSubmittedByHeading?.uppercase !== undefined ? design.fontSubmittedByHeading.uppercase : true) ? 'uppercase' : 'none',
-                      textAlign: design.fontSubmittedByHeading?.align || design.fontSubSection.align || 'right'
-                    }}
-                    className="mb-3 tracking-wider"
-                  >
-                    {data.submittedByLabel ? data.submittedByLabel.trim().toUpperCase() + ',' : 'SUBMITTED BY,'}
-                  </h3>
-                  
-                  <div 
-                    className={`space-y-1 select-text flex flex-col w-full ${getAlignClasses(design.fontSubmittedByContent?.align || design.fontSubSection.align || 'right').container}`} 
-                    style={{
-                      fontFamily: design.fontSubmittedByContent?.fontFamily || design.fontSubSection.fontFamily || fontFamily,
-                      color: design.fontSubmittedByContent?.color || design.fontSubSection.color || fontColor,
-                      fontSize: `${(design.fontSubmittedByContent?.fontSize || design.fontSubSection.fontSize) / 14}em`,
-                      fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal',
-                      fontStyle: design.fontSubmittedByContent?.italic ? 'italic' : 'normal',
-                      textTransform: design.fontSubmittedByContent?.uppercase ? 'uppercase' : 'none',
-                      lineHeight: '1.4',
-                      whiteSpace: 'pre-line',
-                      textAlign: design.fontSubmittedByContent?.align || design.fontSubSection.align || 'right'
-                    }}
-                  >
-                    {data.studentDetails ? data.studentDetails.trim() : (
-                      <>
-                        <div style={{ fontSize: `${((design.fontSubmittedByContent?.fontSize || design.fontSubSection.fontSize) + 1) / 14}em` }}>
-                          {data.studentName || 'Student Name'}
-                        </div>
-                        <div className="opacity-85">
-                          Student ID: {data.studentId || '251009'}
-                        </div>
-                        <div className="opacity-80">
-                          {data.studentYearTerm || '1st Year, 2nd Term'}
-                        </div>
-                        <div className="opacity-80">
-                          {data.studentDiscipline || (design.disciplineLabel === 'Department' ? 'Department of Environmental Science' : 'Environmental Science Discipline')}
-                        </div>
-                        <div className="opacity-90">
-                          {data.studentUniversity || 'Khulna University'}
-                        </div>
-                        {data.studentLocation && (
-                          <div className="opacity-70">
-                            {data.studentLocation}
-                          </div>
+                  <DraggableBlock elementId="submittedBy" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
+                    <div className={`flex flex-col justify-start ${getAlignClasses(design.fontSubmittedByHeading?.align || design.fontSubSection.align || 'right').container}`}>
+                      <h3 
+                        style={{
+                          fontFamily: design.fontSubmittedByHeading?.fontFamily || design.fontSubSection.fontFamily || fontFamily,
+                          color: design.fontSubmittedByHeading?.color || fontColor || accentColor,
+                          fontSize: `${((design.fontSubmittedByHeading?.fontSize || design.fontSubSection.fontSize + 0.5) * headingScale) / 14}em`,
+                          fontWeight: (design.fontSubmittedByHeading?.bold !== undefined ? design.fontSubmittedByHeading.bold : true) ? 'bold' : 'normal',
+                          fontStyle: (design.fontSubmittedByHeading?.italic !== undefined ? design.fontSubmittedByHeading.italic : false) ? 'italic' : 'normal',
+                          textTransform: (design.fontSubmittedByHeading?.uppercase !== undefined ? design.fontSubmittedByHeading.uppercase : true) ? 'uppercase' : 'none',
+                          textAlign: design.fontSubmittedByHeading?.align || design.fontSubSection.align || 'right'
+                        }}
+                        className={`${hasTeacher2 ? 'mb-1.5' : 'mb-3'} tracking-wider`}
+                      >
+                        {data.submittedByLabel ? data.submittedByLabel.trim().toUpperCase() + ',' : 'SUBMITTED BY,'}
+                      </h3>
+                      
+                      <div 
+                        className={`space-y-0.5 select-text flex flex-col w-full ${getAlignClasses(design.fontSubmittedByContent?.align || design.fontSubSection.align || 'right').container}`} 
+                        style={{
+                          fontFamily: design.fontSubmittedByContent?.fontFamily || design.fontSubSection.fontFamily || fontFamily,
+                          color: design.fontSubmittedByContent?.color || design.fontSubSection.color || fontColor,
+                          fontSize: `${((design.fontSubmittedByContent?.fontSize || design.fontSubSection.fontSize) * contentScale) / 14}em`,
+                          fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal',
+                          fontStyle: design.fontSubmittedByContent?.italic ? 'italic' : 'normal',
+                          textTransform: design.fontSubmittedByContent?.uppercase ? 'uppercase' : 'none',
+                          lineHeight: '1.35',
+                          whiteSpace: 'pre-line',
+                          textAlign: design.fontSubmittedByContent?.align || design.fontSubSection.align || 'right'
+                        }}
+                      >
+                        {data.studentDetails ? data.studentDetails.trim() : (
+                          <>
+                            <div style={{ fontSize: `${(((design.fontSubmittedByContent?.fontSize || design.fontSubSection.fontSize) + 1) * contentScale) / 14}em` }}>
+                              {data.studentName || 'Student Name'}
+                            </div>
+                            <div className="opacity-85">
+                              Student ID: {data.studentId || '251009'}
+                            </div>
+                            {data.studentRoll && (
+                              <div className="opacity-85">
+                                Roll No: {data.studentRoll}
+                              </div>
+                            )}
+                            {data.studentRegNo && (
+                              <div className="opacity-85">
+                                Reg No: {data.studentRegNo}
+                              </div>
+                            )}
+                            <div className="opacity-80">
+                              {data.studentYearTerm || '1st Year, 2nd Term'}
+                            </div>
+                            <div className="opacity-80">
+                              {data.studentDiscipline || (design.disciplineLabel === 'Department' ? 'Department of Environmental Science' : 'Environmental Science Discipline')}
+                            </div>
+                            <div className="opacity-90">
+                              {data.studentUniversity || 'Khulna University'}
+                            </div>
+                            {data.studentLocation && (
+                              <div className="opacity-70">
+                                {data.studentLocation}
+                              </div>
+                            )}
+                          </>
                         )}
-                      </>
-                    )}
-                  </div>
-                </div>
-              </DraggableBlock>
+                      </div>
+                    </div>
+                  </DraggableBlock>
 
-            </div>
+                </div>
+              );
+            })()}
 
             {/* ==================== 5. DATE OF SUBMISSION (BOTTOM) ==================== */}
             <DraggableBlock elementId="submissionDate" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">

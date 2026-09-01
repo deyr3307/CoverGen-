@@ -17,6 +17,7 @@ export interface CoverPageData {
   teacherDetails?: string;
 
   // Submitted To (Secondary - optional for multiple teachers)
+  isJointEvaluator?: boolean;
   teacher2Name?: string;
   teacher2Designation?: string;
   teacher2Discipline?: string;
