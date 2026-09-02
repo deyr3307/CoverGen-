@@ -678,15 +678,15 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                           </>
                         )}
                         {hasTeacher2 && (
-                          <div className="mt-2 border-t border-slate-300 dark:border-slate-700 pt-1.5 w-full text-left">
-                            <div className="text-[0.85em] tracking-wider uppercase font-bold text-blue-800 dark:text-blue-300 mb-0.5">
-                              Joint Supervisor / Co-Evaluator
+                          <div className="mt-2 border-t border-dashed border-slate-300 dark:border-slate-700 pt-1.5 w-full text-left">
+                            <div className="text-[0.8em] tracking-wider uppercase opacity-75 mb-0.5 font-sans">
+                              Joint Supervisor
                             </div>
-                            <div className="font-semibold text-[1.02em]">{data.teacher2Name}</div>
-                            {data.teacher2Designation && <div className="opacity-95 font-normal">{data.teacher2Designation}</div>}
-                            {data.teacher2Discipline && <div className="opacity-95 font-normal">{data.teacher2Discipline}</div>}
-                            {data.teacher2University && <div className="opacity-95 font-medium">{data.teacher2University}</div>}
-                            {data.teacher2Location && <div className="opacity-90 font-normal">{data.teacher2Location}</div>}
+                            <div>{data.teacher2Name}</div>
+                            {data.teacher2Designation && <div className="opacity-80">{data.teacher2Designation}</div>}
+                            {data.teacher2Discipline && <div className="opacity-80">{data.teacher2Discipline}</div>}
+                            {data.teacher2University && <div className="opacity-80">{data.teacher2University}</div>}
+                            {data.teacher2Location && <div className="opacity-75">{data.teacher2Location}</div>}
                           </div>
                         )}
                       </div>
@@ -1045,15 +1045,15 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                           </>
                         )}
                         {hasTeacher2 && (
-                          <div className="mt-2 border-t border-cyan-400/60 pt-1.5 w-full text-center">
-                            <div className="text-[0.85em] tracking-wider uppercase font-bold text-cyan-800 dark:text-cyan-300 mb-0.5">
-                              Joint Supervisor / Co-Evaluator
+                          <div className="mt-2 border-t border-dashed border-cyan-400/50 pt-1.5 w-full text-center">
+                            <div className="text-[0.8em] tracking-wider uppercase opacity-75 mb-0.5 font-sans">
+                              Joint Supervisor
                             </div>
-                            <div className="font-semibold text-[1.02em]">{data.teacher2Name}</div>
-                            {data.teacher2Designation && <div className="opacity-95 font-normal">{data.teacher2Designation}</div>}
-                            {data.teacher2Discipline && <div className="opacity-95 font-normal">{data.teacher2Discipline}</div>}
-                            {data.teacher2University && <div className="opacity-95 font-medium">{data.teacher2University}</div>}
-                            {data.teacher2Location && <div className="opacity-90 font-normal">{data.teacher2Location}</div>}
+                            <div>{data.teacher2Name}</div>
+                            {data.teacher2Designation && <div className="opacity-80">{data.teacher2Designation}</div>}
+                            {data.teacher2Discipline && <div className="opacity-80">{data.teacher2Discipline}</div>}
+                            {data.teacher2University && <div className="opacity-80">{data.teacher2University}</div>}
+                            {data.teacher2Location && <div className="opacity-75">{data.teacher2Location}</div>}
                           </div>
                         )}
                       </div>
@@ -1561,15 +1561,15 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                           </>
                         )}
                         {hasTeacher2 && (
-                          <div className={`mt-2 border-t border-slate-300 dark:border-slate-700 pt-1.5 w-full flex flex-col ${alignClasses.container}`}>
-                            <div className="text-[0.85em] tracking-wider uppercase mb-0.5 font-sans font-bold text-slate-800 dark:text-slate-200">
-                              Joint Supervisor / Co-Evaluator
+                          <div className={`mt-2 border-t border-dashed border-slate-300 dark:border-slate-700 pt-1.5 w-full flex flex-col ${alignClasses.container}`}>
+                            <div className="text-[0.8em] tracking-wider uppercase mb-0.5 font-sans opacity-75">
+                              Joint Supervisor
                             </div>
-                            <div className="font-semibold text-[1.02em]">{data.teacher2Name}</div>
-                            {data.teacher2Designation && <div className="opacity-95 font-normal">{data.teacher2Designation}</div>}
-                            {data.teacher2Discipline && <div className="opacity-95 font-normal">{data.teacher2Discipline}</div>}
-                            {data.teacher2University && <div className="opacity-95 font-medium">{data.teacher2University}</div>}
-                            {data.teacher2Location && <div className="opacity-90 font-normal">{data.teacher2Location}</div>}
+                            <div>{data.teacher2Name}</div>
+                            {data.teacher2Designation && <div className="opacity-80">{data.teacher2Designation}</div>}
+                            {data.teacher2Discipline && <div className="opacity-80">{data.teacher2Discipline}</div>}
+                            <div>{data.teacher2University}</div>
+                            {data.teacher2Location && <div className="opacity-75">{data.teacher2Location}</div>}
                           </div>
                         )}
                       </div>
@@ -2015,15 +2015,15 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                       </>
                     )}
                     {data.teacher2Name && (
-                      <div className="mt-2 border-t border-red-300 dark:border-red-800 pt-1.5 w-full text-left">
-                        <div className="text-[0.85em] tracking-wider uppercase font-sans font-bold text-red-700 dark:text-red-300 mb-0.5">
-                          Joint Supervisor / Co-Evaluator
+                      <div className="mt-2 border-t border-dashed border-red-300 dark:border-red-800 pt-1.5 w-full text-left">
+                        <div className="text-[0.8em] tracking-wider uppercase font-sans opacity-75 mb-0.5">
+                          Joint Supervisor
                         </div>
-                        <div className="font-semibold text-[1.02em]">{data.teacher2Name}</div>
-                        {data.teacher2Designation && <div className="opacity-95 font-normal">{data.teacher2Designation}</div>}
-                        {data.teacher2Discipline && <div className="opacity-95 font-normal">{data.teacher2Discipline}</div>}
-                        {data.teacher2University && <div className="opacity-95 font-medium">{data.teacher2University}</div>}
-                        {data.teacher2Location && <div className="opacity-90 font-normal">{data.teacher2Location}</div>}
+                        <div>{data.teacher2Name}</div>
+                        {data.teacher2Designation && <div className="opacity-80">{data.teacher2Designation}</div>}
+                        {data.teacher2Discipline && <div className="opacity-80">{data.teacher2Discipline}</div>}
+                        <div className="opacity-90">{data.teacher2University}</div>
+                        {data.teacher2Location && <div className="opacity-75">{data.teacher2Location}</div>}
                       </div>
                     )}
                   </div>
@@ -2389,20 +2389,17 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                           </>
                         )}
                         {hasTeacher2 && (
-                          <div className="mt-2 border-t border-slate-300 dark:border-slate-700 pt-1.5 w-full text-left">
-                            <div className="text-[0.85em] tracking-wider uppercase font-sans font-bold text-emerald-800 dark:text-emerald-300 mb-0.5">
-                              Joint Supervisor / Co-Evaluator
+                          <div className="mt-2 border-t border-dashed border-slate-300 dark:border-slate-700 pt-1.5 w-full text-left">
+                            <div className="text-[0.8em] tracking-wider uppercase font-sans opacity-75 mb-0.5">
+                              Joint Supervisor
                             </div>
-                            <div 
-                              className="font-semibold text-[1.02em]"
-                              style={{ fontSize: `${(((design.fontSubmittedToContent?.fontSize || design.fontSubSection.fontSize) + 1) * contentScale) / 14}em` }}
-                            >
+                            <div style={{ fontSize: `${(((design.fontSubmittedToContent?.fontSize || design.fontSubSection.fontSize) + 1) * contentScale) / 14}em` }}>
                               {data.teacher2Name}
                             </div>
-                            {data.teacher2Designation && <div className="opacity-95 font-normal">{data.teacher2Designation}</div>}
-                            {data.teacher2Discipline && <div className="opacity-95 font-normal">{data.teacher2Discipline}</div>}
-                            {data.teacher2University && <div className="opacity-95 font-medium">{data.teacher2University}</div>}
-                            {data.teacher2Location && <div className="opacity-90 font-normal">{data.teacher2Location}</div>}
+                            {data.teacher2Designation && <div className="opacity-80">{data.teacher2Designation}</div>}
+                            {data.teacher2Discipline && <div className="opacity-80">{data.teacher2Discipline}</div>}
+                            <div className="opacity-90">{data.teacher2University}</div>
+                            {data.teacher2Location && <div className="opacity-70">{data.teacher2Location}</div>}
                           </div>
                         )}
                       </div>

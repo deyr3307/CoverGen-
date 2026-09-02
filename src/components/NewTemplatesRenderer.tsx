@@ -294,15 +294,15 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                     </>
                   )}
                   {hasTeacher2 && (
-                    <div className="mt-2 border-t border-slate-300 dark:border-slate-700 pt-1.5 w-full text-left">
-                      <div className="text-[0.85em] tracking-wider uppercase font-sans font-bold text-slate-800 dark:text-slate-200 mb-0.5">
-                        Joint Supervisor / Co-Evaluator
+                    <div className="mt-2 border-t border-dashed border-slate-300 dark:border-slate-700 pt-1.5 w-full text-left">
+                      <div className="text-[0.8em] tracking-wider uppercase font-sans opacity-75 mb-0.5">
+                        Joint Supervisor
                       </div>
-                      <div className="text-left font-semibold text-[1.02em]">{data.teacher2Name}</div>
-                      {data.teacher2Designation && <div className="text-left opacity-95 font-normal">{data.teacher2Designation}</div>}
-                      {data.teacher2Discipline && <div className="text-left opacity-95 font-normal">{data.teacher2Discipline}</div>}
-                      {data.teacher2University && <div className="text-left opacity-95 font-medium">{data.teacher2University}</div>}
-                      {data.teacher2Location && <div className="text-left opacity-90 font-normal">{data.teacher2Location}</div>}
+                      <div className="text-left">{data.teacher2Name}</div>
+                      {data.teacher2Designation && <div className="text-left opacity-80">{data.teacher2Designation}</div>}
+                      {data.teacher2Discipline && <div className="text-left opacity-80">{data.teacher2Discipline}</div>}
+                      {data.teacher2University && <div className="text-left opacity-80">{data.teacher2University}</div>}
+                      {data.teacher2Location && <div className="text-left opacity-75">{data.teacher2Location}</div>}
                     </div>
                   )}
                 </div>
@@ -1068,7 +1068,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                     )}
                     {hasTeacher2 && (
                       <div 
-                        className="mt-2 border-t border-slate-300 dark:border-slate-700 pt-1.5 w-full text-left"
+                        className="mt-2 border-t border-dashed border-slate-300 dark:border-slate-700 pt-1.5 w-full text-left"
                         style={{
                           ...resolveStyle(design.fontSubmittedToContent, {
                             fontFamily: fontFamily || 'Georgia, serif',
@@ -1082,14 +1082,14 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                           fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
                         }}
                       >
-                        <div className="text-[0.85em] tracking-wider uppercase font-bold text-slate-800 dark:text-slate-200 mb-0.5">
-                          Joint Supervisor / Co-Evaluator
+                        <div className="text-[0.8em] tracking-wider uppercase font-sans opacity-75 mb-0.5">
+                          Joint Supervisor
                         </div>
-                        <div className="font-semibold text-[1.02em]">{data.teacher2Name}</div>
-                        {data.teacher2Designation && <div className="opacity-95 font-normal">{data.teacher2Designation}</div>}
-                        {data.teacher2Discipline && <div className="opacity-95 font-normal">{data.teacher2Discipline}</div>}
-                        {data.teacher2University && <div className="opacity-95 font-medium">{data.teacher2University}</div>}
-                        {data.teacher2Location && <div className="opacity-90 font-normal">{data.teacher2Location}</div>}
+                        <div>{data.teacher2Name}</div>
+                        {data.teacher2Designation && <div className="opacity-80">{data.teacher2Designation}</div>}
+                        {data.teacher2Discipline && <div className="opacity-80">{data.teacher2Discipline}</div>}
+                        <div>{data.teacher2University}</div>
+                        {data.teacher2Location && <div className="opacity-75">{data.teacher2Location}</div>}
                       </div>
                     )}
                   </div>
@@ -1421,7 +1421,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                     )}
                     {hasTeacher2 && (
                       <div 
-                        className="mt-2 border-t border-slate-300 dark:border-slate-700 pt-1.5 w-full text-left"
+                        className="mt-2 border-t border-dashed border-slate-300 dark:border-slate-700 pt-1.5 w-full text-left"
                         style={{
                           ...resolveStyle(design.fontSubmittedToContent, {
                             fontFamily: fontFamily || '"Times New Roman", Times, serif',
@@ -1435,14 +1435,14 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                           fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
                         }}
                       >
-                        <div className="text-[0.85em] tracking-wider uppercase font-bold text-slate-800 dark:text-slate-200 mb-0.5">
-                          Joint Supervisor / Co-Evaluator
+                        <div className="text-[0.8em] tracking-wider uppercase font-sans opacity-75 mb-0.5">
+                          Joint Supervisor
                         </div>
-                        <div className="font-semibold text-[1.02em]">{data.teacher2Name}</div>
-                        {data.teacher2Designation && <div className="opacity-95 font-normal">{data.teacher2Designation}</div>}
-                        {data.teacher2Discipline && <div className="opacity-95 font-normal">{data.teacher2Discipline}</div>}
-                        {data.teacher2University && <div className="opacity-95 font-medium">{data.teacher2University}</div>}
-                        {data.teacher2Location && <div className="opacity-90 font-normal">{data.teacher2Location}</div>}
+                        <div>{data.teacher2Name}</div>
+                        {data.teacher2Designation && <div className="opacity-90">{data.teacher2Designation}</div>}
+                        {data.teacher2Discipline && <div className="opacity-90">{data.teacher2Discipline}</div>}
+                        {data.teacher2University && <div className="opacity-90">{data.teacher2University}</div>}
+                        {data.teacher2Location && <div className="opacity-75">{data.teacher2Location}</div>}
                       </div>
                     )}
                   </div>
