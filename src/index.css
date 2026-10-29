@@ -187,3 +187,18 @@ b:not(.font-image1):not(.font-image1 *):not(.font-image2):not(.font-image2 *) {
     line-height: 1.2;
 }
 
+/* Strict Canvas-Safe CSS for Lines & Underlines */
+.canvas-safe-underline {
+  display: inline-block !important;
+  border-bottom: 1px solid currentColor !important;
+  padding-bottom: 2px !important;
+  margin: 0 !important;
+  line-height: 1.2 !important;
+  text-decoration: none !important;
+}
+
+#academic-cover-page *, 
+#academic-back-page * {
+  text-decoration-line: none !important;
+}
+

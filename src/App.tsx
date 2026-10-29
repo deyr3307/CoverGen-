@@ -704,6 +704,11 @@ export default function App() {
       // Process style elements
       for (const style of allStyles) {
         if (style.hasAttribute('data-temp-patched')) continue;
+        const text = style.innerHTML || style.textContent || '';
+        // If it's a dedicated font style or has @font-face, do not detach it
+        if (text.includes('@font-face') || text.includes('fonts.googleapis.com')) {
+          continue;
+        }
         let rawCss = style.innerHTML || '';
         if (!rawCss) {
           try {
@@ -722,7 +727,7 @@ export default function App() {
       for (const link of allLinks) {
         try {
           if (!link.href) continue;
-          if (link.href.includes('fonts.googleapis.com') || link.href.includes('font-awesome')) {
+          if (link.href.includes('fonts.googleapis.com') || link.href.includes('fonts.gstatic.com') || link.href.includes('font-awesome')) {
             continue;
           }
           // Verify if it is a potentially blockable cross-origin stylesheet
@@ -757,25 +762,34 @@ export default function App() {
         }
       }
 
-      // Any remaining active styles or links, detach them to be completely safe during html2canvas
+      // Any remaining active styles or links, detach them except font declarations
       const remainingStyles = Array.from(document.querySelectorAll('style'));
       for (const style of remainingStyles) {
         if (!style.hasAttribute('data-temp-patched')) {
-          detach(style);
+          const text = style.innerHTML || style.textContent || '';
+          if (!text.includes('@font-face') && !text.includes('fonts.googleapis.com')) {
+            detach(style);
+          }
         }
       }
 
       const remainingLinks = Array.from(document.querySelectorAll('link[rel="stylesheet"]')) as HTMLLinkElement[];
       for (const link of remainingLinks) {
-        if (!link.href.includes('fonts.googleapis.com')) {
+        if (!link.href.includes('fonts.googleapis.com') && !link.href.includes('fonts.gstatic.com')) {
           detach(link);
         }
       }
 
+      // Ensure all @import statements in unified CSS are placed at the top (required by CSS specification)
+      const cssLines = unifiedCssText.split('\n');
+      const importLines = cssLines.filter(l => l.trim().startsWith('@import'));
+      const otherLines = cssLines.filter(l => !l.trim().startsWith('@import'));
+      const sortedCssText = [...importLines, ...otherLines].join('\n');
+
       // Create single unified patched style tag
       const patchedStyle = document.createElement('style');
       patchedStyle.setAttribute('data-temp-patched', 'true');
-      patchedStyle.innerHTML = stripUnsupportedColors(unifiedCssText);
+      patchedStyle.innerHTML = stripUnsupportedColors(sortedCssText);
       document.head.appendChild(patchedStyle);
 
       return {
@@ -902,292 +916,114 @@ export default function App() {
       // Apply stylesheet patch to bypass oklch/oklab parsing failure
       stylePatcher = await patchStylesheets();
 
-      // Configure scale according to quality tier (Low: 1.2x, Med: 2.2x, High: 2.0x (optimal high-fidelity setting as requested))
-      let scaleValue = 2.0;
-      if (quality === 'low') {
-        scaleValue = 1.2;
-      } else if (quality === 'medium') {
-        scaleValue = 2.2;
-      } else if (quality === 'high') {
-        scaleValue = 2.0;
+      // 1. FONT RENDERING FIX:
+      // Before calling html2canvas, explicitly wait for all custom fonts to load using await document.fonts.ready
+      try {
+        await document.fonts.ready;
+      } catch (fontErr) {
+        console.warn("document.fonts.ready check warning:", fontErr);
       }
+
+      // 3. PRESERVE LAYOUT: Shared onclone handler to force static widths/heights and preserve external fonts
+      const prepareClonedDoc = (clonedDoc: Document) => {
+        // Ensure Google Fonts and font stylesheets are injected into the cloned document's head
+        const fontLinks = document.querySelectorAll('link[rel="stylesheet"], link[href*="fonts"]');
+        fontLinks.forEach((linkEl) => {
+          const href = (linkEl as HTMLLinkElement).href;
+          if (href && !clonedDoc.querySelector(`link[href="${href}"]`)) {
+            const clone = linkEl.cloneNode(true) as HTMLLinkElement;
+            clonedDoc.head.appendChild(clone);
+          }
+        });
+
+        // Ensure all images are marked crossOrigin anonymous so html2canvas renders cleanly
+        const imgs = clonedDoc.querySelectorAll('img');
+        imgs.forEach((img) => {
+          img.crossOrigin = 'anonymous';
+        });
+
+        // Force static widths/heights on the main A4 container during the export process
+        const lockA4Container = (containerId: string) => {
+          const clonedEl = clonedDoc.getElementById(containerId);
+          if (clonedEl) {
+            clonedEl.style.width = `${targetWidth}px`;
+            clonedEl.style.height = `${targetHeight}px`;
+            clonedEl.style.minWidth = `${targetWidth}px`;
+            clonedEl.style.maxWidth = `${targetWidth}px`;
+            clonedEl.style.minHeight = `${targetHeight}px`;
+            clonedEl.style.maxHeight = `${targetHeight}px`;
+            clonedEl.style.boxSizing = 'border-box';
+            clonedEl.style.transform = 'none';
+            clonedEl.style.scale = '1';
+
+            let p = clonedEl.parentElement;
+            while (p && p !== clonedDoc.body) {
+              p.style.width = `${targetWidth}px`;
+              p.style.height = `${targetHeight}px`;
+              p.style.transform = 'none';
+              p.style.scale = '1';
+              p.style.transformOrigin = 'top left';
+              p.style.position = 'absolute';
+              p.style.top = '0';
+              p.style.left = '0';
+              p.style.zoom = '1';
+              p = p.parentElement;
+            }
+          }
+        };
+
+        lockA4Container('academic-cover-page');
+        lockA4Container('academic-back-page');
+      };
+
+      // Ensure the html2canvas configuration strictly includes { useCORS: true, allowTaint: true, scale: 2 }
+      const html2CanvasOptions = {
+        scale: 2,
+        width: targetWidth,
+        height: targetHeight,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: document.documentElement.offsetWidth,
+        backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
+        onclone: prepareClonedDoc
+      };
 
       let canvas = null;
       if (!options?.onlyBackPage || options?.combined) {
-        canvas = await html2canvas(element, {
-          scale: scaleValue,
-          width: targetWidth,
-          height: targetHeight,
-          useCORS: true,
-          allowTaint: true,
-          logging: false,
-          scrollX: 0,
-          scrollY: 0,
-          windowWidth: document.documentElement.offsetWidth,
-          backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
-          onclone: (clonedDoc) => {
-            const clonedEl = clonedDoc.getElementById('academic-cover-page');
-            if (clonedEl) {
-              clonedEl.style.width = `${targetWidth}px`;
-              clonedEl.style.height = `${targetHeight}px`;
-              clonedEl.style.transform = 'none';
-              clonedEl.style.scale = '1';
-              
-              const p = clonedEl.parentElement;
-              if (p) {
-                p.style.width = `${targetWidth}px`;
-                p.style.height = `${targetHeight}px`;
-                p.style.transform = 'none';
-                p.style.scale = '1';
-                p.style.transformOrigin = 'top left';
-                p.style.position = 'absolute';
-                p.style.top = '0';
-                p.style.left = '0';
-                p.style.zoom = '1';
-                
-                const gp = p.parentElement;
-                if (gp) {
-                  gp.style.width = `${targetWidth}px`;
-                  gp.style.height = `${targetHeight}px`;
-                  gp.style.transform = 'none';
-                  gp.style.scale = '1';
-                }
-              }
-            }
-          }
-        });
+        canvas = await html2canvas(element, html2CanvasOptions);
       }
 
       let backCanvas = null;
       if (options?.onlyBackPage || options?.combined) {
         if (backElement) {
-          try {
-            backCanvas = await html2canvas(backElement, {
-              scale: scaleValue,
-              width: targetWidth,
-              height: targetHeight,
-              useCORS: true,
-              allowTaint: true,
-              logging: false,
-              scrollX: 0,
-              scrollY: 0,
-              windowWidth: document.documentElement.offsetWidth,
-              backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
-              onclone: (clonedDoc) => {
-                const clonedEl = clonedDoc.getElementById('academic-back-page');
-                if (clonedEl) {
-                  clonedEl.style.width = `${targetWidth}px`;
-                  clonedEl.style.height = `${targetHeight}px`;
-                  clonedEl.style.transform = 'none';
-                  clonedEl.style.scale = '1';
-                  
-                  const p = clonedEl.parentElement;
-                  if (p) {
-                    p.style.width = `${targetWidth}px`;
-                    p.style.height = `${targetHeight}px`;
-                    p.style.transform = 'none';
-                    p.style.scale = '1';
-                    p.style.transformOrigin = 'top left';
-                    p.style.position = 'absolute';
-                    p.style.top = '0';
-                    p.style.left = '0';
-                    p.style.zoom = '1';
-                    
-                    const gp = p.parentElement;
-                    if (gp) {
-                      gp.style.width = `${targetWidth}px`;
-                      gp.style.height = `${targetHeight}px`;
-                      gp.style.transform = 'none';
-                      gp.style.scale = '1';
-                    }
-                  }
-                }
-              }
-            });
-          } catch (backErr) {
-            console.warn("Back cover canvas failed with CORS. Retrying with safe fallback...", backErr);
-            backCanvas = await html2canvas(backElement, {
-              scale: scaleValue,
-              width: targetWidth,
-              height: targetHeight,
-              useCORS: false,
-              allowTaint: false,
-              logging: false,
-              scrollX: 0,
-              scrollY: 0,
-              windowWidth: document.documentElement.offsetWidth,
-              backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
-              onclone: (clonedDoc) => {
-                const clonedEl = clonedDoc.getElementById('academic-back-page');
-                if (clonedEl) {
-                  clonedEl.style.width = `${targetWidth}px`;
-                  clonedEl.style.height = `${targetHeight}px`;
-                  clonedEl.style.transform = 'none';
-                  clonedEl.style.scale = '1';
-                  
-                  const p = clonedEl.parentElement;
-                  if (p) {
-                    p.style.width = `${targetWidth}px`;
-                    p.style.height = `${targetHeight}px`;
-                    p.style.transform = 'none';
-                    p.style.scale = '1';
-                    p.style.transformOrigin = 'top left';
-                    p.style.position = 'absolute';
-                    p.style.top = '0';
-                    p.style.left = '0';
-                    p.style.zoom = '1';
-                    
-                    const gp = p.parentElement;
-                    if (gp) {
-                      gp.style.width = `${targetWidth}px`;
-                      gp.style.height = `${targetHeight}px`;
-                      gp.style.transform = 'none';
-                      gp.style.scale = '1';
-                    }
-                  }
-                }
-              }
-            });
-          }
+          backCanvas = await html2canvas(backElement, html2CanvasOptions);
         }
       }
 
       const cleanFileName = `${coverData?.courseNo || 'cover'}_${(coverData?.documentType || '').toLowerCase().replace(/[^a-z0-9]+/g, '_')}`
         .substring(0, 45);
 
-      let imgData;
-      let backImgData;
+      let imgData: string | undefined;
+      let backImgData: string | undefined;
       const jpegQual = quality === 'low' ? 0.6 : quality === 'medium' ? 0.85 : 0.98;
 
-      try {
-        if (format === 'pdf') {
-          if (canvas) imgData = canvas.toDataURL('image/jpeg', jpegQual);
-          if (backCanvas) {
-            backImgData = backCanvas.toDataURL('image/jpeg', jpegQual);
-          }
-        } else if (format === 'png') {
-          if (canvas) imgData = canvas.toDataURL('image/png');
-          if (backCanvas) {
-            backImgData = backCanvas.toDataURL('image/png');
-          }
-        } else {
-          if (canvas) imgData = canvas.toDataURL('image/jpeg', jpegQual);
-          if (backCanvas) {
-            backImgData = backCanvas.toDataURL('image/jpeg', jpegQual);
-          }
+      if (format === 'pdf') {
+        if (canvas) imgData = canvas.toDataURL('image/jpeg', jpegQual);
+        if (backCanvas) {
+          backImgData = backCanvas.toDataURL('image/jpeg', jpegQual);
         }
-      } catch (taintErr) {
-        console.warn("Canvas may be tainted by cross-origin images. Re-rendering html2canvas safely...", taintErr);
-        // Fallback: Re-render without CORS
-        let fallbackCanvas = null;
-        if (!options?.onlyBackPage || options?.combined) {
-          fallbackCanvas = await html2canvas(element, {
-            scale: scaleValue,
-            width: targetWidth,
-            height: targetHeight,
-            useCORS: false,
-            allowTaint: false,
-            logging: false,
-            scrollX: 0,
-            scrollY: 0,
-            windowWidth: document.documentElement.offsetWidth,
-            backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
-            onclone: (clonedDoc) => {
-              const clonedEl = clonedDoc.getElementById('academic-cover-page');
-              if (clonedEl) {
-                clonedEl.style.width = `${targetWidth}px`;
-                clonedEl.style.height = `${targetHeight}px`;
-                clonedEl.style.transform = 'none';
-                clonedEl.style.scale = '1';
-                
-                const p = clonedEl.parentElement;
-                if (p) {
-                  p.style.width = `${targetWidth}px`;
-                  p.style.height = `${targetHeight}px`;
-                  p.style.transform = 'none';
-                  p.style.scale = '1';
-                  p.style.transformOrigin = 'top left';
-                  p.style.position = 'absolute';
-                  p.style.top = '0';
-                  p.style.left = '0';
-                  p.style.zoom = '1';
-                  
-                  const gp = p.parentElement;
-                  if (gp) {
-                    gp.style.width = `${targetWidth}px`;
-                    gp.style.height = `${targetHeight}px`;
-                    gp.style.transform = 'none';
-                    gp.style.scale = '1';
-                  }
-                }
-              }
-            }
-          });
+      } else if (format === 'png') {
+        if (canvas) imgData = canvas.toDataURL('image/png');
+        if (backCanvas) {
+          backImgData = backCanvas.toDataURL('image/png');
         }
-        
-        let fallbackBackCanvas = null;
-        if (options?.onlyBackPage || options?.combined) {
-          if (backElement) {
-            fallbackBackCanvas = await html2canvas(backElement, {
-              scale: scaleValue,
-              width: targetWidth,
-              height: targetHeight,
-              useCORS: false,
-              allowTaint: false,
-              logging: false,
-              scrollX: 0,
-              scrollY: 0,
-              windowWidth: document.documentElement.offsetWidth,
-              backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
-              onclone: (clonedDoc) => {
-                const clonedEl = clonedDoc.getElementById('academic-back-page');
-                if (clonedEl) {
-                  clonedEl.style.width = `${targetWidth}px`;
-                  clonedEl.style.height = `${targetHeight}px`;
-                  clonedEl.style.transform = 'none';
-                  clonedEl.style.scale = '1';
-                  
-                  const p = clonedEl.parentElement;
-                  if (p) {
-                    p.style.width = `${targetWidth}px`;
-                    p.style.height = `${targetHeight}px`;
-                    p.style.transform = 'none';
-                    p.style.scale = '1';
-                    p.style.transformOrigin = 'top left';
-                    p.style.position = 'absolute';
-                    p.style.top = '0';
-                    p.style.left = '0';
-                    p.style.zoom = '1';
-                    
-                    const gp = p.parentElement;
-                    if (gp) {
-                      gp.style.width = `${targetWidth}px`;
-                      gp.style.height = `${targetHeight}px`;
-                      gp.style.transform = 'none';
-                      gp.style.scale = '1';
-                    }
-                  }
-                }
-              }
-            });
-          }
-        }
-
-        if (format === 'pdf') {
-          if (fallbackCanvas) imgData = fallbackCanvas.toDataURL('image/jpeg', 0.82);
-          if (fallbackBackCanvas) {
-            backImgData = fallbackBackCanvas.toDataURL('image/jpeg', 0.82);
-          }
-        } else if (format === 'png') {
-          if (fallbackCanvas) imgData = fallbackCanvas.toDataURL('image/png');
-          if (fallbackBackCanvas) {
-            backImgData = fallbackBackCanvas.toDataURL('image/png');
-          }
-        } else {
-          if (fallbackCanvas) imgData = fallbackCanvas.toDataURL('image/jpeg', 0.82);
-          if (fallbackBackCanvas) {
-            backImgData = fallbackBackCanvas.toDataURL('image/jpeg', 0.82);
-          }
+      } else {
+        if (canvas) imgData = canvas.toDataURL('image/jpeg', jpegQual);
+        if (backCanvas) {
+          backImgData = backCanvas.toDataURL('image/jpeg', jpegQual);
         }
       }
 

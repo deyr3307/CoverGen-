@@ -119,8 +119,8 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
             <DraggableBlock elementId="universityHeader" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full">
               <div className="flex flex-col items-center">
                 {data.universityName && (
-                  <span 
-                    className="pb-1 px-4 text-center block"
+                  <div 
+                    className="px-4 text-center block"
                     style={resolveStyle(design.fontUniversity, {
                       fontFamily: fontFamily || 'Georgia, serif',
                       fontSize: hasTeacher2 ? 20 : 22,
@@ -129,12 +129,12 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                       italic: false,
                       uppercase: true,
                       align: 'center'
-                    }, {
-                      borderBottom: `2px solid ${design.fontUniversity?.color || design.fontTitle?.color || '#f59e0b'}`
                     })}
                   >
-                    {data.universityName}
-                  </span>
+                    <span style={{ display: 'inline-block', borderBottom: '1px solid currentColor', paddingBottom: '2px', margin: 0, lineHeight: 1.2 }}>
+                      {data.universityName}
+                    </span>
+                  </div>
                 )}
                 {data.departmentName && (
                   <span 
@@ -503,7 +503,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
         <div className="flex flex-col items-center justify-center my-2 w-full px-12">
           <DraggableBlock elementId="documentType" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 text-center w-full">
             <span 
-              className="tracking-widest mb-2 text-center block font-bold underline"
+              className="tracking-widest mb-2 text-center block font-bold"
               style={resolveStyle(design.fontAssignmentTopic, {
                 fontFamily: fontFamily || '"Times New Roman", Times, serif',
                 fontSize: 11,
@@ -514,7 +514,9 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                 align: 'center'
               })}
             >
-              {data.documentType || 'ASSIGNMENT ON'}
+              <span style={{ display: 'inline-block', borderBottom: '1px solid currentColor', paddingBottom: '2px', margin: 0, lineHeight: 1.2 }}>
+                {data.documentType || 'ASSIGNMENT ON'}
+              </span>
             </span>
           </DraggableBlock>
 
@@ -550,7 +552,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                   {/* Submitted To column */}
                   <div className={`${hasTeacher2 ? 'space-y-1.5' : 'space-y-3'} text-left w-full`}>
                     <h4 
-                      className="font-bold uppercase tracking-wider underline pb-1 text-left block w-full"
+                      className="font-bold uppercase tracking-wider text-left block w-full"
                       style={resolveStyle(design.fontSubmittedToHeading, {
                         fontFamily: fontFamily || '"Times New Roman", Times, serif',
                         fontSize: headingFontSize,
@@ -561,7 +563,9 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                         align: 'left'
                       }, {}, design.fontSubSection)}
                     >
-                      {data.submittedToLabel || 'SUBMITTED TO:'}
+                      <span style={{ display: 'inline-block', borderBottom: '1px solid currentColor', paddingBottom: '2px', margin: 0, lineHeight: 1.2 }}>
+                        {data.submittedToLabel || 'SUBMITTED TO:'}
+                      </span>
                     </h4>
                     <table 
                       className="w-full text-left"
@@ -657,7 +661,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                   {/* Submitted By column */}
                   <div className={`${hasTeacher2 ? 'space-y-1.5' : 'space-y-3'} text-left w-full`}>
                     <h4 
-                      className="font-bold uppercase tracking-wider underline pb-1 text-left block w-full"
+                      className="font-bold uppercase tracking-wider text-left block w-full"
                       style={resolveStyle(design.fontSubmittedByHeading, {
                         fontFamily: fontFamily || '"Times New Roman", Times, serif',
                         fontSize: headingFontSize,
@@ -668,7 +672,9 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                         align: 'left'
                       }, {}, design.fontSubSection)}
                     >
-                      {data.submittedByLabel || 'SUBMITTED BY:'}
+                      <span style={{ display: 'inline-block', borderBottom: '1px solid currentColor', paddingBottom: '2px', margin: 0, lineHeight: 1.2 }}>
+                        {data.submittedByLabel || 'SUBMITTED BY:'}
+                      </span>
                     </h4>
                     <table 
                       className="w-full text-left"
@@ -747,7 +753,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
 
         {/* Bottom fine line divider and date submission splits in tiny boxes */}
         <div className="w-full px-12 flex flex-col items-center mt-4">
-          <div className="w-full h-[1px] bg-slate-200 my-3 opacity-60" />
+          <div className="w-full my-3" style={{ borderBottom: '1px solid currentColor', opacity: 0.25, margin: '12px 0', lineHeight: 1.2 }} />
           <DraggableBlock elementId="submissionDate" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10 w-full text-center">
             <div className="flex items-center space-x-3 select-none text-left justify-center w-full">
               <span 
@@ -1012,7 +1018,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                    {/* Submitted to (Teacher block) - left-aligned, higher up */}
                   <div className="w-[58%] text-left self-start flex flex-col space-y-[2px]">
                     <div 
-                      className="underline mb-1 block text-left"
+                      className="mb-1 block text-left"
                       style={resolveStyle(design.fontSubmittedToHeading, {
                         fontFamily: fontFamily || 'Georgia, serif',
                         fontSize: headingFontSize,
@@ -1023,7 +1029,9 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                         align: 'left'
                       }, {}, design.fontSubSection)}
                     >
-                      Submitted to:
+                      <span style={{ display: 'inline-block', borderBottom: '1px solid currentColor', paddingBottom: '2px', margin: 0, lineHeight: 1.2 }}>
+                        Submitted to:
+                      </span>
                     </div>
                     {data.teacherDetails ? (
                       <div 
@@ -1097,7 +1105,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                   {/* Submitted by (Student block) - right-aligned, pushed downwards with staggered margin */}
                   <div className={`w-[58%] text-right self-end flex flex-col space-y-[2px] ${hasTeacher2 ? 'mt-4 md:mt-6' : 'mt-16 md:mt-20'}`}>
                     <div 
-                      className="underline mb-1 block text-right w-full"
+                      className="mb-1 block text-right w-full"
                       style={resolveStyle(design.fontSubmittedByHeading, {
                         fontFamily: fontFamily || 'Georgia, serif',
                         fontSize: headingFontSize,
@@ -1108,7 +1116,9 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                         align: 'right'
                       }, {}, design.fontSubSection)}
                     >
-                      Submitted by:
+                      <span style={{ display: 'inline-block', borderBottom: '1px solid currentColor', paddingBottom: '2px', margin: 0, lineHeight: 1.2 }}>
+                        Submitted by:
+                      </span>
                     </div>
                     {data.studentDetails ? (
                       <div 
@@ -1365,7 +1375,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                    {/* "Submitted To" Block (Left): Aligned text-left */}
                   <div className="w-[52%] text-left self-start flex flex-col space-y-1">
                     <div 
-                      className="underline mb-1 block text-left"
+                      className="mb-1 block text-left"
                       style={resolveStyle(design.fontSubmittedToHeading, {
                         fontFamily: fontFamily || '"Times New Roman", Times, serif',
                         fontSize: headingFontSize,
@@ -1376,7 +1386,9 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                         align: 'left'
                       }, {}, design.fontSubSection)}
                     >
-                      Submitted To:
+                      <span style={{ display: 'inline-block', borderBottom: '1px solid currentColor', paddingBottom: '2px', margin: 0, lineHeight: 1.2 }}>
+                        Submitted To:
+                      </span>
                     </div>
                     {data.teacherDetails ? (
                       <div 
@@ -1450,7 +1462,7 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                   {/* "Submitted By" Block (Right): Pushed right ml-auto, mt-14, text-left internally */}
                   <div className={`w-[52%] ml-auto text-left self-end flex flex-col items-start space-y-1 ${hasTeacher2 ? 'mt-4 md:mt-6' : 'mt-14 md:mt-16'}`}>
                     <div 
-                      className="underline mb-1 block text-left w-full"
+                      className="mb-1 block text-left w-full"
                       style={resolveStyle(design.fontSubmittedByHeading, {
                         fontFamily: fontFamily || '"Times New Roman", Times, serif',
                         fontSize: headingFontSize,
@@ -1461,7 +1473,9 @@ export const NewTemplatesRenderer: React.FC<NewTemplatesRendererProps> = ({
                         align: 'left'
                       }, {}, design.fontSubSection)}
                     >
-                      Submitted By:
+                      <span style={{ display: 'inline-block', borderBottom: '1px solid currentColor', paddingBottom: '2px', margin: 0, lineHeight: 1.2 }}>
+                        Submitted By:
+                      </span>
                     </div>
                     {data.studentDetails ? (
                       <div 

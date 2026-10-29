@@ -444,7 +444,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
 
         {/* Header line if enabled */}
         {design.hasHeaderLine && (
-          <div className="absolute top-[35px] left-[50px] right-[50px] h-[1px]" style={{ backgroundColor: borderColor }} />
+          <div className="w-full pointer-events-none mb-2" style={{ display: 'block', borderBottom: `1px solid ${borderColor}`, paddingBottom: '2px', margin: '0 0 10px 0', lineHeight: 1.2 }} />
         )}
 
         {/* Background Watermark */}
@@ -544,9 +544,11 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 style={{
                   ...getDirectStyle(design.fontAssignmentTopic, design.fontTitle, fontFamily, fontColor || '#1e3a8a', true, 26, 'em')
                 }}
-                className="tracking-wide text-center underline decoration-2 underline-offset-8"
+                className="tracking-wide text-center"
               >
-                {data.documentType || 'Assignment'}
+                <span style={{ display: 'inline-block', borderBottom: '1px solid currentColor', paddingBottom: '2px', margin: 0, lineHeight: 1.2 }}>
+                  {data.documentType || 'Assignment'}
+                </span>
               </h3>
             </DraggableBlock>
 
@@ -655,9 +657,11 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                         style={{
                           ...getDirectStyle(design.fontSubmittedToHeading, design.fontSubSection, fontFamily, fontColor || '#1e3a8a', true, hasTeacher2 ? 10.5 : 11.5, 'em')
                         }}
-                        className={`border-b ${hasTeacher2 ? 'pb-1 mb-1.5' : 'pb-1.5 mb-2'} uppercase tracking-wide opacity-90`}
+                        className={`${hasTeacher2 ? 'mb-1.5' : 'mb-2'} uppercase tracking-wide opacity-90`}
                       >
-                        {data.teacherHeading || 'Submitted To :'}
+                        <span style={{ display: 'inline-block', borderBottom: '1px solid currentColor', paddingBottom: '2px', margin: 0, lineHeight: 1.2 }}>
+                          {data.teacherHeading || 'Submitted To :'}
+                        </span>
                       </h4>
                       <div 
                         className="space-y-0.5"
@@ -703,9 +707,11 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                         style={{
                           ...getDirectStyle(design.fontSubmittedByHeading, design.fontSubSection, fontFamily, fontColor || '#1e3a8a', true, hasTeacher2 ? 10.5 : 11.5, 'em')
                         }}
-                        className={`border-b ${hasTeacher2 ? 'pb-1 mb-1.5' : 'pb-1.5 mb-2'} uppercase tracking-wide opacity-90`}
+                        className={`${hasTeacher2 ? 'mb-1.5' : 'mb-2'} uppercase tracking-wide opacity-90`}
                       >
-                        {data.submittedByLabel || 'Submitted By :'}
+                        <span style={{ display: 'inline-block', borderBottom: '1px solid currentColor', paddingBottom: '2px', margin: 0, lineHeight: 1.2 }}>
+                          {data.submittedByLabel || 'Submitted By :'}
+                        </span>
                       </h4>
                       <div 
                         className="space-y-0.5"
@@ -800,9 +806,11 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                     ...getDirectStyle(design.fontTopicTitle, design.fontTitle, fontFamily, fontColor || '#000000', true, 19, 'em'),
                     lineHeight: '1.4'
                   }}
-                  className="leading-relaxed px-4 underline underline-offset-4 decoration-1 text-center"
+                  className="leading-relaxed px-4 text-center"
                 >
-                  "{data.topicTitle || 'TOPIC TITLE HERE'}"
+                  <span style={{ display: 'inline-block', borderBottom: '1px solid currentColor', paddingBottom: '2px', margin: 0, lineHeight: 1.2 }}>
+                    "{data.topicTitle || 'TOPIC TITLE HERE'}"
+                  </span>
                 </h1>
               </div>
             </DraggableBlock>
@@ -857,9 +865,11 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                         style={{
                           ...getDirectStyle(design.fontSubmittedToHeading, design.fontSubSection, fontFamily, fontColor || '#000000', true, hasTeacher2 ? 11 : 12.5, 'em')
                         }}
-                        className={`tracking-wide border-b pb-0.5 w-[160px] ${hasTeacher2 ? 'mb-1' : 'mb-2'}`}
+                        className={`tracking-wide ${hasTeacher2 ? 'mb-1' : 'mb-2'}`}
                       >
-                        Supervised By
+                        <span style={{ display: 'inline-block', borderBottom: '1px solid currentColor', paddingBottom: '2px', margin: 0, lineHeight: 1.2 }}>
+                          Supervised By
+                        </span>
                       </h4>
                       <div 
                         className="space-y-0.5"
@@ -901,9 +911,11 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                           ...getDirectStyle(design.fontSubmittedByHeading, design.fontSubSection, fontFamily, fontColor || '#000000', true, hasTeacher2 ? 11 : 12.5, 'em'),
                           textAlign: 'left'
                         }}
-                        className={`tracking-wide border-b pb-0.5 w-[160px] text-left ${hasTeacher2 ? 'mb-1' : 'mb-2'}`}
+                        className={`tracking-wide text-left ${hasTeacher2 ? 'mb-1' : 'mb-2'}`}
                       >
-                        Prepared By
+                        <span style={{ display: 'inline-block', borderBottom: '1px solid currentColor', paddingBottom: '2px', margin: 0, lineHeight: 1.2 }}>
+                          Prepared By
+                        </span>
                       </h4>
                       <div 
                         className="space-y-0.5 text-left"
@@ -1001,9 +1013,11 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                     ...getDirectStyle(design.fontTopicTitle, design.fontTitle, fontFamily, fontColor || '#000000', true, 19, 'em'),
                     lineHeight: '1.45',
                   }}
-                  className="leading-relaxed px-4 underline underline-offset-6 decoration-2 text-center"
+                  className="leading-relaxed px-4 text-center"
                 >
-                  {data.topicTitle || 'General Banking Activities of Pubali Bank Ltd.'}
+                  <span style={{ display: 'inline-block', borderBottom: '1px solid currentColor', paddingBottom: '2px', margin: 0, lineHeight: 1.2 }}>
+                    {data.topicTitle || 'General Banking Activities of Pubali Bank Ltd.'}
+                  </span>
                 </h1>
               </DraggableBlock>
             </div>
@@ -1022,9 +1036,11 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                           ...getDirectStyle(design.fontSubmittedToHeading, design.fontSubSection, fontFamily, fontColor || '#0891b2', true, hasTeacher2 ? 11.5 : 13, 'em'),
                           borderColor: design.fontSubmittedToHeading?.color || fontColor || '#0891b2'
                         }}
-                        className={`uppercase tracking-widest border-b-2 px-4 text-center ${hasTeacher2 ? 'mb-1 pb-0.5' : 'mb-1.5 pb-1'}`}
+                        className={`uppercase tracking-widest px-4 text-center ${hasTeacher2 ? 'mb-1 pb-0.5' : 'mb-1.5 pb-1'}`}
                       >
-                        {data.teacherHeading || 'Submitted To'}
+                        <span style={{ display: 'inline-block', borderBottom: '1px solid currentColor', paddingBottom: '2px', margin: 0, lineHeight: 1.2 }}>
+                          {data.teacherHeading || 'Submitted To'}
+                        </span>
                       </h4>
                       <div 
                         className="space-y-0.5 text-center"
@@ -1068,9 +1084,11 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                           ...getDirectStyle(design.fontSubmittedByHeading, design.fontSubSection, fontFamily, fontColor || '#0891b2', true, hasTeacher2 ? 11.5 : 13, 'em'),
                           borderColor: design.fontSubmittedByHeading?.color || fontColor || '#0891b2'
                         }}
-                        className={`uppercase tracking-widest border-b-2 px-4 text-center ${hasTeacher2 ? 'mb-1 pb-0.5' : 'mb-1.5 pb-1'}`}
+                        className={`uppercase tracking-widest px-4 text-center ${hasTeacher2 ? 'mb-1 pb-0.5' : 'mb-1.5 pb-1'}`}
                       >
-                        {data.submittedByLabel || 'Prepared By'}
+                        <span style={{ display: 'inline-block', borderBottom: '1px solid currentColor', paddingBottom: '2px', margin: 0, lineHeight: 1.2 }}>
+                          {data.submittedByLabel || 'Prepared By'}
+                        </span>
                       </h4>
                       <div 
                         className="space-y-0.5 text-center"
@@ -1159,7 +1177,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
 
             {/* Horizontal Line Divider */}
             <div className="w-full px-6 my-1">
-              <div className="h-[2px] w-full" style={{ backgroundColor: design.fontTitle?.color || fontColor || accentColor }} />
+              <div style={{ display: 'block', borderBottom: '1px solid currentColor', margin: 0, lineHeight: 1.2, color: design.fontTitle?.color || fontColor || accentColor }} />
             </div>
 
             {/* Document Type (Assignment on) */}
@@ -1502,9 +1520,11 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                         style={{
                           ...getDirectStyle(fontSubmittedByHeadingSync, design.fontSubSection, fontFamily, fontColor || accentColor, true, hasTeacher2 ? 11.5 : 13, 'em')
                         }}
-                        className={`tracking-wider border-b pb-1 pr-6 font-normal ${hasTeacher2 ? 'mb-1.5' : 'mb-3'}`}
+                        className={`tracking-wider font-normal ${hasTeacher2 ? 'mb-1.5' : 'mb-3'}`}
                       >
-                        {data.submittedByLabel || 'Submitted by,'}
+                        <span style={{ display: 'inline-block', borderBottom: '1px solid currentColor', paddingBottom: '2px', margin: 0, lineHeight: 1.2 }}>
+                          {data.submittedByLabel || 'Submitted by,'}
+                        </span>
                       </h4>
                       <div 
                         className={`space-y-0.5 w-full flex flex-col ${alignClasses.container}`}
@@ -1538,9 +1558,11 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                         style={{
                           ...getDirectStyle(fontSubmittedToHeadingSync, design.fontSubSection, fontFamily, fontColor || accentColor, true, hasTeacher2 ? 11.5 : 13, 'em')
                         }}
-                        className={`tracking-wider border-b pb-1 pr-6 font-normal ${hasTeacher2 ? 'mb-1.5' : 'mb-3'}`}
+                        className={`tracking-wider font-normal ${hasTeacher2 ? 'mb-1.5' : 'mb-3'}`}
                       >
-                        {data.teacherHeading || 'Submitted to,'}
+                        <span style={{ display: 'inline-block', borderBottom: '1px solid currentColor', paddingBottom: '2px', margin: 0, lineHeight: 1.2 }}>
+                          {data.teacherHeading || 'Submitted to,'}
+                        </span>
                       </h4>
                       <div 
                         className={`space-y-0.5 w-full flex flex-col ${alignClasses.container}`}
@@ -2515,7 +2537,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
 
         {/* Footer line if enabled */}
         {design.hasFooterLine && (
-          <div className="absolute bottom-[35px] left-[50px] right-[50px] h-[1px]" style={{ backgroundColor: borderColor }} />
+          <div className="w-full pointer-events-none mt-2" style={{ display: 'block', borderBottom: `1px solid ${borderColor}`, paddingBottom: '2px', margin: '10px 0 0 0', lineHeight: 1.2 }} />
         )}
 
         {/* Dynamic Scan QR Code Badge */}
@@ -2609,7 +2631,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
 
             {/* Header line if enabled */}
             {design.hasHeaderLine && (
-              <div className="absolute top-[35px] left-[50px] right-[50px] h-[1px]" style={{ backgroundColor: borderColor }} />
+              <div className="w-full pointer-events-none mb-2" style={{ display: 'block', borderBottom: `1px solid ${borderColor}`, paddingBottom: '2px', margin: '0 0 10px 0', lineHeight: 1.2 }} />
             )}
 
             {/* Centered Optional Custom Text */}
