@@ -1772,25 +1772,30 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   {/* LEFT Column: Submitted To */}
                   <DraggableBlock elementId="submittedTo" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
                     <div className="text-left w-full">
-                      <h4 
-                        style={{
-                          ...getDirectStyle(fontSubmittedToHeadingSync, design.fontSubSection, fontFamily, subToColor, true, hasTeacher2 ? 10.5 : 11.5, 'em'),
-                          borderLeft: `4px solid ${subToColor}`,
-                          paddingLeft: '8px',
-                          lineHeight: 1.1,
-                          margin: 0,
-                          marginBottom: hasTeacher2 ? '6px' : '10px',
-                          display: 'inline-block'
-                        }}
-                        className={`tracking-wider text-left pl-2 leading-none border-l-4 ${hasTeacher2 ? 'mb-1.5' : 'mb-2.5'}`}
-                      >
-                        {data.teacherHeading || 'SUBMITTED TO,'}
-                      </h4>
+                      <div className={hasTeacher2 ? 'mb-1.5' : 'mb-3'}>
+                        {/* The vertical color bar */}
+                        <span 
+                          className="inline-block w-[4px] h-[16px] align-middle mr-2" 
+                          style={{ backgroundColor: subToColor }}
+                        ></span>
+                        {/* The text */}
+                        <span 
+                          className="inline-block align-middle font-bold tracking-wider uppercase"
+                          style={{
+                            ...getDirectStyle(fontSubmittedToHeadingSync, design.fontSubSection, fontFamily, subToColor, true, hasTeacher2 ? 10.5 : 11.5, 'em'),
+                            color: subToColor,
+                            lineHeight: '1.2'
+                          }}
+                        >
+                          {data.teacherHeading || 'SUBMITTED TO,'}
+                        </span>
+                      </div>
                       <div 
                         className="space-y-0.5 text-left flex flex-col w-full"
                         style={{ 
                           ...getDirectStyle(fontSubmittedToContentSync, design.fontSubSection, fontFamily, fontColor || '#1e293b', false, hasTeacher2 ? 9.5 : 10.5, 'em'),
-                          fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal'
+                          fontWeight: (design.boldSubmissionDetails || design.fontSubmittedToContent?.bold) ? 'bold' : 'normal',
+                          lineHeight: '1.35'
                         }}
                       >
                         {data.teacherDetails ? (
@@ -1821,25 +1826,30 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   {/* RIGHT Column: Submitted By */}
                   <DraggableBlock elementId="submittedBy" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
                     <div className="text-left w-full">
-                      <h4 
-                        style={{
-                          ...getDirectStyle(fontSubmittedByHeadingSync, design.fontSubSection, fontFamily, subByColor, true, hasTeacher2 ? 10.5 : 11.5, 'em'),
-                          borderLeft: `4px solid ${subByColor}`,
-                          paddingLeft: '8px',
-                          lineHeight: 1.1,
-                          margin: 0,
-                          marginBottom: hasTeacher2 ? '6px' : '10px',
-                          display: 'inline-block'
-                        }}
-                        className={`tracking-wider text-left pl-2 leading-none border-l-4 ${hasTeacher2 ? 'mb-1.5' : 'mb-2.5'}`}
-                      >
-                        {data.submittedByLabel || 'SUBMITTED BY,'}
-                      </h4>
+                      <div className={hasTeacher2 ? 'mb-1.5' : 'mb-3'}>
+                        {/* The vertical color bar */}
+                        <span 
+                          className="inline-block w-[4px] h-[16px] align-middle mr-2" 
+                          style={{ backgroundColor: subByColor }}
+                        ></span>
+                        {/* The text */}
+                        <span 
+                          className="inline-block align-middle font-bold tracking-wider uppercase"
+                          style={{
+                            ...getDirectStyle(fontSubmittedByHeadingSync, design.fontSubSection, fontFamily, subByColor, true, hasTeacher2 ? 10.5 : 11.5, 'em'),
+                            color: subByColor,
+                            lineHeight: '1.2'
+                          }}
+                        >
+                          {data.submittedByLabel || 'SUBMITTED BY,'}
+                        </span>
+                      </div>
                       <div 
                         className="space-y-0.5 text-left flex flex-col w-full"
                         style={{ 
                           ...getDirectStyle(fontSubmittedByContentSync, design.fontSubSection, fontFamily, fontColor || '#1e293b', false, hasTeacher2 ? 9.5 : 10.5, 'em'),
-                          fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal'
+                          fontWeight: (design.boldSubmissionDetails || design.fontSubmittedByContent?.bold) ? 'bold' : 'normal',
+                          lineHeight: '1.35'
                         }}
                       >
                         {data.studentDetails ? (

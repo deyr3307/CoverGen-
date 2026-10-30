@@ -425,7 +425,7 @@ export function getDirectStyle(
   const italic = fontConfig?.italic !== undefined ? fontConfig.italic : (parentConfig?.italic !== undefined ? parentConfig.italic : false);
   const uppercase = fontConfig?.uppercase !== undefined ? fontConfig.uppercase : (parentConfig?.uppercase !== undefined ? parentConfig.uppercase : false);
   const align = fontConfig?.align || parentConfig?.align || undefined;
-  const lineHeight = fontConfig?.lineHeight || parentConfig?.lineHeight || '1.45';
+  const lineHeight = fontConfig?.lineHeight || parentConfig?.lineHeight || (isHeading ? '1.2' : '1.35');
   
   const resolvedSize = fontConfig?.fontSize !== undefined ? fontConfig.fontSize : (parentConfig?.fontSize !== undefined ? parentConfig.fontSize : baseSize);
   

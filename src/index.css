@@ -172,22 +172,41 @@ b:not(.font-image1):not(.font-image1 *):not(.font-image2):not(.font-image2 *) {
     line-height: 1.2;
 }
 
-.submitted-title {
-    border-left: 4px solid #1dbb8e;
-    padding-left: 8px;
-    margin: 0 0 10px 0;
-    line-height: 1.2;
+/* Strict Canvas-Safe Rules for html2canvas Export Across All 12 Templates */
+#academic-cover-page,
+#academic-back-page {
+  box-sizing: border-box !important;
 }
 
-/* SUBMITTED BY header title */
-.submitted-by-title {
-    border-left: 4px solid #10b981;
-    padding-left: 8px;
-    margin: 0 0 10px 0;
-    line-height: 1.2;
+/* NO TEXT-DECORATION: Completely remove text-decoration underlines across all templates */
+#academic-cover-page *,
+#academic-back-page * {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
 }
 
-/* Strict Canvas-Safe CSS for Lines & Underlines */
+/* NO PSEUDO-ELEMENTS: Eliminate all ::before and ::after pseudo-elements within canvas containers */
+#academic-cover-page *::before,
+#academic-cover-page *::after,
+#academic-back-page *::before,
+#academic-back-page *::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* EXPLICIT LINE-HEIGHTS: Prevent vertical spacing collapse in html2canvas clones */
+#academic-cover-page h1,
+#academic-cover-page h2,
+#academic-cover-page h3,
+#academic-cover-page h4,
+#academic-back-page h1,
+#academic-back-page h2,
+#academic-back-page h3,
+#academic-back-page h4 {
+  line-height: 1.2;
+}
+
+/* Strict Canvas-Safe Underline Replacement */
 .canvas-safe-underline {
   display: inline-block !important;
   border-bottom: 1px solid currentColor !important;
@@ -197,8 +216,16 @@ b:not(.font-image1):not(.font-image1 *):not(.font-image2):not(.font-image2 *) {
   text-decoration: none !important;
 }
 
-#academic-cover-page *, 
-#academic-back-page * {
-  text-decoration-line: none !important;
+/* Strict Canvas-Safe Vertical Color Bar & Heading Alignment */
+.canvas-safe-vbar {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  margin-right: 8px !important;
+}
+
+.canvas-safe-vbar-text {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  line-height: 1.2 !important;
 }
 

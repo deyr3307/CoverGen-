@@ -926,6 +926,17 @@ export default function App() {
 
       // 3. PRESERVE LAYOUT: Shared onclone handler to force static widths/heights and preserve external fonts
       const prepareClonedDoc = (clonedDoc: Document) => {
+        // Transfer loaded font faces if FontFaceSet is supported
+        if ((clonedDoc as any).fonts && (document as any).fonts) {
+          try {
+            (document as any).fonts.forEach((font: any) => {
+              (clonedDoc as any).fonts.add(font);
+            });
+          } catch {
+            // Ignore if fonts.add is not allowed
+          }
+        }
+
         // Ensure Google Fonts and font stylesheets are injected into the cloned document's head
         const fontLinks = document.querySelectorAll('link[rel="stylesheet"], link[href*="fonts"]');
         fontLinks.forEach((linkEl) => {
@@ -936,11 +947,27 @@ export default function App() {
           }
         });
 
+        // Ensure font-face styles are copied to clonedDoc
+        const fontStyles = document.querySelectorAll('style');
+        fontStyles.forEach((styleEl) => {
+          const text = styleEl.textContent || '';
+          if (text.includes('@font-face') || text.includes('fonts.googleapis.com')) {
+            const clone = styleEl.cloneNode(true) as HTMLStyleElement;
+            clonedDoc.head.appendChild(clone);
+          }
+        });
+
         // Ensure all images are marked crossOrigin anonymous so html2canvas renders cleanly
         const imgs = clonedDoc.querySelectorAll('img');
         imgs.forEach((img) => {
           img.crossOrigin = 'anonymous';
         });
+
+        // Lock cloned document margins and padding to prevent reflow
+        clonedDoc.documentElement.style.margin = '0';
+        clonedDoc.documentElement.style.padding = '0';
+        clonedDoc.body.style.margin = '0';
+        clonedDoc.body.style.padding = '0';
 
         // Force static widths/heights on the main A4 container during the export process
         const lockA4Container = (containerId: string) => {
@@ -986,7 +1013,8 @@ export default function App() {
         logging: false,
         scrollX: 0,
         scrollY: 0,
-        windowWidth: document.documentElement.offsetWidth,
+        windowWidth: Math.max(1200, targetWidth),
+        windowHeight: Math.max(1400, targetHeight),
         backgroundColor: printBackgroundGraphics ? (pageBackgroundColor || coverDesign.paperColor || '#ffffff') : '#ffffff',
         onclone: prepareClonedDoc
       };

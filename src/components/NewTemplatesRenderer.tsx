@@ -68,7 +68,7 @@ const resolveStyle = (
   const italic = fontConfig?.italic !== undefined ? fontConfig.italic : (parentConfig?.italic !== undefined ? parentConfig.italic : fallbackBase.italic);
   const uppercase = fontConfig?.uppercase !== undefined ? fontConfig.uppercase : (parentConfig?.uppercase !== undefined ? parentConfig.uppercase : fallbackBase.uppercase);
   const align = fontConfig?.align || parentConfig?.align || fallbackBase.align || 'center';
-  const lineHeight = fontConfig?.lineHeight || parentConfig?.lineHeight || '1.45';
+  const lineHeight = fontConfig?.lineHeight || parentConfig?.lineHeight || (fallbackBase.bold ? '1.2' : '1.35');
 
   return {
     fontFamily: family,
