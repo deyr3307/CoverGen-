@@ -594,16 +594,25 @@ export default function App() {
       }
     }
 
-    // Ensure all SVGs/images are fully loaded before initializing the capture as requested in Requirement 2
+    // Ensure all SVGs/images (including watermark, logo, crest, QR code) are fully loaded and decoded before initializing the capture
     try {
-      const imgs = Array.from(document.querySelectorAll('img'));
+      const allImgs = Array.from(document.querySelectorAll<HTMLImageElement>('#academic-cover-page img, #academic-back-page img, img'));
       await Promise.all(
-        imgs.map((img) => {
-          if (img.complete) return Promise.resolve();
-          return new Promise((resolve) => {
-            img.onload = resolve;
-            img.onerror = resolve;
-          });
+        allImgs.map(async (img) => {
+          if (!img.complete) {
+            await new Promise<void>((resolve) => {
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+              setTimeout(resolve, 2000);
+            });
+          }
+          try {
+            if (typeof img.decode === 'function') {
+              await img.decode();
+            }
+          } catch {
+            // Ignore decode failures on already decoded/rendered or offline images
+          }
         })
       );
     } catch (imgErr) {
@@ -883,7 +892,7 @@ export default function App() {
         noBgStyle = document.createElement('style');
         noBgStyle.innerHTML = `
           /* Suppress watermarks */
-          [class*="watermark"], .watermark-animate, [alt="Watermark"], .watermark-container, svg[class*="w-[450px]"] {
+          [class*="watermark"], .watermark-animate, [alt="Watermark"], [alt="watermark"], .watermark-container, svg[class*="w-[450px]"] {
             opacity: 0 !important;
             visibility: hidden !important;
             display: none !important;

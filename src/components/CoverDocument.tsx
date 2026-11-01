@@ -195,6 +195,17 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
   const accentColor = design.accentColor || '#1e3a8a';
   const borderColor = design.borderColor || '#334155';
 
+  // Canvas-Safe Watermark Image Source: SVG presets converted to standard data URLs for 100% canvas fidelity
+  const watermarkSrc = React.useMemo(() => {
+    if (!effectiveWatermark || effectiveWatermark === 'wm-none') return null;
+    if (watermarkPreset) {
+      const color = design.accentColor || accentColor || '#1e3a8a';
+      const cleanSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${watermarkPreset.viewBox || '0 0 100 100'}" width="500" height="500" style="color:${color};fill:${color};stroke:${color};"><g style="color:${color};fill:currentColor;stroke:currentColor;">${watermarkPreset.svgPath}</g></svg>`;
+      return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(cleanSvg)}`;
+    }
+    return effectiveWatermark;
+  }, [effectiveWatermark, watermarkPreset, design.accentColor, accentColor]);
+
   // QR Code generator state and side effect
   const [qrCodeDataUrl, setQrCodeDataUrl] = React.useState<string>('');
 
@@ -447,48 +458,32 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
           <div className="w-full pointer-events-none mb-2" style={{ display: 'block', borderBottom: `1px solid ${borderColor}`, paddingBottom: '2px', margin: '0 0 10px 0', lineHeight: 1.2 }} />
         )}
 
-        {/* Background Watermark */}
-        {effectiveWatermark && effectiveWatermark !== 'wm-none' && (
-          <div 
-            className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-[1]"
+        {/* Canvas-Safe Watermark: Direct Child of A4 Container using <img> placed behind content */}
+        {watermarkSrc && (
+          <img 
+            src={watermarkSrc} 
+            alt="watermark" 
+            crossOrigin="anonymous" 
             style={{ 
-              transform: `translate(${design.watermarkXOffset || 0}px, ${design.watermarkYOffset || 0}px)`
-            }}
-          >
-            <div
-              className={`flex items-center justify-center ${design.watermarkAnimate ? 'watermark-animate' : ''}`}
-              style={{
-                opacity: design.watermarkOpacity !== undefined ? design.watermarkOpacity : 0.08,
-                animation: design.watermarkAnimate ? 'watermark-smooth-pan 15s ease-in-out infinite' : 'none',
-                transform: design.watermarkAnimate ? undefined : `scale(${(design.watermarkScale !== undefined ? design.watermarkScale : 110) / 100})`
-              }}
-            >
-              {watermarkPreset ? (
-                <div 
-                  className="w-[450px] h-[450px] flex items-center justify-center"
-                  style={{ color: design.accentColor || accentColor || '#1e3a8a' }}
-                >
-                  <svg 
-                    className="w-full h-full"
-                    viewBox={watermarkPreset.viewBox || '0 0 100 100'}
-                    dangerouslySetInnerHTML={{ __html: watermarkPreset.svgPath }}
-                  />
-                </div>
-              ) : (
-                // Custom watermark image
-                <img 
-                  src={effectiveWatermark} 
-                  alt="Watermark" 
-                  className="max-w-[500px] max-h-[500px] object-contain"
-                  style={design.watermarkBlendMultiply !== false ? { mixBlendMode: 'multiply' } : undefined}
-                  referrerPolicy="no-referrer"
-                />
-              )}
-            </div>
-          </div>
+              position: 'absolute', 
+              top: '50%', 
+              left: '50%', 
+              transform: (design.watermarkXOffset || design.watermarkYOffset || (design.watermarkScale && design.watermarkScale !== 100))
+                ? `translate(calc(-50% + ${design.watermarkXOffset || 0}px), calc(-50% + ${design.watermarkYOffset || 0}px)) scale(${(design.watermarkScale || 100) / 100})`
+                : 'translate(-50%, -50%)', 
+              opacity: design.watermarkOpacity !== undefined ? design.watermarkOpacity : 0.1, 
+              zIndex: 0, 
+              pointerEvents: 'none', 
+              width: 'auto', 
+              maxHeight: '50%',
+              maxWidth: '80%',
+              objectFit: 'contain'
+            }} 
+          />
         )}
 
         {/* ===================== LAYOUT ROUTER BASED ON TEMPLATE ID ===================== */}
+        <div className="relative z-10 flex flex-col flex-1 justify-between w-full h-full" style={{ position: 'relative', zIndex: 10 }}>
         {['ku-law-table', 'cu-boxed-code', 'top-header-asymmetric'].includes(design.templateId) ? (
           <NewTemplatesRenderer
             id={design.templateId}
@@ -1684,13 +1679,16 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
 
             {/* Topic Title */}
             <DraggableBlock elementId="topicTitle" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
-              <div className="px-6 text-center my-2">
+              <div className="px-6 text-center my-2" style={{ letterSpacing: 'normal', fontVariantLigatures: 'none', wordSpacing: 'normal' }}>
                 <h1 
                   style={{
                     ...getDirectStyle(design.fontTopicTitle, design.fontTitle, fontFamily, fontColor || '#0f172a', true, 22, 'em'),
                     lineHeight: '1.4',
+                    letterSpacing: 'normal',
+                    fontVariantLigatures: 'none',
+                    wordSpacing: 'normal'
                   }}
-                  className="max-w-2xl px-2 text-center"
+                  className="max-w-2xl px-2 text-center tracking-normal"
                 >
                   {data.topicTitle || 'TOPIC TITLE HERE'}
                 </h1>
@@ -1772,24 +1770,29 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   {/* LEFT Column: Submitted To */}
                   <DraggableBlock elementId="submittedTo" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
                     <div className="text-left w-full">
-                      <div className={hasTeacher2 ? 'mb-1.5' : 'mb-3'}>
-                        {/* The vertical color bar */}
-                        <span 
-                          className="inline-block w-[4px] h-[16px] align-middle mr-2" 
-                          style={{ backgroundColor: subToColor }}
-                        ></span>
-                        {/* The text */}
-                        <span 
-                          className="inline-block align-middle font-bold tracking-wider uppercase"
-                          style={{
-                            ...getDirectStyle(fontSubmittedToHeadingSync, design.fontSubSection, fontFamily, subToColor, true, hasTeacher2 ? 10.5 : 11.5, 'em'),
-                            color: subToColor,
-                            lineHeight: '1.2'
-                          }}
-                        >
-                          {data.teacherHeading || 'SUBMITTED TO,'}
-                        </span>
-                      </div>
+                      {/* The vertical colored bar and text table */}
+                      <table style={{ borderCollapse: 'collapse', marginBottom: hasTeacher2 ? '6px' : '10px' }}>
+                        <tbody>
+                          <tr>
+                            {/* The vertical colored bar */}
+                            <td style={{ width: '4px', backgroundColor: subToColor, padding: 0, height: '100%' }}></td>
+                            {/* The text */}
+                            <td 
+                              style={{ 
+                                paddingLeft: '8px', 
+                                verticalAlign: 'middle', 
+                                fontWeight: 'bold', 
+                                color: subToColor,
+                                ...getDirectStyle(fontSubmittedToHeadingSync, design.fontSubSection, fontFamily, subToColor, true, hasTeacher2 ? 10.5 : 11.5, 'em'),
+                                lineHeight: '1.2'
+                              }}
+                              className="tracking-wider uppercase"
+                            >
+                              {data.teacherHeading || 'SUBMITTED TO,'}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
                       <div 
                         className="space-y-0.5 text-left flex flex-col w-full"
                         style={{ 
@@ -1826,24 +1829,29 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                   {/* RIGHT Column: Submitted By */}
                   <DraggableBlock elementId="submittedBy" design={design} onChangeDesign={onChangeDesign} zoom={zoom} className="z-10">
                     <div className="text-left w-full">
-                      <div className={hasTeacher2 ? 'mb-1.5' : 'mb-3'}>
-                        {/* The vertical color bar */}
-                        <span 
-                          className="inline-block w-[4px] h-[16px] align-middle mr-2" 
-                          style={{ backgroundColor: subByColor }}
-                        ></span>
-                        {/* The text */}
-                        <span 
-                          className="inline-block align-middle font-bold tracking-wider uppercase"
-                          style={{
-                            ...getDirectStyle(fontSubmittedByHeadingSync, design.fontSubSection, fontFamily, subByColor, true, hasTeacher2 ? 10.5 : 11.5, 'em'),
-                            color: subByColor,
-                            lineHeight: '1.2'
-                          }}
-                        >
-                          {data.submittedByLabel || 'SUBMITTED BY,'}
-                        </span>
-                      </div>
+                      {/* The vertical colored bar and text table */}
+                      <table style={{ borderCollapse: 'collapse', marginBottom: hasTeacher2 ? '6px' : '10px' }}>
+                        <tbody>
+                          <tr>
+                            {/* The vertical colored bar */}
+                            <td style={{ width: '4px', backgroundColor: subByColor, padding: 0, height: '100%' }}></td>
+                            {/* The text */}
+                            <td 
+                              style={{ 
+                                paddingLeft: '8px', 
+                                verticalAlign: 'middle', 
+                                fontWeight: 'bold', 
+                                color: subByColor,
+                                ...getDirectStyle(fontSubmittedByHeadingSync, design.fontSubSection, fontFamily, subByColor, true, hasTeacher2 ? 10.5 : 11.5, 'em'),
+                                lineHeight: '1.2'
+                              }}
+                              className="tracking-wider uppercase"
+                            >
+                              {data.submittedByLabel || 'SUBMITTED BY,'}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
                       <div 
                         className="space-y-0.5 text-left flex flex-col w-full"
                         style={{ 
@@ -2129,7 +2137,7 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
           </div>
         ) : (
           /* ==================== TEMPLATE 1: KHULNA / SYMMETRIC SHIELD STYLE (Current default 'ku') ==================== */
-          <>
+          <div className="flex flex-col flex-1 justify-between w-full relative z-10" style={{ position: 'relative', zIndex: 10 }}>
             {design.showTopHeader !== false && (
               <div className="text-center mt-2 flex flex-col items-center w-full z-10">
                 {data.universityName && (
@@ -2548,8 +2556,9 @@ export const CoverDocument: React.FC<CoverDocumentProps> = ({
                 </div>
               </div>
             </DraggableBlock>
-          </>
+          </div>
         )}
+        </div>
 
         {/* Footer line if enabled */}
         {design.hasFooterLine && (
